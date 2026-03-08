@@ -1,0 +1,965 @@
+<div class="contenedor">
+  <div class="encabezado">
+    <div class="titulo-grupo">
+      <a [routerLink]="['/piscinas', piscinaId]" class="btn-volver">← Volver a Piscina</a>
+      <h1>📚 Libro de Registro</h1>
+      <span class="nombre-piscina" *ngIf="piscina()">{{ piscina()!.nombre }}</span>
+    </div>
+  </div>
+
+  <!-- Mensajes -->
+  <div *ngIf="error()" class="alerta alerta-error">{{ error() }}</div>
+  <div *ngIf="exito()" class="alerta alerta-exito">{{ exito() }}</div>
+
+  <!-- Cargando -->
+  <div *ngIf="cargando()" class="cargando">
+    <p>Cargando libro de registro...</p>
+  </div>
+
+  <!-- Contenido Principal -->
+  <div *ngIf="!cargando() && libro()" class="contenido-libro">
+    <!-- Navegación por pestañas -->
+    <div class="tabs">
+      <button class="tab" [class.activa]="tabActiva() === 'identificacion'" (click)="cambiarTab('identificacion')">
+        🏢 Identificación
+      </button>
+      <button class="tab" [class.activa]="tabActiva() === 'vasos'" (click)="cambiarTab('vasos')">
+        🏊 Vasos
+      </button>
+      <button class="tab" [class.activa]="tabActiva() === 'controlesDiarios'" (click)="cambiarTab('controlesDiarios')">
+        📋 Controles Diarios
+      </button>
+      <button class="tab" [class.activa]="tabActiva() === 'controlesAire'" (click)="cambiarTab('controlesAire')">
+        💨 Controles Aire
+      </button>
+      <button class="tab" [class.activa]="tabActiva() === 'controlesPeriodicos'" (click)="cambiarTab('controlesPeriodicos')">
+        🔬 Controles Periódicos
+      </button>
+      <button class="tab" [class.activa]="tabActiva() === 'incidencias'" (click)="cambiarTab('incidencias')">
+        ⚠️ Incidencias
+      </button>
+      <button class="tab" [class.activa]="tabActiva() === 'tratamientos'" (click)="cambiarTab('tratamientos')">
+        💊 Tratamientos
+      </button>
+      <button class="tab" [class.activa]="tabActiva() === 'mantenimiento'" (click)="cambiarTab('mantenimiento')">
+        🔧 Mantenimiento
+      </button>
+      <button class="tab" [class.activa]="tabActiva() === 'siloe'" (click)="cambiarTab('siloe')">
+        📊 Resumen SILOE
+      </button>
+    </div>
+
+    <!-- ===== Tab: Identificación ===== -->
+    <div class="tab-contenido" *ngIf="tabActiva() === 'identificacion'">
+      <div class="seccion-formulario">
+        <h2>🏢 Identificación de la Piscina</h2>
+        
+        <div class="grupo-campos">
+          <div class="campo">
+            <label>Nombre de la Piscina</label>
+            <input type="text" [(ngModel)]="libro()!.identificacionPiscina.nombrePiscina" [disabled]="!puedeEditar()">
+          </div>
+          <div class="campo">
+            <label>Dirección</label>
+            <input type="text" [(ngModel)]="libro()!.identificacionPiscina.direccion" [disabled]="!puedeEditar()">
+          </div>
+        </div>
+
+        <div class="grupo-campos">
+          <div class="campo">
+            <label>Municipio</label>
+            <input type="text" [(ngModel)]="libro()!.identificacionPiscina.municipio" [disabled]="!puedeEditar()">
+          </div>
+          <div class="campo">
+            <label>Código Postal</label>
+            <input type="text" [(ngModel)]="libro()!.identificacionPiscina.codigoPostal" [disabled]="!puedeEditar()">
+          </div>
+          <div class="campo">
+            <label>Provincia</label>
+            <input type="text" [(ngModel)]="libro()!.identificacionPiscina.provincia" [disabled]="!puedeEditar()">
+          </div>
+        </div>
+
+        <h3>👤 Datos del Titular</h3>
+        <div class="grupo-campos">
+          <div class="campo">
+            <label>Nombre del Titular</label>
+            <input type="text" [(ngModel)]="libro()!.identificacionPiscina.titular.nombre" [disabled]="!puedeEditar()">
+          </div>
+          <div class="campo">
+            <label>NIF/CIF</label>
+            <input type="text" [(ngModel)]="libro()!.identificacionPiscina.titular.nifCif" [disabled]="!puedeEditar()">
+          </div>
+        </div>
+        <div class="grupo-campos">
+          <div class="campo">
+            <label>Teléfono</label>
+            <input type="text" [(ngModel)]="libro()!.identificacionPiscina.titular.telefono" [disabled]="!puedeEditar()">
+          </div>
+          <div class="campo">
+            <label>Email</label>
+            <input type="email" [(ngModel)]="libro()!.identificacionPiscina.titular.email" [disabled]="!puedeEditar()">
+          </div>
+        </div>
+
+        <h3>📋 Datos de la Instalación</h3>
+        <div class="grupo-campos">
+          <div class="campo">
+            <label>Tipo de Piscina</label>
+            <select [(ngModel)]="libro()!.identificacionPiscina.tipoPiscina" [disabled]="!puedeEditar()">
+              <option value="">Seleccionar...</option>
+              <option value="cubierta">Cubierta</option>
+              <option value="descubierta">Descubierta</option>
+              <option value="mixta">Mixta</option>
+            </select>
+          </div>
+          <div class="campo">
+            <label>Uso</label>
+            <select [(ngModel)]="libro()!.identificacionPiscina.uso" [disabled]="!puedeEditar()">
+              <option value="">Seleccionar...</option>
+              <option value="publico">Público</option>
+              <option value="colectivo">Colectivo</option>
+              <option value="privado">Privado</option>
+            </select>
+          </div>
+        </div>
+        <div class="grupo-campos">
+          <div class="campo">
+            <label>Fecha Apertura Temporada</label>
+            <input type="date" [(ngModel)]="libro()!.identificacionPiscina.fechaAperturaTemporada" [disabled]="!puedeEditar()">
+          </div>
+          <div class="campo">
+            <label>Fecha Cierre Temporada</label>
+            <input type="date" [(ngModel)]="libro()!.identificacionPiscina.fechaCierreTemporada" [disabled]="!puedeEditar()">
+          </div>
+        </div>
+
+        <div class="acciones" *ngIf="puedeEditar()">
+          <button class="btn-guardar" (click)="guardarIdentificacion()" [disabled]="guardando()">
+            {{ guardando() ? 'Guardando...' : '💾 Guardar Identificación' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== Tab: Vasos ===== -->
+    <div class="tab-contenido" *ngIf="tabActiva() === 'vasos'">
+      <div class="seccion-lista">
+        <div class="lista-header">
+          <h2>🏊 Datos de los Vasos</h2>
+          <button class="btn-agregar" *ngIf="puedeEditar()" (click)="abrirModalVaso()">+ Agregar Vaso</button>
+        </div>
+
+        <div *ngIf="libro()!.datosVasos.length === 0" class="sin-datos">
+          <p>No hay vasos registrados</p>
+        </div>
+
+        <div class="tabla-responsive" *ngIf="libro()!.datosVasos.length > 0">
+          <table class="tabla">
+            <thead>
+              <tr>
+                <th>ID Vaso</th>
+                <th>Tipo</th>
+                <th>Uso</th>
+                <th>Volumen (m³)</th>
+                <th>Superficie (m²)</th>
+                <th>Prof. Mín (m)</th>
+                <th>Prof. Máx (m)</th>
+                <th>Sistema Tratamiento</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let vaso of libro()!.datosVasos">
+                <td>{{ vaso.idVaso }}</td>
+                <td>{{ vaso.tipoVaso }}</td>
+                <td>{{ vaso.usoVaso }}</td>
+                <td>{{ vaso.volumenM3 }}</td>
+                <td>{{ vaso.superficieM2 }}</td>
+                <td>{{ vaso.profundidadMinimaM }}</td>
+                <td>{{ vaso.profundidadMaximaM }}</td>
+                <td>{{ vaso.sistemaTratamiento }}</td>
+                <td>
+                  <button class="btn-eliminar" *ngIf="puedeEditar()" (click)="eliminarVaso(vaso.idVaso)">🗑️</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== Tab: Controles Diarios ===== -->
+    <div class="tab-contenido" *ngIf="tabActiva() === 'controlesDiarios'">
+      <div class="seccion-lista">
+        <div class="lista-header">
+          <h2>📋 Controles Diarios del Agua</h2>
+          <button class="btn-agregar" *ngIf="puedeEditar()" (click)="abrirModalControlDiario()">+ Agregar Control</button>
+        </div>
+
+        <div *ngIf="libro()!.controlesDiariosAgua.length === 0" class="sin-datos">
+          <p>No hay controles diarios registrados</p>
+        </div>
+
+        <div class="tabla-responsive" *ngIf="libro()!.controlesDiariosAgua.length > 0">
+          <table class="tabla">
+            <thead>
+              <tr>
+                <th>Fecha</th>
+                <th>Hora</th>
+                <th>Vaso</th>
+                <th>pH</th>
+                <th>Desinfectante Libre</th>
+                <th>Turbidez</th>
+                <th>Temp. (°C)</th>
+                <th>Transparencia</th>
+                <th>Observaciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let control of libro()!.controlesDiariosAgua">
+                <td>{{ formatearFecha(control.fecha) }}</td>
+                <td>{{ control.hora }}</td>
+                <td>{{ control.idVaso }}</td>
+                <td>{{ control.ph }}</td>
+                <td>{{ control.desinfectanteResidualLibreMgL }} mg/L</td>
+                <td>{{ control.turbidezNTU }} NTU</td>
+                <td>{{ control.temperaturaAguaC }}°C</td>
+                <td>{{ control.transparenciaCorrecta ? '✓' : '✗' }}</td>
+                <td>{{ control.observaciones }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== Tab: Controles Aire ===== -->
+    <div class="tab-contenido" *ngIf="tabActiva() === 'controlesAire'">
+      <div class="seccion-lista">
+        <div class="lista-header">
+          <h2>💨 Controles de Aire (Piscina Cubierta)</h2>
+          <button class="btn-agregar" *ngIf="puedeEditar()" (click)="abrirModalControlAire()">+ Agregar Control</button>
+        </div>
+
+        <div *ngIf="libro()!.controlesAirePiscinaCubierta.length === 0" class="sin-datos">
+          <p>No hay controles de aire registrados</p>
+        </div>
+
+        <div class="tabla-responsive" *ngIf="libro()!.controlesAirePiscinaCubierta.length > 0">
+          <table class="tabla">
+            <thead>
+              <tr>
+                <th>Fecha</th>
+                <th>Hora</th>
+                <th>Temp. Ambiente (°C)</th>
+                <th>Humedad (%)</th>
+                <th>CO₂ (ppm)</th>
+                <th>Cloro Ambiente (mg/m³)</th>
+                <th>Observaciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let control of libro()!.controlesAirePiscinaCubierta">
+                <td>{{ formatearFecha(control.fecha) }}</td>
+                <td>{{ control.hora }}</td>
+                <td>{{ control.temperaturaAmbienteC }}°C</td>
+                <td>{{ control.humedadRelativaPorcentaje }}%</td>
+                <td>{{ control.co2Ppm }}</td>
+                <td>{{ control.cloroAmbienteMgM3 }}</td>
+                <td>{{ control.observaciones }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== Tab: Controles Periódicos ===== -->
+    <div class="tab-contenido" *ngIf="tabActiva() === 'controlesPeriodicos'">
+      <div class="seccion-lista">
+        <div class="lista-header">
+          <h2>🔬 Controles Periódicos del Agua</h2>
+          <button class="btn-agregar" *ngIf="puedeEditar()" (click)="abrirModalControlPeriodico()">+ Agregar Control</button>
+        </div>
+
+        <div *ngIf="libro()!.controlesPeriodicosAgua.length === 0" class="sin-datos">
+          <p>No hay controles periódicos registrados</p>
+        </div>
+
+        <div class="tabla-responsive" *ngIf="libro()!.controlesPeriodicosAgua.length > 0">
+          <table class="tabla">
+            <thead>
+              <tr>
+                <th>Fecha</th>
+                <th>Vaso</th>
+                <th>pH</th>
+                <th>E. Coli</th>
+                <th>Pseudomonas</th>
+                <th>Legionella</th>
+                <th>Conforme</th>
+                <th>Laboratorio</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let control of libro()!.controlesPeriodicosAgua">
+                <td>{{ formatearFecha(control.fechaMuestreo) }}</td>
+                <td>{{ control.idVaso }}</td>
+                <td>{{ control.ph }}</td>
+                <td>{{ control.eColiUfc100ml }} UFC/100ml</td>
+                <td>{{ control.pseudomonasAeruginosaUfc100ml }} UFC/100ml</td>
+                <td>{{ control.legionellaUfcL }} UFC/L</td>
+                <td>{{ control.resultadoConforme ? '✓ Sí' : '✗ No' }}</td>
+                <td>{{ control.laboratorio }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== Tab: Incidencias ===== -->
+    <div class="tab-contenido" *ngIf="tabActiva() === 'incidencias'">
+      <div class="seccion-lista">
+        <div class="lista-header">
+          <h2>⚠️ Incidencias</h2>
+          <button class="btn-agregar" *ngIf="puedeEditar()" (click)="abrirModalIncidencia()">+ Agregar Incidencia</button>
+        </div>
+
+        <div *ngIf="libro()!.incidencias.length === 0" class="sin-datos">
+          <p>No hay incidencias registradas</p>
+        </div>
+
+        <div class="tabla-responsive" *ngIf="libro()!.incidencias.length > 0">
+          <table class="tabla">
+            <thead>
+              <tr>
+                <th>Fecha</th>
+                <th>Vaso</th>
+                <th>Descripción</th>
+                <th>Parámetro</th>
+                <th>Medidas Correctoras</th>
+                <th>Fecha Resolución</th>
+                <th>Responsable</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let incidencia of libro()!.incidencias">
+                <td>{{ formatearFecha(incidencia.fecha) }}</td>
+                <td>{{ incidencia.idVaso }}</td>
+                <td>{{ incidencia.descripcionIncidencia }}</td>
+                <td>{{ incidencia.parametroAfectado }}</td>
+                <td>{{ incidencia.medidasCorrectoras }}</td>
+                <td>{{ incidencia.fechaResolucion ? formatearFecha(incidencia.fechaResolucion) : 'Pendiente' }}</td>
+                <td>{{ incidencia.responsable }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== Tab: Tratamientos ===== -->
+    <div class="tab-contenido" *ngIf="tabActiva() === 'tratamientos'">
+      <div class="seccion-lista">
+        <div class="lista-header">
+          <h2>💊 Tratamientos del Agua</h2>
+          <button class="btn-agregar" *ngIf="puedeEditar()" (click)="abrirModalTratamiento()">+ Agregar Tratamiento</button>
+        </div>
+
+        <div *ngIf="libro()!.tratamientosAgua.length === 0" class="sin-datos">
+          <p>No hay tratamientos registrados</p>
+        </div>
+
+        <div class="tabla-responsive" *ngIf="libro()!.tratamientosAgua.length > 0">
+          <table class="tabla">
+            <thead>
+              <tr>
+                <th>Fecha</th>
+                <th>Hora</th>
+                <th>Vaso</th>
+                <th>Producto</th>
+                <th>Dosis</th>
+                <th>Motivo</th>
+                <th>Responsable</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let tratamiento of libro()!.tratamientosAgua">
+                <td>{{ formatearFecha(tratamiento.fecha) }}</td>
+                <td>{{ tratamiento.hora }}</td>
+                <td>{{ tratamiento.idVaso }}</td>
+                <td>{{ tratamiento.productoUtilizado }}</td>
+                <td>{{ tratamiento.dosisAplicada }}</td>
+                <td>{{ tratamiento.motivoTratamiento }}</td>
+                <td>{{ tratamiento.responsable }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== Tab: Mantenimiento ===== -->
+    <div class="tab-contenido" *ngIf="tabActiva() === 'mantenimiento'">
+      <div class="seccion-lista">
+        <div class="lista-header">
+          <h2>🔧 Mantenimiento de Instalaciones</h2>
+          <button class="btn-agregar" *ngIf="puedeEditar()" (click)="abrirModalMantenimiento()">+ Agregar Mantenimiento</button>
+        </div>
+
+        <div *ngIf="libro()!.mantenimientoInstalaciones.length === 0" class="sin-datos">
+          <p>No hay registros de mantenimiento</p>
+        </div>
+
+        <div class="tabla-responsive" *ngIf="libro()!.mantenimientoInstalaciones.length > 0">
+          <table class="tabla">
+            <thead>
+              <tr>
+                <th>Fecha</th>
+                <th>Tipo</th>
+                <th>Descripción</th>
+                <th>Empresa</th>
+                <th>Técnico</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let mant of libro()!.mantenimientoInstalaciones">
+                <td>{{ formatearFecha(mant.fecha) }}</td>
+                <td>{{ mant.tipoMantenimiento }}</td>
+                <td>{{ mant.descripcion }}</td>
+                <td>{{ mant.empresaResponsable }}</td>
+                <td>{{ mant.tecnico }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== Tab: Resumen SILOE ===== -->
+    <div class="tab-contenido" *ngIf="tabActiva() === 'siloe'">
+      <div class="seccion-formulario">
+        <h2>📊 Resumen Anual SILOE</h2>
+        
+        <div class="grupo-campos">
+          <div class="campo">
+            <label>Año</label>
+            <input type="text" [(ngModel)]="libro()!.resumenAnualSILOE.anio" [disabled]="!puedeEditar()">
+          </div>
+          <div class="campo">
+            <label>Número Total de Muestreos</label>
+            <input type="number" [(ngModel)]="libro()!.resumenAnualSILOE.numeroTotalMuestreos" [disabled]="!puedeEditar()">
+          </div>
+          <div class="campo">
+            <label>Muestreos Conformes</label>
+            <input type="number" [(ngModel)]="libro()!.resumenAnualSILOE.numeroMuestreosConformes" [disabled]="!puedeEditar()">
+          </div>
+        </div>
+
+        <div class="grupo-campos">
+          <div class="campo">
+            <label>Número de Incidencias</label>
+            <input type="number" [(ngModel)]="libro()!.resumenAnualSILOE.numeroIncidencias" [disabled]="!puedeEditar()">
+          </div>
+        </div>
+
+        <h3>Valores de pH</h3>
+        <div class="grupo-campos">
+          <div class="campo">
+            <label>pH Medio</label>
+            <input type="number" step="0.1" [(ngModel)]="libro()!.resumenAnualSILOE.valorMedioPh" [disabled]="!puedeEditar()">
+          </div>
+          <div class="campo">
+            <label>pH Mínimo</label>
+            <input type="number" step="0.1" [(ngModel)]="libro()!.resumenAnualSILOE.valorMinimoPh" [disabled]="!puedeEditar()">
+          </div>
+          <div class="campo">
+            <label>pH Máximo</label>
+            <input type="number" step="0.1" [(ngModel)]="libro()!.resumenAnualSILOE.valorMaximoPh" [disabled]="!puedeEditar()">
+          </div>
+        </div>
+
+        <h3>Valores de Desinfectante</h3>
+        <div class="grupo-campos">
+          <div class="campo">
+            <label>Desinfectante Medio</label>
+            <input type="number" step="0.1" [(ngModel)]="libro()!.resumenAnualSILOE.valorMedioDesinfectante" [disabled]="!puedeEditar()">
+          </div>
+          <div class="campo">
+            <label>Desinfectante Mínimo</label>
+            <input type="number" step="0.1" [(ngModel)]="libro()!.resumenAnualSILOE.valorMinimoDesinfectante" [disabled]="!puedeEditar()">
+          </div>
+          <div class="campo">
+            <label>Desinfectante Máximo</label>
+            <input type="number" step="0.1" [(ngModel)]="libro()!.resumenAnualSILOE.valorMaximoDesinfectante" [disabled]="!puedeEditar()">
+          </div>
+        </div>
+
+        <div class="acciones" *ngIf="puedeEditar()">
+          <button class="btn-guardar" (click)="guardarResumenSILOE()" [disabled]="guardando()">
+            {{ guardando() ? 'Guardando...' : '💾 Guardar Resumen SILOE' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODALES ===== -->
+
+<!-- Modal Vaso -->
+<div class="modal-overlay" *ngIf="mostrarModalVaso()" (click)="cerrarModalVaso()">
+  <div class="modal-contenido" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Agregar Vaso</h2>
+      <button class="btn-cerrar" (click)="cerrarModalVaso()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="grupo-campos">
+        <div class="campo">
+          <label>ID del Vaso *</label>
+          <input type="text" [(ngModel)]="nuevoVaso.idVaso" placeholder="Ej: VASO-1">
+        </div>
+        <div class="campo">
+          <label>Tipo de Vaso</label>
+          <select [(ngModel)]="nuevoVaso.tipoVaso">
+            <option value="">Seleccionar...</option>
+            <option value="principal">Principal</option>
+            <option value="infantil">Infantil</option>
+            <option value="spa">Spa/Jacuzzi</option>
+            <option value="chapoteo">Chapoteo</option>
+          </select>
+        </div>
+      </div>
+      <div class="grupo-campos">
+        <div class="campo">
+          <label>Uso</label>
+          <select [(ngModel)]="nuevoVaso.usoVaso">
+            <option value="">Seleccionar...</option>
+            <option value="recreativo">Recreativo</option>
+            <option value="deportivo">Deportivo</option>
+            <option value="mixto">Mixto</option>
+          </select>
+        </div>
+        <div class="campo">
+          <label>Volumen (m³)</label>
+          <input type="number" [(ngModel)]="nuevoVaso.volumenM3" step="0.1">
+        </div>
+      </div>
+      <div class="grupo-campos">
+        <div class="campo">
+          <label>Superficie (m²)</label>
+          <input type="number" [(ngModel)]="nuevoVaso.superficieM2" step="0.1">
+        </div>
+        <div class="campo">
+          <label>Profundidad Mínima (m)</label>
+          <input type="number" [(ngModel)]="nuevoVaso.profundidadMinimaM" step="0.1">
+        </div>
+        <div class="campo">
+          <label>Profundidad Máxima (m)</label>
+          <input type="number" [(ngModel)]="nuevoVaso.profundidadMaximaM" step="0.1">
+        </div>
+      </div>
+      <div class="grupo-campos">
+        <div class="campo">
+          <label>Sistema de Tratamiento</label>
+          <input type="text" [(ngModel)]="nuevoVaso.sistemaTratamiento" placeholder="Ej: Cloración salina">
+        </div>
+        <div class="campo">
+          <label>Tipo de Desinfectante</label>
+          <select [(ngModel)]="nuevoVaso.tipoDesinfectante">
+            <option value="">Seleccionar...</option>
+            <option value="cloro">Cloro</option>
+            <option value="bromo">Bromo</option>
+            <option value="ozono">Ozono</option>
+            <option value="uv">UV</option>
+            <option value="sal">Electrólisis salina</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secundario" (click)="cerrarModalVaso()">Cancelar</button>
+      <button class="btn-primario" (click)="guardarVaso()" [disabled]="guardando()">
+        {{ guardando() ? 'Guardando...' : 'Guardar' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Control Diario -->
+<div class="modal-overlay" *ngIf="mostrarModalControlDiario()" (click)="cerrarModalControlDiario()">
+  <div class="modal-contenido modal-grande" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Agregar Control Diario</h2>
+      <button class="btn-cerrar" (click)="cerrarModalControlDiario()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="grupo-campos">
+        <div class="campo">
+          <label>Fecha</label>
+          <input type="date" [(ngModel)]="nuevoControlDiario.fecha">
+        </div>
+        <div class="campo">
+          <label>Hora</label>
+          <input type="time" [(ngModel)]="nuevoControlDiario.hora">
+        </div>
+        <div class="campo">
+          <label>Vaso</label>
+          <select [(ngModel)]="nuevoControlDiario.idVaso">
+            <option value="">Seleccionar...</option>
+            <option *ngFor="let vaso of libro()!.datosVasos" [value]="vaso.idVaso">{{ vaso.idVaso }}</option>
+          </select>
+        </div>
+      </div>
+      <div class="grupo-campos">
+        <div class="campo">
+          <label>pH</label>
+          <input type="number" [(ngModel)]="nuevoControlDiario.ph" step="0.1">
+        </div>
+        <div class="campo">
+          <label>Desinfectante Residual Libre (mg/L)</label>
+          <input type="number" [(ngModel)]="nuevoControlDiario.desinfectanteResidualLibreMgL" step="0.1">
+        </div>
+        <div class="campo">
+          <label>Desinfectante Combinado (mg/L)</label>
+          <input type="number" [(ngModel)]="nuevoControlDiario.desinfectanteResidualCombinadoMgL" step="0.1">
+        </div>
+      </div>
+      <div class="grupo-campos">
+        <div class="campo">
+          <label>Turbidez (NTU)</label>
+          <input type="number" [(ngModel)]="nuevoControlDiario.turbidezNTU" step="0.1">
+        </div>
+        <div class="campo">
+          <label>Temperatura del Agua (°C)</label>
+          <input type="number" [(ngModel)]="nuevoControlDiario.temperaturaAguaC" step="0.1">
+        </div>
+        <div class="campo">
+          <label>Transparencia Correcta</label>
+          <select [(ngModel)]="nuevoControlDiario.transparenciaCorrecta">
+            <option [ngValue]="true">Sí</option>
+            <option [ngValue]="false">No</option>
+          </select>
+        </div>
+      </div>
+      <div class="grupo-campos">
+        <div class="campo">
+          <label>Color</label>
+          <input type="text" [(ngModel)]="nuevoControlDiario.color" placeholder="Normal">
+        </div>
+        <div class="campo">
+          <label>Olor</label>
+          <input type="text" [(ngModel)]="nuevoControlDiario.olor" placeholder="Normal">
+        </div>
+      </div>
+      <div class="campo">
+        <label>Observaciones</label>
+        <textarea [(ngModel)]="nuevoControlDiario.observaciones" rows="3"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secundario" (click)="cerrarModalControlDiario()">Cancelar</button>
+      <button class="btn-primario" (click)="guardarControlDiario()" [disabled]="guardando()">
+        {{ guardando() ? 'Guardando...' : 'Guardar' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Control Aire -->
+<div class="modal-overlay" *ngIf="mostrarModalControlAire()" (click)="cerrarModalControlAire()">
+  <div class="modal-contenido" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Agregar Control de Aire</h2>
+      <button class="btn-cerrar" (click)="cerrarModalControlAire()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="grupo-campos">
+        <div class="campo">
+          <label>Fecha</label>
+          <input type="date" [(ngModel)]="nuevoControlAire.fecha">
+        </div>
+        <div class="campo">
+          <label>Hora</label>
+          <input type="time" [(ngModel)]="nuevoControlAire.hora">
+        </div>
+      </div>
+      <div class="grupo-campos">
+        <div class="campo">
+          <label>Temperatura Ambiente (°C)</label>
+          <input type="number" [(ngModel)]="nuevoControlAire.temperaturaAmbienteC" step="0.1">
+        </div>
+        <div class="campo">
+          <label>Humedad Relativa (%)</label>
+          <input type="number" [(ngModel)]="nuevoControlAire.humedadRelativaPorcentaje" step="1">
+        </div>
+      </div>
+      <div class="grupo-campos">
+        <div class="campo">
+          <label>CO₂ (ppm)</label>
+          <input type="number" [(ngModel)]="nuevoControlAire.co2Ppm" step="1">
+        </div>
+        <div class="campo">
+          <label>Cloro Ambiente (mg/m³)</label>
+          <input type="number" [(ngModel)]="nuevoControlAire.cloroAmbienteMgM3" step="0.01">
+        </div>
+      </div>
+      <div class="campo">
+        <label>Observaciones</label>
+        <textarea [(ngModel)]="nuevoControlAire.observaciones" rows="3"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secundario" (click)="cerrarModalControlAire()">Cancelar</button>
+      <button class="btn-primario" (click)="guardarControlAire()" [disabled]="guardando()">
+        {{ guardando() ? 'Guardando...' : 'Guardar' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Control Periódico -->
+<div class="modal-overlay" *ngIf="mostrarModalControlPeriodico()" (click)="cerrarModalControlPeriodico()">
+  <div class="modal-contenido modal-grande" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Agregar Control Periódico</h2>
+      <button class="btn-cerrar" (click)="cerrarModalControlPeriodico()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="grupo-campos">
+        <div class="campo">
+          <label>Fecha de Muestreo</label>
+          <input type="date" [(ngModel)]="nuevoControlPeriodico.fechaMuestreo">
+        </div>
+        <div class="campo">
+          <label>Vaso</label>
+          <select [(ngModel)]="nuevoControlPeriodico.idVaso">
+            <option value="">Seleccionar...</option>
+            <option *ngFor="let vaso of libro()!.datosVasos" [value]="vaso.idVaso">{{ vaso.idVaso }}</option>
+          </select>
+        </div>
+        <div class="campo">
+          <label>Laboratorio</label>
+          <input type="text" [(ngModel)]="nuevoControlPeriodico.laboratorio">
+        </div>
+      </div>
+      <div class="grupo-campos">
+        <div class="campo">
+          <label>pH</label>
+          <input type="number" [(ngModel)]="nuevoControlPeriodico.ph" step="0.1">
+        </div>
+        <div class="campo">
+          <label>Desinfectante Libre (mg/L)</label>
+          <input type="number" [(ngModel)]="nuevoControlPeriodico.desinfectanteResidualLibreMgL" step="0.1">
+        </div>
+        <div class="campo">
+          <label>Turbidez (NTU)</label>
+          <input type="number" [(ngModel)]="nuevoControlPeriodico.turbidezNTU" step="0.1">
+        </div>
+      </div>
+      <div class="grupo-campos">
+        <div class="campo">
+          <label>E. Coli (UFC/100ml)</label>
+          <input type="number" [(ngModel)]="nuevoControlPeriodico.eColiUfc100ml">
+        </div>
+        <div class="campo">
+          <label>Pseudomonas (UFC/100ml)</label>
+          <input type="number" [(ngModel)]="nuevoControlPeriodico.pseudomonasAeruginosaUfc100ml">
+        </div>
+        <div class="campo">
+          <label>Legionella (UFC/L)</label>
+          <input type="number" [(ngModel)]="nuevoControlPeriodico.legionellaUfcL">
+        </div>
+      </div>
+      <div class="grupo-campos">
+        <div class="campo">
+          <label>Resultado Conforme</label>
+          <select [(ngModel)]="nuevoControlPeriodico.resultadoConforme">
+            <option [ngValue]="true">Sí</option>
+            <option [ngValue]="false">No</option>
+          </select>
+        </div>
+      </div>
+      <div class="campo">
+        <label>Observaciones</label>
+        <textarea [(ngModel)]="nuevoControlPeriodico.observaciones" rows="3"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secundario" (click)="cerrarModalControlPeriodico()">Cancelar</button>
+      <button class="btn-primario" (click)="guardarControlPeriodico()" [disabled]="guardando()">
+        {{ guardando() ? 'Guardando...' : 'Guardar' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Incidencia -->
+<div class="modal-overlay" *ngIf="mostrarModalIncidencia()" (click)="cerrarModalIncidencia()">
+  <div class="modal-contenido modal-grande" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Agregar Incidencia</h2>
+      <button class="btn-cerrar" (click)="cerrarModalIncidencia()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="grupo-campos">
+        <div class="campo">
+          <label>Fecha</label>
+          <input type="date" [(ngModel)]="nuevaIncidencia.fecha">
+        </div>
+        <div class="campo">
+          <label>Hora</label>
+          <input type="time" [(ngModel)]="nuevaIncidencia.hora">
+        </div>
+        <div class="campo">
+          <label>Vaso</label>
+          <select [(ngModel)]="nuevaIncidencia.idVaso">
+            <option value="">Seleccionar...</option>
+            <option *ngFor="let vaso of libro()!.datosVasos" [value]="vaso.idVaso">{{ vaso.idVaso }}</option>
+          </select>
+        </div>
+      </div>
+      <div class="campo">
+        <label>Descripción de la Incidencia</label>
+        <textarea [(ngModel)]="nuevaIncidencia.descripcionIncidencia" rows="3"></textarea>
+      </div>
+      <div class="grupo-campos">
+        <div class="campo">
+          <label>Parámetro Afectado</label>
+          <input type="text" [(ngModel)]="nuevaIncidencia.parametroAfectado">
+        </div>
+        <div class="campo">
+          <label>Valor Detectado</label>
+          <input type="text" [(ngModel)]="nuevaIncidencia.valorDetectado">
+        </div>
+        <div class="campo">
+          <label>Valor Permitido</label>
+          <input type="text" [(ngModel)]="nuevaIncidencia.valorPermitido">
+        </div>
+      </div>
+      <div class="campo">
+        <label>Medidas Correctoras</label>
+        <textarea [(ngModel)]="nuevaIncidencia.medidasCorrectoras" rows="3"></textarea>
+      </div>
+      <div class="grupo-campos">
+        <div class="campo">
+          <label>Fecha de Resolución</label>
+          <input type="date" [(ngModel)]="nuevaIncidencia.fechaResolucion">
+        </div>
+        <div class="campo">
+          <label>Responsable</label>
+          <input type="text" [(ngModel)]="nuevaIncidencia.responsable">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secundario" (click)="cerrarModalIncidencia()">Cancelar</button>
+      <button class="btn-primario" (click)="guardarIncidencia()" [disabled]="guardando()">
+        {{ guardando() ? 'Guardando...' : 'Guardar' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Tratamiento -->
+<div class="modal-overlay" *ngIf="mostrarModalTratamiento()" (click)="cerrarModalTratamiento()">
+  <div class="modal-contenido" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Agregar Tratamiento</h2>
+      <button class="btn-cerrar" (click)="cerrarModalTratamiento()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="grupo-campos">
+        <div class="campo">
+          <label>Fecha</label>
+          <input type="date" [(ngModel)]="nuevoTratamiento.fecha">
+        </div>
+        <div class="campo">
+          <label>Hora</label>
+          <input type="time" [(ngModel)]="nuevoTratamiento.hora">
+        </div>
+        <div class="campo">
+          <label>Vaso</label>
+          <select [(ngModel)]="nuevoTratamiento.idVaso">
+            <option value="">Seleccionar...</option>
+            <option *ngFor="let vaso of libro()!.datosVasos" [value]="vaso.idVaso">{{ vaso.idVaso }}</option>
+          </select>
+        </div>
+      </div>
+      <div class="grupo-campos">
+        <div class="campo">
+          <label>Producto Utilizado</label>
+          <input type="text" [(ngModel)]="nuevoTratamiento.productoUtilizado">
+        </div>
+        <div class="campo">
+          <label>Dosis Aplicada</label>
+          <input type="text" [(ngModel)]="nuevoTratamiento.dosisAplicada">
+        </div>
+      </div>
+      <div class="campo">
+        <label>Motivo del Tratamiento</label>
+        <textarea [(ngModel)]="nuevoTratamiento.motivoTratamiento" rows="3"></textarea>
+      </div>
+      <div class="campo">
+        <label>Responsable</label>
+        <input type="text" [(ngModel)]="nuevoTratamiento.responsable">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secundario" (click)="cerrarModalTratamiento()">Cancelar</button>
+      <button class="btn-primario" (click)="guardarTratamiento()" [disabled]="guardando()">
+        {{ guardando() ? 'Guardando...' : 'Guardar' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Mantenimiento -->
+<div class="modal-overlay" *ngIf="mostrarModalMantenimiento()" (click)="cerrarModalMantenimiento()">
+  <div class="modal-contenido" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Agregar Mantenimiento</h2>
+      <button class="btn-cerrar" (click)="cerrarModalMantenimiento()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="grupo-campos">
+        <div class="campo">
+          <label>Fecha</label>
+          <input type="date" [(ngModel)]="nuevoMantenimiento.fecha">
+        </div>
+        <div class="campo">
+          <label>Tipo de Mantenimiento</label>
+          <select [(ngModel)]="nuevoMantenimiento.tipoMantenimiento">
+            <option value="">Seleccionar...</option>
+            <option value="preventivo">Preventivo</option>
+            <option value="correctivo">Correctivo</option>
+            <option value="revision">Revisión</option>
+            <option value="limpieza">Limpieza</option>
+          </select>
+        </div>
+      </div>
+      <div class="campo">
+        <label>Descripción</label>
+        <textarea [(ngModel)]="nuevoMantenimiento.descripcion" rows="3"></textarea>
+      </div>
+      <div class="grupo-campos">
+        <div class="campo">
+          <label>Empresa Responsable</label>
+          <input type="text" [(ngModel)]="nuevoMantenimiento.empresaResponsable">
+        </div>
+        <div class="campo">
+          <label>Técnico</label>
+          <input type="text" [(ngModel)]="nuevoMantenimiento.tecnico">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secundario" (click)="cerrarModalMantenimiento()">Cancelar</button>
+      <button class="btn-primario" (click)="guardarMantenimiento()" [disabled]="guardando()">
+        {{ guardando() ? 'Guardando...' : 'Guardar' }}
+      </button>
+    </div>
+  </div>
+</div>

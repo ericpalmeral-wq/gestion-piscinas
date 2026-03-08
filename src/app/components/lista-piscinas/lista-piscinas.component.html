@@ -1,0 +1,123 @@
+<div class="contenedor">
+  <div class="encabezado">
+    <div class="titulo-seccion">
+      <h1>🏊 Gestión de Piscinas</h1>
+      <p class="subtitulo">Monitorea y administra todas tus piscinas</p>
+    </div>
+    <button class="btn-agregar-principal" (click)="abrirModal()">
+      + Agregar Piscina
+    </button>
+  </div>
+
+  <div *ngIf="error()" class="alerta alerta-error">
+    <strong>⚠️ Error:</strong> {{ error() }}
+    <p style="margin-top: 10px; font-size: 12px;">
+      Si es la primera vez, asegúrate de haber configurado Firebase en 
+      <code>src/environments/firebase.config.ts</code> con tus credenciales de proyecto.
+    </p>
+  </div>
+
+  <div *ngIf="cargando()" class="cargando">
+    Cargando piscinas...
+  </div>
+
+  <div *ngIf="!cargando()" class="tabla-contenedor">
+    <!-- Buscador -->
+    <div class="buscador-contenedor">
+      <input 
+        type="text" 
+        class="input-buscador"
+        placeholder="🔍 Buscar por nombre o ubicación..."
+        [value]="terminoBuscador()"
+        (input)="actualizarBuscador($event.target.value)"
+      />
+      <div *ngIf="terminoBuscador()" class="info-busqueda">
+        {{ piscinasFiltradas.length }} resultado(s) encontrado(s)
+      </div>
+    </div>
+
+    <table class="tabla-piscinas">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Ubicación</th>
+          <th>Tipo</th>
+          <th>CIF</th>
+          <th>Capacidad</th>
+          <th>Consumo Semanal</th>
+          <th>Cloro</th>
+          <th>pH</th>
+          <th>Filtración</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let piscina of piscinasPaginadas" class="fila-piscina" (click)="verDetalle(piscina.id)">
+          <td class="celda-nombre"><strong>{{ piscina.nombre }}</strong></td>
+          <td class="celda-ubicacion">📍 {{ piscina.ubicacion }}</td>
+          <td class="celda-tipo">
+            <span class="badge-tipo" [class.privada]="piscina.tipo === 'privada'" [class.comunidad]="piscina.tipo === 'comunidad'">
+              {{ piscina.tipo | uppercase }}
+            </span>
+          </td>
+          <td class="celda-cif">{{ piscina.cif }}</td>
+          <td class="celda-capacidad">{{ piscina.capacidadLitros | number }} L</td>
+          <td class="celda-consumo">{{ piscina.consumoSemanal | number }} L/sem</td>
+          <td class="celda-cloro">{{ piscina.nivelCloro }} ppm</td>
+          <td class="celda-ph">{{ piscina.pHAgua }}</td>
+          <td class="celda-filtracion">{{ piscina.horasFiltracion | number: '1.0-0' }}h</td>
+          <td class="celda-estado">
+            <span class="badge-estado" [style.backgroundColor]="obtenerColorEstado(piscina.estado)">
+              {{ piscina.estado }}
+            </span>
+          </td>
+          <td class="celda-acciones" (click)="$event.stopPropagation()">
+            <button 
+              class="btn-ver" 
+              (click)="verDetalle(piscina.id)" 
+              title="Ver detalles">
+              👁️
+            </button>
+            <button 
+              class="btn-eliminar" 
+              (click)="eliminarPiscina(piscina.id)" 
+              title="Eliminar">
+              🗑️
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Paginación -->
+    <div *ngIf="piscinas().length > elementosPorPagina" class="paginacion">
+      <button (click)="paginaAnterior()" [disabled]="paginaActual() === 0" class="btn-paginacion">
+        ← Anterior
+      </button>
+      <span class="info-pagina">
+        Página {{ paginaActual() + 1 }} de {{ totalPaginas }}
+      </span>
+      <button (click)="paginaSiguiente()" [disabled]="paginaActual() === totalPaginas - 1" class="btn-paginacion">
+        Siguiente →
+      </button>
+    </div>
+
+    <div *ngIf="piscinas().length === 0" class="sin-datos">
+      <p>No hay piscinas registradas. ¡Crea una nueva!</p>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div *ngIf="mostrarModal()" class="modal-overlay" (click)="cerrarModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-encabezado">
+        <h2>Agregar Nueva Piscina</h2>
+        <button class="btn-cerrar" (click)="cerrarModal()">✕</button>
+      </div>
+      <div class="modal-contenido">
+        <app-formulario-piscina (piscinaAgregada)="onPiscinaAgregada()"></app-formulario-piscina>
+      </div>
+    </div>
+  </div>
+</div>

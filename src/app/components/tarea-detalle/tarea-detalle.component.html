@@ -1,0 +1,167 @@
+<div class="detalle-contenedor">
+  <div class="detalle-card">
+    <div class="detalle-header">
+      <h2>{{ esEdicion ? 'Editar Tarea' : 'Nueva Tarea' }}</h2>
+      <button type="button" class="btn-cerrar" (click)="cancelar()" [disabled]="guardando">
+        ✕
+      </button>
+    </div>
+
+    <!-- Mensaje de error -->
+    <div *ngIf="error" class="mensaje-error">
+      {{ error }}
+    </div>
+
+    <!-- Cargando -->
+    <div *ngIf="cargando" class="cargando">
+      Cargando...
+    </div>
+
+    <!-- Formulario -->
+    <div *ngIf="!cargando" class="formulario">
+      <!-- Piscina -->
+      <div class="grupo-formulario">
+        <label for="piscina" class="etiqueta">
+          Piscina
+          <span class="requerido">*</span>
+        </label>
+        <select
+          id="piscina"
+          [(ngModel)]="tarea.piscinaId"
+          class="campo-seleccion"
+          [class.error]="enviado && !tarea.piscinaId"
+          [disabled]="guardando"
+        >
+          <option value="">-- Selecciona una piscina --</option>
+          <option *ngFor="let piscina of piscinas" [value]="piscina.id">
+            {{ piscina.nombre }}
+          </option>
+        </select>
+        <span *ngIf="enviado && !tarea.piscinaId" class="mensaje-validacion">
+          Este campo es obligatorio
+        </span>
+      </div>
+
+      <!-- Descripción -->
+      <div class="grupo-formulario">
+        <label for="descripcion" class="etiqueta">
+          Descripción
+          <span class="requerido">*</span>
+        </label>
+        <textarea
+          id="descripcion"
+          [(ngModel)]="tarea.descripcion"
+          class="campo-entrada"
+          [class.error]="enviado && !tarea.descripcion.trim()"
+          rows="4"
+          placeholder="Ingresa la descripción de la tarea"
+          [disabled]="guardando"
+        ></textarea>
+        <span *ngIf="enviado && !tarea.descripcion.trim()" class="mensaje-validacion">
+          Este campo es obligatorio
+        </span>
+      </div>
+
+      <!-- Fila: Estado y Prioridad -->
+      <div class="fila-dos-columnas">
+        <!-- Estado -->
+        <div class="grupo-formulario">
+          <label for="estado" class="etiqueta">
+            Estado
+            <span class="requerido">*</span>
+          </label>
+          <select
+            id="estado"
+            [(ngModel)]="tarea.estado"
+            class="campo-seleccion"
+            [class.error]="enviado && !tarea.estado"
+            [disabled]="guardando"
+          >
+            <option *ngFor="let est of estados" [value]="est.valor">
+              {{ est.etiqueta }}
+            </option>
+          </select>
+          <span *ngIf="enviado && !tarea.estado" class="mensaje-validacion">
+            Este campo es obligatorio
+          </span>
+        </div>
+
+        <!-- Prioridad -->
+        <div class="grupo-formulario">
+          <label for="prioridad" class="etiqueta">
+            Prioridad
+            <span class="requerido">*</span>
+          </label>
+          <select
+            id="prioridad"
+            [(ngModel)]="tarea.prioridad"
+            class="campo-seleccion"
+            [class.error]="enviado && !tarea.prioridad"
+            [disabled]="guardando"
+          >
+            <option *ngFor="let pri of prioridades" [value]="pri.valor">
+              {{ pri.etiqueta }}
+            </option>
+          </select>
+          <span *ngIf="enviado && !tarea.prioridad" class="mensaje-validacion">
+            Este campo es obligatorio
+          </span>
+        </div>
+      </div>
+
+      <!-- Fecha de Vencimiento -->
+      <div class="grupo-formulario">
+        <label for="fechaVencimiento" class="etiqueta">
+          Fecha de Vencimiento
+          <span class="requerido">*</span>
+        </label>
+        <input
+          type="date"
+          id="fechaVencimiento"
+          [(ngModel)]="tarea.fechaVencimiento"
+          class="campo-entrada"
+          [class.error]="enviado && !tarea.fechaVencimiento"
+          [disabled]="guardando"
+        />
+        <span *ngIf="enviado && !tarea.fechaVencimiento" class="mensaje-validacion">
+          Este campo es obligatorio
+        </span>
+      </div>
+
+      <!-- Responsable (opcional) -->
+      <div class="grupo-formulario">
+        <label for="responsable" class="etiqueta">
+          Responsable <span class="opcional">(Opcional)</span>
+        </label>
+        <input
+          type="text"
+          id="responsable"
+          [(ngModel)]="tarea.responsable"
+          class="campo-entrada"
+          placeholder="Nombre del responsable"
+          [disabled]="guardando"
+        />
+      </div>
+
+      <!-- Botones -->
+      <div class="grupo-botones">
+        <button
+          type="button"
+          class="btn btn-secundario"
+          (click)="cancelar()"
+          [disabled]="guardando"
+        >
+          Cancelar
+        </button>
+        <button
+          type="button"
+          class="btn btn-primario"
+          (click)="guardarTarea()"
+          [disabled]="guardando"
+        >
+          {{ guardando ? 'Guardando...' : (esEdicion ? 'Actualizar Tarea' : 'Crear Tarea') }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

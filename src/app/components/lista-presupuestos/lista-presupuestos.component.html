@@ -1,0 +1,177 @@
+<div class="presupuestos-contenedor">
+  <div class="presupuestos-encabezado">
+    <h1>💰 Presupuestos</h1>
+    <button class="btn-crear-principal" (click)="crearNuevoPresupuesto()">
+      + Nuevo Presupuesto
+    </button>
+  </div>
+
+  <div *ngIf="cargando" class="cargando">
+    <p>Cargando presupuestos...</p>
+  </div>
+
+  <div *ngIf="error" class="mensaje-error">
+    {{ error }}
+  </div>
+
+  <div *ngIf="!cargando && presupuestos.length === 0 && !error" class="sin-presupuestos">
+    <p>No hay presupuestos registrados</p>
+    <button class="btn-crear" (click)="crearNuevoPresupuesto()">
+      + Crear el primer presupuesto
+    </button>
+  </div>
+
+  <div *ngIf="!cargando && presupuestos.length > 0" class="tabla-presupuestos-contenedor">
+    <!-- Buscador -->
+    <div class="buscador-contenedor">
+      <input 
+        type="text" 
+        class="input-buscador"
+        placeholder="🔍 Buscar por descripción..."
+        [value]="terminoBuscador"
+        (input)="actualizarBuscador($event.target.value)"
+      />
+      <div *ngIf="terminoBuscador" class="info-busqueda">
+        {{ presupuestosFiltrados.length }} resultado(s) encontrado(s)
+      </div>
+    </div>
+
+    <table class="tabla-presupuestos">
+      <thead>
+        <tr>
+          <th>Descripción</th>
+          <th>Fecha</th>
+          <th>Líneas</th>
+          <th>Total</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let presupuesto of presupuestosPaginados" class="fila-presupuesto" (click)="abrirModal(presupuesto)">
+          <td class="celda-descripcion">{{ presupuesto.descripcion }}</td>
+          <td class="celda-fecha">{{ formatearFecha(presupuesto.fechaCreacion) }}</td>
+          <td class="celda-lineas">{{ presupuesto.lineas.length }}</td>
+          <td class="celda-total">${{ calcularTotal(presupuesto.lineas).toFixed(2) }}</td>
+          <td class="celda-estado" (click)="$event.stopPropagation()">
+            <button class="badge-estado btn-estado" 
+                    [ngClass]="obtenerClaseEstado(presupuesto.estado)"
+                    (click)="cambiarEstado(presupuesto)"
+                    title="Click para cambiar estado">
+              {{ presupuesto.estado | uppercase }}
+            </button>
+          </td>
+          <td class="celda-acciones" (click)="$event.stopPropagation()">
+            <button 
+              class="btn-editar" 
+              (click)="verPresupuesto(presupuesto.id)"
+              title="Ver y editar presupuesto">
+              ✏️
+            </button>
+            <button 
+              class="btn-pdf"
+              (click)="descargarPDF(presupuesto)"
+              title="Descargar PDF">
+              📄
+            </button>
+            <button 
+              class="btn-eliminar" 
+              (click)="eliminarPresupuesto(presupuesto.id)"
+              title="Eliminar presupuesto">
+              🗑️
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Paginación -->
+    <div *ngIf="presupuestos.length > elementosPorPagina" class="paginacion">
+      <button (click)="paginaAnterior()" [disabled]="paginaActual === 0" class="btn-paginacion">
+        ← Anterior
+      </button>
+      <span class="info-pagina">
+        Página {{ paginaActual + 1 }} de {{ totalPaginas }}
+      </span>
+      <button (click)="paginaSiguiente()" [disabled]="paginaActual === totalPaginas - 1" class="btn-paginacion">
+        Siguiente →
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de Detalle del Presupuesto -->
+<div *ngIf="mostrarModal && presupuestoSeleccionado" class="modal-overlay modal-overlay-presupuestos" (click)="cerrarModal()">
+  <div class="modal-contenido" (click)="$event.stopPropagation()">
+    <button class="modal-cerrar" (click)="cerrarModal()">×</button>
+    
+    <div class="modal-header">
+      <h2>📋 Detalle del Presupuesto</h2>
+    </div>
+    
+    <div class="modal-body">
+      <div class="detalle-info">
+        <div class="info-item">
+          <span class="info-label">Descripción:</span>
+          <span class="info-valor">{{ presupuestoSeleccionado.descripcion }}</span>
+        </div>
+        
+        <div class="info-item">
+          <span class="info-label">Fecha:</span>
+          <span class="info-valor">{{ formatearFecha(presupuestoSeleccionado.fechaCreacion) }}</span>
+        </div>
+        
+        <div class="info-item">
+          <span class="info-label">Total:</span>
+          <span class="info-valor total">${{ calcularTotal(presupuestoSeleccionado.lineas).toFixed(2) }}</span>
+        </div>
+      </div>
+      
+      <div class="estado-section">
+        <span class="info-label">Estado:</span>
+        <button 
+          type="button"
+          class="btn-cambiar-estado-modal"
+          [class.btn-estado-aceptado]="presupuestoSeleccionado.estado === 'aceptado'"
+          [class.btn-estado-pendiente]="presupuestoSeleccionado.estado === 'pendiente'"
+          (click)="cambiarEstadoModal(presupuestoSeleccionado.estado === 'pendiente' ? 'aceptado' : 'pendiente')"
+          title="Click para cambiar estado">
+          {{ presupuestoSeleccionado.estado | uppercase }}
+        </button>
+      </div>
+      
+      <div *ngIf="presupuestoSeleccionado.lineas.length > 0" class="lineas-section">
+        <h3>Líneas del Presupuesto</h3>
+        <div class="lineas-tabla-modal">
+          <table>
+            <thead>
+              <tr>
+                <th>Descripción</th>
+                <th>Cantidad</th>
+                <th>Precio Unit.</th>
+                <th>Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let linea of presupuestoSeleccionado.lineas">
+                <td>{{ linea.descripcion }}</td>
+                <td>{{ linea.cantidad }}</td>
+                <td>${{ linea.precioUnitario.toFixed(2) }}</td>
+                <td>${{ linea.total.toFixed(2) }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    
+    <div class="modal-footer">
+      <button class="btn-editar-completo" (click)="verPresupuesto(presupuestoSeleccionado.id); cerrarModal()">
+        ✏️ Editar Presupuesto
+      </button>
+      <button class="btn-descargar-pdf" (click)="descargarPDF(presupuestoSeleccionado)">
+        📄 Descargar PDF
+      </button>
+    </div>
+  </div>
+</div>

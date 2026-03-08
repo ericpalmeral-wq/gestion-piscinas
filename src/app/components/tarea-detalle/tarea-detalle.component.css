@@ -1,0 +1,245 @@
+.detalle-contenedor {
+  max-width: 700px;
+  margin: 40px auto;
+  padding: 0 20px;
+}
+
+.detalle-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.08);
+  padding: 32px;
+  border-left: 6px solid #10b981;
+}
+
+.detalle-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 28px;
+}
+
+.detalle-header h2 {
+  color: #1f2937;
+  font-size: 24px;
+  margin: 0;
+}
+
+.btn-cerrar {
+  background: none;
+  border: none;
+  font-size: 28px;
+  cursor: pointer;
+  color: #9ca3af;
+  transition: color 0.2s ease;
+  padding: 0;
+  line-height: 1;
+}
+
+.btn-cerrar:hover:not(:disabled) {
+  color: #ef4444;
+}
+
+.btn-cerrar:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.mensaje-error {
+  padding: 16px 20px;
+  background-color: #fee;
+  border-left: 4px solid #f87171;
+  border-radius: 4px;
+  color: #991b1b;
+  margin-bottom: 20px;
+  font-weight: 500;
+}
+
+.cargando {
+  padding: 40px 20px;
+  text-align: center;
+  color: #6b7280;
+  background-color: #f9fafb;
+  border-radius: 8px;
+}
+
+.formulario {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.grupo-formulario {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.etiqueta {
+  color: #374151;
+  font-weight: 600;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.requerido {
+  color: #ef4444;
+  font-weight: 700;
+}
+
+.opcional {
+  color: #9ca3af;
+  font-weight: 400;
+  font-size: 12px;
+}
+
+.campo-entrada,
+.campo-seleccion {
+  padding: 12px 14px;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: inherit;
+  color: #1f2937;
+  transition: all 0.2s ease;
+  background-color: #ffffff;
+}
+
+.campo-entrada::placeholder {
+  color: #d1d5db;
+}
+
+.campo-entrada:focus,
+.campo-seleccion:focus {
+  outline: none;
+  border-color: #10b981;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+.campo-entrada:disabled,
+.campo-seleccion:disabled {
+  background-color: #f9fafb;
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+
+.campo-entrada.error,
+.campo-seleccion.error {
+  border-color: #ef4444;
+}
+
+.campo-entrada.error:focus,
+.campo-seleccion.error:focus {
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+textarea.campo-entrada {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.fila-dos-columnas {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.mensaje-validacion {
+  font-size: 12px;
+  color: #ef4444;
+  font-weight: 500;
+  margin-top: 4px;
+}
+
+.grupo-botones {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 28px;
+  padding-top: 24px;
+  border-top: 2px solid #e5e7eb;
+}
+
+.btn {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-primario {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.btn-primario:hover:not(:disabled) {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+}
+
+.btn-primario:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.btn-secundario {
+  background: #e5e7eb;
+  color: #374151;
+  border: 1px solid #d1d5db;
+}
+
+.btn-secundario:hover:not(:disabled) {
+  background: #d1d5db;
+  border-color: #9ca3af;
+  transform: translateY(-2px);
+}
+
+.btn-secundario:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+@media (max-width: 640px) {
+  .detalle-card {
+    padding: 20px;
+  }
+
+  .detalle-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .detalle-header h2 {
+    font-size: 20px;
+  }
+
+  .btn-cerrar {
+    align-self: flex-end;
+    margin-top: -8px;
+  }
+
+  .fila-dos-columnas {
+    grid-template-columns: 1fr;
+  }
+
+  .grupo-botones {
+    flex-direction: column-reverse;
+  }
+
+  .btn {
+    width: 100%;
+  }
+}

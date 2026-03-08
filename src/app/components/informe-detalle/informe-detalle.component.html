@@ -1,0 +1,103 @@
+<div class="informe-detalle-contenedor">
+  <div class="encabezado-informe">
+    <h2>{{ esNuevo ? 'Nuevo Informe' : 'Editar Informe' }}</h2>
+    <button class="btn-volver" (click)="volver()">← Volver</button>
+  </div>
+
+  <div *ngIf="cargando" class="estado-cargando">
+    <p>Cargando...</p>
+  </div>
+
+  <div *ngIf="error" class="mensaje-error">
+    {{ error }}
+  </div>
+
+  <form *ngIf="!cargando && informe" (ngSubmit)="guardarInforme()" class="formulario-informe">
+    <div class="seccion-info">
+      <h3>Información General</h3>
+
+      <div class="grupo-formulario">
+        <label>Piscina *</label>
+        <select [(ngModel)]="informe.piscinaId" name="piscinaId" required>
+          <option value="">Selecciona una piscina</option>
+          <option *ngFor="let p of piscinas" [value]="p.id">{{ p.nombre }}</option>
+        </select>
+      </div>
+
+      <div class="grupo-doble">
+        <div class="grupo-formulario">
+          <label>Fecha de Creación</label>
+          <input type="date" [value]="informe.fechaCreacion" disabled />
+        </div>
+        <div class="grupo-formulario">
+          <label>Última Actualización</label>
+          <input type="date" [value]="informe.fechaActualizacion" disabled />
+        </div>
+      </div>
+
+      <div class="grupo-formulario">
+        <label>Estado General *</label>
+        <select [(ngModel)]="informe.estadoGeneral" name="estadoGeneral" required>
+          <option value="bien">Bien</option>
+          <option value="regular">Regular</option>
+          <option value="mal">Mal</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="seccion-lineas">
+      <h3>Inspecciones / Notas</h3>
+
+      <div *ngIf="informe.lineas.length === 0" class="sin-lineas">
+        <p>No hay líneas agregadas aún</p>
+      </div>
+
+      <div *ngIf="informe.lineas.length > 0" class="lista-lineas">
+        <div *ngFor="let linea of informe.lineas; let i = index" class="item-linea">
+          <div class="linea-contenido">
+            <input 
+              type="text" 
+              [(ngModel)]="linea.descripcion" 
+              [name]="'desc-' + i"
+              placeholder="Descripción de la inspección"
+              class="input-descripcion"
+            />
+            <select 
+              [(ngModel)]="linea.estado" 
+              [name]="'estado-' + i"
+              class="input-estado"
+            >
+              <option value="bien">Bien</option>
+              <option value="regular">Regular</option>
+              <option value="mal">Mal</option>
+            </select>
+            <span [ngClass]="'estado-badge ' + obtenerClaseEstado(linea.estado)">
+              {{ linea.estado | uppercase }}
+            </span>
+          </div>
+          <button 
+            type="button" 
+            (click)="eliminarLinea(i)" 
+            class="btn-eliminar-linea"
+            title="Eliminar línea"
+          >
+            ✕
+          </button>
+        </div>
+      </div>
+
+      <button type="button" (click)="agregarLinea()" class="btn-agregar-linea">
+        + Agregar Inspección
+      </button>
+    </div>
+
+    <div class="botones-accion">
+      <button type="submit" [disabled]="guardando" class="btn-guardar">
+        {{ guardando ? 'Guardando...' : 'Guardar Informe' }}
+      </button>
+      <button type="button" (click)="volver()" class="btn-cancelar">
+        Cancelar
+      </button>
+    </div>
+  </form>
+</div>

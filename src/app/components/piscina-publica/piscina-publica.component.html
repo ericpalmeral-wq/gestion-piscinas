@@ -1,0 +1,124 @@
+<div class="pagina-publica">
+  <!-- Header público -->
+  <div class="header-publico">
+    <div class="header-contenido">
+      <span class="logo-icon">🏊</span>
+      <span class="logo-text">GestiPool</span>
+    </div>
+    <a routerLink="/login" class="btn-login">Iniciar Sesión</a>
+  </div>
+
+  <div class="contenedor-publico">
+    <!-- Error -->
+    <div *ngIf="error()" class="alerta-error">
+      <span>⚠️</span> {{ error() }}
+    </div>
+
+    <!-- Cargando -->
+    <div *ngIf="cargando()" class="cargando">
+      <div class="spinner"></div>
+      <p>Cargando detalles de la piscina...</p>
+    </div>
+
+    <!-- Contenido de la piscina -->
+    <div *ngIf="!cargando() && piscina()" class="piscina-contenido">
+      <!-- Encabezado -->
+      <div class="piscina-hero">
+        <div class="piscina-titulo">
+          <h1>{{ piscina()!.nombre }}</h1>
+          <p class="ubicacion">📍 {{ piscina()!.ubicacion }}</p>
+        </div>
+        <div class="badges">
+          <span class="badge" [style.backgroundColor]="obtenerColorEstado(piscina()!.estado)">
+            {{ piscina()!.estado | uppercase }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Estado de mantenimiento -->
+      <div class="estado-banner" [class.necesita]="necesitaMantenimiento(piscina()!)">
+        <span class="estado-icono">{{ necesitaMantenimiento(piscina()!) ? '⚠️' : '✅' }}</span>
+        <span>{{ necesitaMantenimiento(piscina()!) ? 'Necesita Mantenimiento' : 'Estado Óptimo' }}</span>
+      </div>
+
+      <!-- Grid de información -->
+      <div class="info-grid">
+        <!-- Información General -->
+        <div class="info-card">
+          <h3>📋 Información General</h3>
+          <div class="info-fila">
+            <span class="etiqueta">Capacidad:</span>
+            <span class="valor">{{ formatearNumero(piscina()!.capacidadLitros) }} L</span>
+          </div>
+          <div class="info-fila">
+            <span class="etiqueta">Profundidad Máxima:</span>
+            <span class="valor">{{ formatearNumero(piscina()!.profundidadMaxima) }} m</span>
+          </div>
+          <div class="info-fila">
+            <span class="etiqueta">Estado:</span>
+            <span class="valor estado-texto" [style.color]="obtenerColorEstado(piscina()!.estado)">
+              {{ piscina()!.estado }}
+            </span>
+          </div>
+        </div>
+
+
+
+        <!-- Parámetros Químicos -->
+        <div class="info-card">
+          <h3>🧪 Parámetros Químicos</h3>
+          <div class="info-fila" [class.alerta]="piscina()!.nivelCloro < 0.5 || piscina()!.nivelCloro > 3.0">
+            <span class="etiqueta">Nivel de Cloro:</span>
+            <span class="valor">{{ piscina()!.nivelCloro }} ppm</span>
+          </div>
+          <div class="info-fila" [class.alerta]="piscina()!.pHAgua < 7.2 || piscina()!.pHAgua > 7.8">
+            <span class="etiqueta">pH del Agua:</span>
+            <span class="valor">{{ piscina()!.pHAgua }}</span>
+          </div>
+        </div>
+
+        <!-- Mantenimiento -->
+        <div class="info-card">
+          <h3>🔧 Mantenimiento</h3>
+          
+          <div class="info-fila">
+            <span class="etiqueta">Última Limpieza:</span>
+            <span class="valor">{{ formatearFecha(piscina()!.ultimaLimpieza) }}</span>
+          </div>
+          <div class="info-fila">
+            <span class="etiqueta">Horas de Filtración:</span>
+            <span class="valor">{{ piscina()!.horasFiltracion }} h</span>
+          </div>
+        </div>
+
+        <!-- Temporada -->
+        <div class="info-card">
+          <h3>📅 Temporada</h3>
+          <div class="info-fila">
+            <span class="etiqueta">Fecha de Apertura:</span>
+            <span class="valor">{{ piscina()!.fechaApertura ? formatearFecha(piscina()!.fechaApertura!) : 'No definida' }}</span>
+          </div>
+          <div class="info-fila">
+            <span class="etiqueta">Fecha de Cierre:</span>
+            <span class="valor">{{ piscina()!.fechaCierre ? formatearFecha(piscina()!.fechaCierre!) : 'No definida' }}</span>
+          </div>
+          <div class="info-fila">
+            <span class="etiqueta">Estado:</span>
+            <span class="valor estado-badge" [ngClass]="'estado-' + piscina()!.estado">{{ piscina()!.estado | titlecase }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Observaciones -->
+      <div class="info-card observaciones-card" *ngIf="piscina()!.observaciones">
+        <h3>📝 Observaciones</h3>
+        <p class="observaciones-texto">{{ piscina()!.observaciones }}</p>
+      </div>
+
+      <!-- Footer público -->
+      <div class="footer-publico">
+        <p>Para más información, <a routerLink="/login">inicia sesión</a> o contacta con el administrador.</p>
+      </div>
+    </div>
+  </div>
+</div>

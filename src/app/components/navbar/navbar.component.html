@@ -1,0 +1,128 @@
+<nav class="navbar">
+  <div class="navbar-container">
+    <!-- Logo/Brand -->
+    <div class="navbar-brand">
+      <a routerLink="/" class="brand-logo">
+        <span class="logo-icon">🏊</span>
+        <span class="brand-text">GestiPool</span>
+      </a>
+    </div>
+
+    <!-- Toggle Menu (Mobile) -->
+    <button class="menu-toggle" (click)="toggleMenu()" [class.activo]="menuAbierto">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+
+    <!-- Menu -->
+    <ul class="nav-menu" [class.activo]="menuAbierto">
+      <li class="nav-item">
+        <a
+          routerLink="/"
+          routerLinkActive="activo"
+          [routerLinkActiveOptions]="{ exact: true }"
+          class="nav-link"
+          (click)="cerrarMenu()"
+        >
+          🏠 Inicio
+        </a>
+      </li>
+      <li class="nav-item" *ngIf="esAdmin()">
+        <a
+          routerLink="/piscinas"
+          routerLinkActive="activo"
+          class="nav-link"
+          (click)="cerrarMenu()"
+        >
+          🏊 Piscinas
+        </a>
+      </li>
+      <li class="nav-item" *ngIf="esAdmin()">
+        <a
+          routerLink="/informes"
+          routerLinkActive="activo"
+          class="nav-link"
+          (click)="cerrarMenu()"
+        >
+          📊 Informes
+        </a>
+      </li>
+      <li class="nav-item" *ngIf="esAdmin()">
+        <a
+          routerLink="/presupuestos"
+          routerLinkActive="activo"
+          class="nav-link"
+          (click)="cerrarMenu()"
+        >
+          💰 Presupuestos
+        </a>
+      </li>
+      <li class="nav-item" *ngIf="esAdmin()">
+        <a
+          routerLink="/tareas"
+          routerLinkActive="activo"
+          class="nav-link"
+          (click)="cerrarMenu()"
+        >
+          ✓ Tareas
+        </a>
+      </li>
+      <li class="nav-item" *ngIf="esAdmin()">
+        <a
+          routerLink="/libros"
+          routerLinkActive="activo"
+          class="nav-link"
+          (click)="cerrarMenu()"
+        >
+          📚 Libros
+        </a>
+      </li>
+
+      <!-- Menu Admin (Desplegable) -->
+      <li class="nav-item nav-dropdown" *ngIf="puedeVerAdmin()">
+        <button class="nav-link dropdown-toggle" (click)="toggleMenuAdmin()">
+          ⚙️ Admin
+          <span class="dropdown-icon" [class.activo]="menuAdminAbierto()">▼</span>
+        </button>
+        <ul class="dropdown-menu" [class.activo]="menuAdminAbierto()">
+          <li class="dropdown-item">
+            <a
+              routerLink="/usuarios"
+              routerLinkActive="activo"
+              class="dropdown-link"
+              (click)="cerrarMenu()"
+            >
+              👥 Usuarios
+            </a>
+          </li>
+        </ul>
+      </li>
+
+      <!-- Menu Usuario (Desplegable) -->
+      <li class="nav-item nav-dropdown usuario-dropdown" *ngIf="usuarioActual()">
+        <button class="nav-link dropdown-toggle usuario-btn" (click)="toggleMenuUsuario()">
+          <span class="rol-badge" [style.backgroundColor]="obtenerColorRol()">
+            {{ usuarioActual()!.rol.charAt(0).toUpperCase() }}
+          </span>
+          {{ obtenerNombreUsuario() }}
+          <span class="dropdown-icon" [class.activo]="menuUsuarioAbierto()">▼</span>
+        </button>
+        <ul class="dropdown-menu" [class.activo]="menuUsuarioAbierto()">
+          <li class="dropdown-item usuario-info">
+            <div class="usuario-detalle">
+              <p class="usuario-nombre">{{ usuarioActual()!.nombre }}</p>
+              <p class="usuario-email">{{ usuarioActual()!.email }}</p>
+              <p class="usuario-rol">{{ usuarioActual()!.rol }}</p>
+            </div>
+          </li>
+          <li class="dropdown-item">
+            <button class="dropdown-link logout-btn" (click)="logout()">
+              🚪 Cerrar Sesión
+            </button>
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </div>
+</nav>

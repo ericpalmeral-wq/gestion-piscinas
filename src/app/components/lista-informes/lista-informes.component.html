@@ -1,0 +1,88 @@
+<div class="informes-seccion">
+  <h3>📋 Informes Técnicos</h3>
+
+  <div *ngIf="cargando" class="cargando-informes">
+    <p>Cargando informes...</p>
+  </div>
+
+  <div *ngIf="error" class="error-mensaje">
+    <p>{{ error }}</p>
+  </div>
+
+  <div *ngIf="!cargando && informes.length === 0" class="sin-informes">
+    <p>No hay informes registrados. </p>
+    <button (click)="crearNuevoInforme()" class="btn-crear">
+      + Crear Primer Informe
+    </button>
+  </div>
+
+  <div *ngIf="!cargando && informes.length > 0" class="tabla-informes-contenedor">
+    <!-- Buscador -->
+    <div class="buscador-contenedor">
+      <input 
+        type="text" 
+        class="input-buscador"
+        placeholder="🔍 Buscar por piscina..."
+        [value]="terminoBuscador"
+        (input)="actualizarBuscador($event.target.value)"
+      />
+      <div *ngIf="terminoBuscador" class="info-busqueda">
+        {{ informesFiltrados.length }} resultado(s) encontrado(s)
+      </div>
+    </div>
+
+    <table class="tabla-informes">
+      <thead>
+        <tr>
+          <th>Piscina</th>
+          <th>Fecha Actualización</th>
+          <th>Estado</th>
+          <th>Inspecciones</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let i of informesPaginados" class="fila-informe" (click)="verInforme(i.id)">
+          <td class="celda-piscina">{{ obtenerNombrePiscina(i.piscinaId) }}</td>
+          <td class="celda-fecha">{{ formatearFecha(i.fechaActualizacion) }}</td>
+          <td class="celda-estado">
+            <span class="badge-estado" [ngClass]="obtenerClaseEstado(i.estadoGeneral)">
+              {{ i.estadoGeneral | uppercase }}
+            </span>
+          </td>
+          <td class="celda-lineas">{{ i.lineas.length }}</td>
+          <td class="celda-acciones" (click)="$event.stopPropagation()">
+            <button class="btn-editar" (click)="verInforme(i.id)" title="Editar">
+              ✏️
+            </button>
+            <button class="btn-descargar-pdf" (click)="generarPDFInforme(i)" title="Descargar PDF">
+              📄
+            </button>
+            <button class="btn-eliminar" (click)="eliminarInforme(i.id)" title="Eliminar">
+              🗑️
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Paginación -->
+    <div *ngIf="informes.length > elementosPorPagina" class="paginacion">
+      <button (click)="paginaAnterior()" [disabled]="paginaActual === 0" class="btn-paginacion">
+        ← Anterior
+      </button>
+      <span class="info-pagina">
+        Página {{ paginaActual + 1 }} de {{ totalPaginas }}
+      </span>
+      <button (click)="paginaSiguiente()" [disabled]="paginaActual === totalPaginas - 1" class="btn-paginacion">
+        Siguiente →
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="!cargando && informes.length > 0" class="btn-crear-contenedor">
+    <button (click)="crearNuevoInforme()" class="btn-crear-principal">
+      + Nuevo Informe
+    </button>
+  </div>
+</div>

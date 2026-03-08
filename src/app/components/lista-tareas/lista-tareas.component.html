@@ -1,0 +1,225 @@
+<div class="tareas-seccion">
+  <h3>✅ Gestor de Tareas</h3>
+
+  <div *ngIf="cargando" class="cargando-tareas">
+    <p>Cargando tareas...</p>
+  </div>
+
+  <div *ngIf="error" class="error-mensaje">
+    <p>{{ error }}</p>
+  </div>
+
+  <div *ngIf="!cargando && tareas.length === 0" class="sin-tareas">
+    <p>No hay tareas registradas. </p>
+    <button (click)="crearNuevaTarea()" class="btn-crear">
+      + Crear Primera Tarea
+    </button>
+  </div>
+
+  <div *ngIf="!cargando && tareas.length > 0" class="tabla-tareas-contenedor">
+    <!-- Buscador -->
+    <div class="buscador-contenedor">
+      <input 
+        type="text" 
+        class="input-buscador"
+        placeholder="🔍 Buscar por descripción o piscina..."
+        [value]="terminoBuscador"
+        (input)="actualizarBuscador($event.target.value)"
+      />
+      <div *ngIf="terminoBuscador" class="info-busqueda">
+        {{ tareasFiltradas.length }} resultado(s) encontrado(s)
+      </div>
+    </div>
+
+    <table class="tabla-tareas">
+      <thead>
+        <tr>
+          <th>Piscina</th>
+          <th>Descripción</th>
+          <th>Vencimiento</th>
+          <th>Estado</th>
+          <th>Prioridad</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let t of tareasPaginadas" class="fila-tarea" (click)="verTarea(t.id)">
+          <td class="celda-piscina">{{ obtenerNombrePiscina(t.piscinaId) }}</td>
+          <td class="celda-descripcion">{{ t.descripcion }}</td>
+          <td class="celda-fecha">{{ formatearFecha(t.fechaVencimiento) }}</td>
+          <td class="celda-estado">
+            <span class="badge-estado" [ngClass]="obtenerClaseEstado(t.estado)">
+              {{ t.estado | uppercase }}
+            </span>
+          </td>
+          <td class="celda-prioridad">
+            <span class="badge-prioridad" [ngClass]="obtenerClasePrioridad(t.prioridad)">
+              {{ t.prioridad | uppercase }}
+            </span>
+          </td>
+          <td class="celda-acciones" (click)="$event.stopPropagation()">
+            <button class="btn-editar" (click)="verTarea(t.id)" title="Editar">
+              ✏️
+            </button>
+            <button class="btn-eliminar" (click)="eliminarTarea(t.id)" title="Eliminar">
+              🗑️
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Paginación -->
+    <div *ngIf="tareas.length > elementosPorPagina" class="paginacion">
+      <button (click)="paginaAnterior()" [disabled]="paginaActual === 0" class="btn-paginacion">
+        ← Anterior
+      </button>
+      <span class="info-pagina">
+        Página {{ paginaActual + 1 }} de {{ totalPaginas }}
+      </span>
+      <button (click)="paginaSiguiente()" [disabled]="paginaActual === totalPaginas - 1" class="btn-paginacion">
+        Siguiente →
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="!cargando && tareas.length > 0" class="btn-crear-contenedor">
+    <button (click)="crearNuevaTarea()" class="btn-crear-principal">
+      + Nueva Tarea
+    </button>
+  </div>
+</div>
+
+<!-- Modal Nueva Tarea -->
+<div class="modal-overlay" *ngIf="mostrarModal" (click)="cerrarModal()">
+  <div class="modal-contenido" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Nueva Tarea</h2>
+      <button type="button" class="btn-cerrar-modal" (click)="cerrarModal()" [disabled]="guardandoTarea">
+        ✕
+      </button>
+    </div>
+
+    <div *ngIf="errorModal" class="mensaje-error-modal">
+      {{ errorModal }}
+    </div>
+
+    <div class="formulario-modal">
+      <!-- Piscina -->
+      <div class="grupo-formulario">
+        <label for="piscina" class="etiqueta">
+          Piscina <span class="requerido">*</span>
+        </label>
+        <select
+          id="piscina"
+          [(ngModel)]="nuevaTarea.piscinaId"
+          class="campo-seleccion"
+          [class.error]="enviado && !nuevaTarea.piscinaId"
+          [disabled]="guardandoTarea"
+        >
+          <option value="">-- Selecciona una piscina --</option>
+          <option *ngFor="let piscina of piscinas" [value]="piscina.id">
+            {{ piscina.nombre }}
+          </option>
+        </select>
+      </div>
+
+      <!-- Descripción -->
+      <div class="grupo-formulario">
+        <label for="descripcion" class="etiqueta">
+          Descripción <span class="requerido">*</span>
+        </label>
+        <textarea
+          id="descripcion"
+          [(ngModel)]="nuevaTarea.descripcion"
+          class="campo-entrada"
+          [class.error]="enviado && !nuevaTarea.descripcion.trim()"
+          rows="3"
+          placeholder="Describe la tarea..."
+          [disabled]="guardandoTarea"
+        ></textarea>
+      </div>
+
+      <!-- Fila: Estado y Prioridad -->
+      <div class="fila-dos-columnas">
+        <div class="grupo-formulario">
+          <label for="estado" class="etiqueta">Estado</label>
+          <select
+            id="estado"
+            [(ngModel)]="nuevaTarea.estado"
+            class="campo-seleccion"
+            [disabled]="guardandoTarea"
+          >
+            <option *ngFor="let est of estados" [value]="est.valor">
+              {{ est.etiqueta }}
+            </option>
+          </select>
+        </div>
+
+        <div class="grupo-formulario">
+          <label for="prioridad" class="etiqueta">Prioridad</label>
+          <select
+            id="prioridad"
+            [(ngModel)]="nuevaTarea.prioridad"
+            class="campo-seleccion"
+            [disabled]="guardandoTarea"
+          >
+            <option *ngFor="let pri of prioridades" [value]="pri.valor">
+              {{ pri.etiqueta }}
+            </option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Fecha de Vencimiento -->
+      <div class="grupo-formulario">
+        <label for="fechaVencimiento" class="etiqueta">
+          Fecha de Vencimiento <span class="requerido">*</span>
+        </label>
+        <input
+          type="date"
+          id="fechaVencimiento"
+          [(ngModel)]="nuevaTarea.fechaVencimiento"
+          class="campo-entrada"
+          [class.error]="enviado && !nuevaTarea.fechaVencimiento"
+          [disabled]="guardandoTarea"
+        />
+      </div>
+
+      <!-- Responsable -->
+      <div class="grupo-formulario">
+        <label for="responsable" class="etiqueta">
+          Responsable <span class="opcional">(Opcional)</span>
+        </label>
+        <input
+          type="text"
+          id="responsable"
+          [(ngModel)]="nuevaTarea.responsable"
+          class="campo-entrada"
+          placeholder="Nombre del responsable"
+          [disabled]="guardandoTarea"
+        />
+      </div>
+
+      <!-- Botones -->
+      <div class="grupo-botones-modal">
+        <button
+          type="button"
+          class="btn btn-secundario"
+          (click)="cerrarModal()"
+          [disabled]="guardandoTarea"
+        >
+          Cancelar
+        </button>
+        <button
+          type="button"
+          class="btn btn-primario"
+          (click)="guardarNuevaTarea()"
+          [disabled]="guardandoTarea"
+        >
+          {{ guardandoTarea ? 'Guardando...' : 'Crear Tarea' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

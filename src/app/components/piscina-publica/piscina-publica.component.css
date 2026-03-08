@@ -1,0 +1,285 @@
+.pagina-publica {
+  min-height: 100vh;
+  background: #f0f2f5;
+}
+
+/* Header */
+.header-publico {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+}
+
+.header-contenido {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo-icon {
+  font-size: 28px;
+}
+
+.logo-text {
+  color: white;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.btn-login {
+  padding: 8px 20px;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  text-decoration: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  transition: background 0.2s;
+}
+
+.btn-login:hover {
+  background: rgba(255, 255, 255, 0.35);
+}
+
+/* Contenedor principal */
+.contenedor-publico {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 30px 20px 60px;
+}
+
+/* Alerta error */
+.alerta-error {
+  background: #fef2f2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+  border-radius: 10px;
+  padding: 16px 20px;
+  text-align: center;
+  font-size: 15px;
+}
+
+/* Cargando */
+.cargando {
+  text-align: center;
+  padding: 80px 20px;
+  color: #6b7280;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #e5e7eb;
+  border-top-color: #667eea;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto 16px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Hero piscina */
+.piscina-hero {
+  background: white;
+  border-radius: 14px;
+  padding: 28px 24px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.piscina-titulo h1 {
+  font-size: 28px;
+  color: #1f2937;
+  margin: 0 0 6px 0;
+}
+
+.ubicacion {
+  font-size: 15px;
+  color: #6b7280;
+  margin: 0;
+}
+
+.badges {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.badge {
+  display: inline-block;
+  padding: 4px 14px;
+  border-radius: 20px;
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+/* Estado banner */
+.estado-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 20px;
+  border-radius: 10px;
+  background: #ecfdf5;
+  color: #065f46;
+  font-weight: 600;
+  font-size: 15px;
+  margin-bottom: 24px;
+}
+
+.estado-banner.necesita {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.estado-icono {
+  font-size: 20px;
+}
+
+/* Grid de info */
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.info-card {
+  background: white;
+  border-radius: 12px;
+  padding: 22px 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.info-card h3 {
+  font-size: 16px;
+  color: #1f2937;
+  margin: 0 0 16px 0;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #f3f4f6;
+}
+
+.info-fila {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #f9fafb;
+}
+
+.info-fila:last-child {
+  border-bottom: none;
+}
+
+.info-fila .etiqueta {
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.info-fila .valor {
+  font-weight: 600;
+  color: #1f2937;
+  font-size: 14px;
+}
+
+.info-fila.alerta {
+  background: #fef3c7;
+  border-radius: 6px;
+  padding: 8px 10px;
+  margin: 2px -10px;
+}
+
+.estado-texto {
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+/* Observaciones */
+.observaciones-card {
+  margin-bottom: 24px;
+}
+
+.observaciones-texto {
+  color: #4b5563;
+  line-height: 1.7;
+  font-size: 14px;
+  margin: 0;
+}
+
+/* Footer */
+.footer-publico {
+  text-align: center;
+  padding: 24px;
+  color: #9ca3af;
+  font-size: 14px;
+}
+
+.footer-publico a {
+  color: #667eea;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.footer-publico a:hover {
+  text-decoration: underline;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .piscina-hero {
+    flex-direction: column;
+  }
+
+  .info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .piscina-titulo h1 {
+    font-size: 24px;
+  }
+
+  .header-publico {
+    padding: 12px 16px;
+  }
+}
+
+/* Estado Badge */
+.estado-badge {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.estado-operativa {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.estado-cerrada {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+.estado-mantenimiento {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.estado-inactiva {
+  background-color: #e5e7eb;
+  color: #4b5563;
+}

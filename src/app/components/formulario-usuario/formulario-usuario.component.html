@@ -1,0 +1,95 @@
+<div class="modal-overlay" (click)="cancelar()">
+  <div class="modal-contenedor" (click)="$event.stopPropagation()">
+    <div class="modal-encabezado">
+      <h2>{{ usuario ? '✏️ Editar Usuario' : '➕ Crear Usuario' }}</h2>
+      <button class="btn-cerrar" (click)="cancelar()">✕</button>
+    </div>
+
+    <form (ngSubmit)="guardar()" class="formulario">
+      <!-- Error message -->
+      @if (error()) {
+        <div class="alerta-error">
+          {{ error() }}
+        </div>
+      }
+
+      <!-- Email -->
+      <div class="grupo-formulario">
+        <label for="email">Email *</label>
+        <input
+          id="email"
+          type="email"
+          [(ngModel)]="usuarioEditado().email"
+          name="email"
+          placeholder="correo@ejemplo.com"
+          [disabled]="usuario !== null"
+          required
+        />
+        @if (usuario) {
+          <small>No puedes cambiar el email</small>
+        }
+      </div>
+
+      <!-- Nombre -->
+      <div class="grupo-formulario">
+        <label for="nombre">Nombre *</label>
+        <input
+          id="nombre"
+          type="text"
+          [(ngModel)]="usuarioEditado().nombre"
+          name="nombre"
+          placeholder="Juan Pérez"
+          required
+        />
+      </div>
+
+      <!-- Rol -->
+      <div class="grupo-formulario">
+        <label for="rol">Rol *</label>
+        <select
+          id="rol"
+          [(ngModel)]="usuarioEditado().rol"
+          name="rol"
+          required
+        >
+          @for (rol of ROLES; track rol.valor) {
+            <option [value]="rol.valor">{{ rol.etiqueta }}</option>
+          }
+        </select>
+      </div>
+
+      <!-- Estado -->
+      <div class="grupo-formulario">
+        <label for="estado">Estado *</label>
+        <select
+          id="estado"
+          [(ngModel)]="usuarioEditado().estado"
+          name="estado"
+          required
+        >
+          <option value="activo">Activo</option>
+          <option value="inactivo">Inactivo</option>
+        </select>
+      </div>
+
+      <!-- Botones -->
+      <div class="botones">
+        <button
+          type="button"
+          class="btn-cancelar"
+          (click)="cancelar()"
+          [disabled]="guardando()"
+        >
+          Cancelar
+        </button>
+        <button
+          type="submit"
+          class="btn-guardar"
+          [disabled]="guardando()"
+        >
+          {{ guardando() ? 'Guardando...' : 'Guardar' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

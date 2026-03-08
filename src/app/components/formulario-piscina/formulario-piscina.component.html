@@ -1,0 +1,184 @@
+<form (ngSubmit)="enviarFormulario()" class="formulario">
+  <div *ngIf="error()" class="alerta alerta-error">
+    {{ error() }}
+  </div>
+
+  <div class="grupo-formulario">
+    <label>Nombre de la Piscina *</label>
+    <input
+      type="text"
+      name="nombre"
+      [(ngModel)]="formulario().nombre"
+      (change)="actualizarFormulario('nombre', formulario().nombre)"
+      placeholder="Ej: Piscina Principal"
+      required
+    />
+  </div>
+
+  <div class="grupo-formulario">
+    <label>Ubicación *</label>
+    <input
+      type="text"
+      name="ubicacion"
+      [(ngModel)]="formulario().ubicacion"
+      (change)="actualizarFormulario('ubicacion', formulario().ubicacion)"
+      placeholder="Ej: Zona deportiva"
+      required
+    />
+  </div>
+
+  <div class="grupo-formulario">
+    <label>Tipo de Piscina *</label>
+    <select
+      name="tipo"
+      [(ngModel)]="formulario().tipo"
+      (change)="actualizarFormulario('tipo', formulario().tipo)"
+      required
+    >
+      <option value="comunidad">Comunidad</option>
+      <option value="privada">Privada</option>
+    </select>
+  </div>
+
+  <div class="grupo-formulario">
+    <label>CIF *</label>
+    <input
+      type="text"
+      name="cif"
+      [(ngModel)]="formulario().cif"
+      (change)="actualizarFormulario('cif', formulario().cif)"
+      placeholder="Ej: A12345678"
+      required
+    />
+  </div>
+
+  <div class="grupo-formulario">
+    <label>Capacidad (litros) *</label>
+    <input
+      type="number"
+      name="capacidadLitros"
+      [(ngModel)]="formulario().capacidadLitros"
+      (change)="actualizarFormulario('capacidadLitros', formulario().capacidadLitros)"
+      placeholder="Ej: 500000"
+      min="0"
+      required
+    />
+  </div>
+
+  <div class="grupo-formulario">
+    <label>Profundidad Máxima (metros)</label>
+    <input
+      type="number"
+      name="profundidadMaxima"
+      [(ngModel)]="formulario().profundidadMaxima"
+      (change)="actualizarFormulario('profundidadMaxima', formulario().profundidadMaxima)"
+      placeholder="Ej: 2.5"
+      min="0"
+      step="0.1"
+    />
+  </div>
+
+  <div class="grupo-formulario">
+    <label>Consumo Semanal (litros)</label>
+    <input
+      type="number"
+      name="consumoSemanal"
+      [(ngModel)]="formulario().consumoSemanal"
+      (change)="actualizarFormulario('consumoSemanal', formulario().consumoSemanal)"
+      placeholder="Ej: 50000"
+      min="0"
+    />
+  </div>
+
+  <div class="grupo-formulario">
+    <label>Horas de Filtración</label>
+    <input
+      type="number"
+      name="horasFiltracion"
+      [(ngModel)]="formulario().horasFiltracion"
+      (change)="actualizarFormulario('horasFiltracion', formulario().horasFiltracion)"
+      placeholder="Ej: 8"
+      min="0"
+      step="0.5"
+    />
+  </div>
+
+  <div class="grupo-formulario">
+    <label>Fecha de Apertura</label>
+    <input
+      type="date"
+      name="fechaApertura"
+      [ngModel]="formulario().fechaApertura"
+      (ngModelChange)="actualizarFormulario('fechaApertura', $event)"
+    />
+  </div>
+
+  <div class="grupo-formulario">
+    <label>Fecha de Cierre</label>
+    <input
+      type="date"
+      name="fechaCierre"
+      [ngModel]="formulario().fechaCierre"
+      (ngModelChange)="actualizarFormulario('fechaCierre', $event)"
+    />
+  </div>
+
+  <div class="grupo-formulario">
+    <label>Observaciones</label>
+    <textarea
+      name="observaciones"
+      [(ngModel)]="formulario().observaciones"
+      (change)="actualizarFormulario('observaciones', formulario().observaciones)"
+      placeholder="Notas adicionales..."
+      rows="4"
+    ></textarea>
+  </div>
+
+  <!-- Selección de Cliente -->
+  <div class="grupo-formulario">
+    <label>Asignar Cliente</label>
+    <select
+      name="clienteId"
+      [(ngModel)]="clienteSeleccionado"
+      (ngModelChange)="clienteSeleccionado.set($event)"
+    >
+      <option value="">-- Sin cliente asignado --</option>
+      @for (cliente of clientes(); track cliente.uid) {
+        <option [value]="cliente.uid">{{ cliente.nombre }} ({{ cliente.email }})</option>
+      }
+    </select>
+    @if (clientes().length === 0) {
+      <p class="sin-clientes">No hay clientes disponibles</p>
+    }
+  </div>
+
+  <!-- Selección de Técnicos -->
+  <div class="grupo-formulario">
+    <label>Asignar Técnicos</label>
+    <div class="tecnico-selector">
+      @if (tecnicos().length > 0) {
+        <div class="lista-tecnicos">
+          @for (tecnico of tecnicos(); track tecnico.uid) {
+            <label class="checkbox-tecnico">
+              <input
+                type="checkbox"
+                [checked]="esTecnicoSeleccionado(tecnico.uid)"
+                (change)="toggleTecnico(tecnico.uid)"
+              />
+              <span>{{ tecnico.nombre }}</span>
+            </label>
+          }
+        </div>
+      } @else {
+        <p class="sin-tecnicos">No hay técnicos disponibles</p>
+      }
+    </div>
+  </div>
+
+  <div class="botones">
+    <button type="submit" class="btn-enviar" [disabled]="guardando()">
+      {{ guardando() ? 'Guardando...' : '✓ Guardar Piscina' }}
+    </button>
+  </div>
+</form>
+

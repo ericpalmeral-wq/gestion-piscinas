@@ -1,0 +1,134 @@
+<div class="contenedor">
+  <!-- Encabezado -->
+  <div class="encabezado">
+    <div class="titulo-grupo">
+      <h1>👥 Gestión de Usuarios</h1>
+    </div>
+    <button class="btn-agregar" (click)="abrirFormulario()">
+      + Agregar Usuario
+    </button>
+  </div>
+
+  <!-- Cargando -->
+  @if (cargando()) {
+    <div class="estado-vacio">
+      <p>Cargando usuarios...</p>
+    </div>
+  }
+
+  <!-- Tabla de usuarios -->
+  @if (!cargando() && usuarios().length > 0) {
+    <div class="tabla-contenedor">
+      <!-- Buscador -->
+      <div class="buscador-contenedor">
+        <input 
+          type="text" 
+          class="input-buscador"
+          placeholder="🔍 Buscar por email o nombre..."
+          [value]="terminoBuscador()"
+          (input)="actualizarBuscador($event.target.value)"
+        />
+        <div *ngIf="terminoBuscador()" class="info-busqueda">
+          {{ usuariosFiltrados.length }} resultado(s) encontrado(s)
+        </div>
+      </div>
+
+      <table class="tabla-usuarios">
+        <thead>
+          <tr>
+            <th>Email</th>
+            <th>Nombre</th>
+            <th>Rol</th>
+            <th>Estado</th>
+            <th>Fecha Creación</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (usuario of usuariosPaginados; track usuario.uid) {
+            <tr>
+              <td class="email">{{ usuario.email }}</td>
+              <td>{{ usuario.nombre }}</td>
+              <td>
+                <select
+                  class="select-rol"
+                  (ngModelChange)="cambiarRolEvent(usuario, $event)"
+                  [style.backgroundColor]="obtenerColorRol(usuario.rol)"
+                >
+                  <option value="administrador">Administrador</option>
+                  <option value="gestor">Gestor</option>
+                  <option value="tecnico">Técnico</option>
+                  <option value="cliente">Cliente</option>
+                  <option value="invitado">Invitado</option>
+                </select>
+              </td>
+              <td>
+                <button
+                  class="btn-estado"
+                  [class.activo]="usuario.estado === 'activo'"
+                  [class.inactivo]="usuario.estado === 'inactivo'"
+                  (click)="cambiarEstado(usuario)"
+                >
+                  {{ usuario.estado === 'activo' ? '✓ Activo' : '✗ Inactivo' }}
+                </button>
+              </td>
+              <td class="fecha">
+                {{ formatearFecha(usuario.fechaCreacion) }}
+              </td>
+              <td class="acciones">
+                <button
+                  class="btn-editar"
+                  title="Editar usuario"
+                  (click)="abrirFormulario(usuario)"
+                >
+                  ✏️
+                </button>
+                <button
+                  class="btn-eliminar"
+                  title="Eliminar usuario"
+                  (click)="eliminarUsuario(usuario)"
+                >
+                  🗑️
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+
+      <!-- Paginación -->
+      @if (usuarios().length > elementosPorPagina) {
+        <div class="paginacion">
+          <button (click)="paginaAnterior()" [disabled]="paginaActual() === 0" class="btn-paginacion">
+            ← Anterior
+          </button>
+          <span class="info-pagina">
+            Página {{ paginaActual() + 1 }} de {{ totalPaginas }}
+          </span>
+          <button (click)="paginaSiguiente()" [disabled]="paginaActual() === totalPaginas - 1" class="btn-paginacion">
+            Siguiente →
+          </button>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Sin usuarios -->
+  @if (!cargando() && usuarios().length === 0) {
+    <div class="estado-vacio">
+      <p>No hay usuarios registrados</p>
+      <button class="btn-agregar" (click)="abrirFormulario()">
+        + Crear primer usuario
+      </button>
+    </div>
+  }
+
+  <!-- Modal de formulario -->
+  @if (mostrando()) {
+    <app-formulario-usuario
+      [usuario]="usuarioEditando()"
+      (usuarioGuardado)="onUsuarioGuardado()"
+      (cerrar)="cerrarFormulario()"
+    ></app-formulario-usuario>
+  }
+</div>

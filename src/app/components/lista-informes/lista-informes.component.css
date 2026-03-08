@@ -1,0 +1,360 @@
+/* Informes - Diseño Moderno */
+.informes-seccion {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.08);
+  padding: 32px 24px;
+  margin-bottom: 32px;
+  border-left: 6px solid #f59e0b;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.informes-seccion h3 {
+  color: #1f2937;
+  font-size: 20px;
+  margin-bottom: 24px;
+}
+
+.cargando-informes,
+.sin-informes {
+  padding: 40px 20px;
+  text-align: center;
+  color: #6b7280;
+  background-color: #f9fafb;
+  border-radius: 8px;
+}
+
+.error-mensaje {
+  padding: 16px 20px;
+  background-color: #fee;
+  border-left: 4px solid #f87171;
+  border-radius: 4px;
+  color: #991b1b;
+  margin-bottom: 20px;
+}
+
+.tabla-informes-contenedor {
+  overflow-x: auto;
+  margin-bottom: 30px;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  background: white;
+}
+
+/* Buscador */
+.buscador-contenedor {
+  padding: 20px;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.input-buscador {
+  flex: 1;
+  min-width: 250px;
+  padding: 12px 16px;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: inherit;
+  transition: all 0.3s ease;
+}
+
+.input-buscador:focus {
+  outline: none;
+  border-color: #f59e0b;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+}
+
+.input-buscador::placeholder {
+  color: #9ca3af;
+}
+
+.info-busqueda {
+  padding: 0 8px;
+  color: #6b7280;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.tabla-informes {
+  width: 100%;
+  min-width: 700px;
+  border-collapse: collapse;
+  background: white;
+}
+
+.tabla-informes thead {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  border-bottom: 3px solid #f59e0b;
+}
+
+.tabla-informes th {
+  padding: 16px 12px;
+  text-align: left;
+  font-weight: 700;
+  color: white;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+
+.tabla-informes tbody tr {
+  border-bottom: 1px solid #e5e7eb;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.tabla-informes tbody tr:hover {
+  background-color: #fffbeb;
+  box-shadow: inset 4px 0 0 #f59e0b;
+}
+
+.tabla-informes td {
+  padding: 14px 12px;
+  color: #374151;
+  font-size: 14px;
+}
+
+.celda-piscina {
+  font-weight: 600;
+  color: #1f2937;
+  width: 200px;
+  max-width: 200px;
+  word-break: break-word;
+}
+
+.celda-fecha {
+  color: #6b7280;
+  font-weight: 500;
+  white-space: nowrap;
+  width: 160px;
+  font-size: 13px;
+}
+
+.celda-estado {
+  text-align: center;
+  width: 110px;
+  white-space: nowrap;
+}
+
+.celda-lineas {
+  text-align: center;
+  width: 110px;
+  font-weight: 600;
+  color: #f59e0b;
+}
+
+.celda-acciones {
+  text-align: center;
+  width: 140px;
+  padding: 10px 4px !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.badge-estado {
+  display: inline-block;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+}
+
+.estado-bien {
+  background: linear-gradient(135deg, #6ee7b7 0%, #34d399 100%);
+  color: #065f46;
+}
+
+.estado-regular {
+  background: linear-gradient(135deg, #fcd34d 0%, #fbbf24 100%);
+  color: #78350f;
+}
+
+.estado-mal {
+  background: linear-gradient(135deg, #fca5a5 0%, #f87171 100%);
+  color: #7f1d1d;
+}
+
+.btn-editar,
+.btn-descargar-pdf,
+.btn-eliminar {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 6px 10px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-editar {
+  color: #3b82f6;
+}
+
+.btn-editar:hover {
+  background-color: #dbeafe;
+  transform: scale(1.15);
+}
+
+.btn-descargar-pdf {
+  color: #8b5cf6;
+}
+
+.btn-descargar-pdf:hover {
+  background-color: #f3e8ff;
+  transform: scale(1.15);
+}
+
+.btn-eliminar {
+  color: #ef4444;
+}
+
+.btn-eliminar:hover {
+  background-color: #fee2e2;
+  transform: scale(1.15);
+}
+
+.fila-informe {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.fila-informe:hover {
+  background-color: #fffbeb !important;
+  box-shadow: inset 4px 0 0 #f59e0b;
+}
+
+.btn-crear-contenedor {
+  text-align: center;
+  margin-top: 24px;
+}
+
+.btn-crear,
+.btn-crear-principal {
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+}
+
+.btn-crear:hover,
+.btn-crear-principal:hover {
+  background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
+}
+
+.btn-crear:active,
+.btn-crear-principal:active {
+  transform: translateY(0);
+}
+
+@media (max-width: 768px) {
+  .tabla-informes {
+    min-width: 500px;
+    font-size: 12px;
+  }
+
+  .tabla-informes th,
+  .tabla-informes td {
+    padding: 10px 6px;
+  }
+
+  .celda-piscina {
+    width: 130px;
+    max-width: 130px;
+    font-size: 12px;
+  }
+
+  .celda-fecha {
+    width: 110px;
+    font-size: 12px;
+  }
+
+  .celda-estado {
+    width: 90px;
+  }
+
+  .celda-lineas {
+    width: 70px;
+  }
+
+  .celda-acciones {
+    width: 120px;
+    gap: 4px;
+  }
+
+  .btn-editar,
+  .btn-descargar-pdf,
+  .btn-eliminar {
+    font-size: 14px;
+    padding: 4px 6px;
+  }
+}
+
+/* Paginaci�n */
+.paginacion {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  margin-top: 20px;
+  padding: 20px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.btn-paginacion {
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(139, 92, 246, 0.2);
+}
+
+.btn-paginacion:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+}
+
+.btn-paginacion:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: #9ca3af;
+}
+
+.info-pagina {
+  font-weight: 600;
+  color: #333;
+  font-size: 14px;
+  min-width: 150px;
+  text-align: center;
+}
