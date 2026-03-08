@@ -204,6 +204,5 @@ export class InformesService {
     for (const informe of informesPrueba) {
       await this.agregarInforme(informe);
     }
-    console.log('Datos de prueba de informes agregados correctamente');
   }
 }

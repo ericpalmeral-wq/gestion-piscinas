@@ -181,6 +181,5 @@ export class PresupuestosService {
     for (const presupuesto of presupuestosPrueba) {
       await this.agregarPresupuesto(presupuesto);
     }
-    console.log('Datos de prueba de presupuestos agregados correctamente');
   }
 }

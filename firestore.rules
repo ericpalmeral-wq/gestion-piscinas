@@ -1,0 +1,38 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    function estaAutenticado() {
+      return request.auth != null;
+    }
+    
+    match /usuarios/{userId} {
+      allow read, write: if estaAutenticado();
+    }
+    
+    match /piscinas/{piscinaId} {
+      allow read, write: if estaAutenticado();
+    }
+    
+    match /informes/{informeId} {
+      allow read, write: if estaAutenticado();
+    }
+    
+    match /presupuestos/{presupuestoId} {
+      allow read, write: if estaAutenticado();
+    }
+    
+    match /tareas/{tareaId} {
+      allow read, write: if estaAutenticado();
+    }
+    
+    match /libros/{libroId} {
+      allow read, write: if estaAutenticado();
+    }
+    
+    match /presupuestos-mantenimiento/{presupuestoId} {
+      allow read, write: if estaAutenticado();
+    }
+  }
+}

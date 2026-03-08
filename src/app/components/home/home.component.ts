@@ -85,42 +85,34 @@ export class HomeComponent implements OnInit {
   ];
 
   ngOnInit(): void {
-    // El AuthService guarda el usuario completo en 'usuarioActual', no solo el email
     const usuarioGuardado = localStorage.getItem('usuarioActual');
-    console.log('[Home] Usuario en localStorage:', usuarioGuardado);
     
     if (usuarioGuardado) {
       try {
         const usuario = JSON.parse(usuarioGuardado) as Usuario;
-        console.log('[Home] Usuario parseado:', usuario);
         this.usuarioActual.set(usuario);
         this.cargarDatosDashboard(usuario);
-      } catch (err) {
-        console.error('[Home] Error al parsear usuario:', err);
+      } catch {
         this.cargando.set(false);
       }
     } else {
-      console.log('[Home] No hay usuario guardado en localStorage');
       this.cargando.set(false);
     }
   }
 
   private cargarDatosDashboard(usuario: Usuario): void {
     const rol = usuario.rol;
-    console.log('[Home] Cargando datos del dashboard para rol:', rol);
     
     // Si es cliente, cargar solo sus piscinas
     if (rol === 'cliente') {
       this.piscinasService.obtenerPiscinasDeCliente(usuario.uid).subscribe({
         next: (piscinas) => {
-          console.log('[Home] Piscinas del cliente:', piscinas.length);
           this.piscinasDelCliente.set(
             piscinas.sort((a: any, b: any) => this.compararFechas(b.fechaCreacion, a.fechaCreacion))
           );
           this.cargando.set(false);
         },
-        error: (err) => {
-          console.error('[Home] Error al cargar piscinas del cliente:', err);
+        error: () => {
           this.cargando.set(false);
         }
       });
@@ -131,14 +123,12 @@ export class HomeComponent implements OnInit {
     if (rol === 'tecnico') {
       this.piscinasService.obtenerPiscinasAsignadasATecnico(usuario.uid).subscribe({
         next: (piscinas) => {
-          console.log('[Home] Piscinas del técnico:', piscinas.length);
           this.piscinasDelTecnico.set(
             piscinas.sort((a: any, b: any) => this.compararFechas(a.ultimaLimpieza, b.ultimaLimpieza))
           );
           this.cargando.set(false);
         },
-        error: (err) => {
-          console.error('[Home] Error al cargar piscinas del técnico:', err);
+        error: () => {
           this.cargando.set(false);
         }
       });
@@ -153,7 +143,6 @@ export class HomeComponent implements OnInit {
       tareas: this.tareasService.obtenerTodasLasTareas()
     }).subscribe({
       next: ({ piscinas, informes, presupuestos, tareas }) => {
-        console.log('[Home] Datos recibidos:', { piscinas: piscinas.length, informes: informes.length, presupuestos: presupuestos.length, tareas: tareas.length });
         const piscinasOrdenadas = piscinas.sort((a: any, b: any) => this.compararFechas(b.fechaCreacion, a.fechaCreacion));
         this.ultimasPiscinas.set(piscinasOrdenadas.slice(0, 5));
         this.todasLasPiscinasGrafica.set(piscinasOrdenadas);
@@ -178,10 +167,8 @@ export class HomeComponent implements OnInit {
         );
         
         this.cargando.set(false);
-        console.log('[Home] Dashboard cargado correctamente');
       },
-      error: (err) => {
-        console.error('[Home] Error al cargar datos del dashboard:', err);
+      error: () => {
         this.cargando.set(false);
       }
     });
@@ -369,9 +356,7 @@ export class HomeComponent implements OnInit {
         pHAgua: piscina.pHAgua,
         ultimaLimpieza: piscina.ultimaLimpieza
       });
-      console.log('[Home] Parámetros de piscina actualizados:', piscina.id);
-    } catch (error) {
-      console.error('[Home] Error al actualizar parámetros:', error);
+    } catch {
       alert('Error al actualizar los parámetros de la piscina');
     } finally {
       this.actualizandoPiscina.set(null);

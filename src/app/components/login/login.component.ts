@@ -34,7 +34,6 @@ export class LoginComponent {
       await this.authService.login(this.email, this.password);
       this.router.navigate(['/piscinas']);
     } catch (err: any) {
-      console.error('Error de login:', err);
       if (err.message.includes('user-not-found')) {
         this.error.set('Usuario no encontrado');
       } else if (err.message.includes('wrong-password')) {

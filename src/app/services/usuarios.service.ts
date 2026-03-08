@@ -73,7 +73,6 @@ export class UsuariosService {
     // Verificar si ya existe un usuario con este email
     const existente = await this.obtenerUsuarioPorEmail(emailNormalizado).toPromise();
     if (existente) {
-      console.log('Usuario ya existe con email:', emailNormalizado);
       return existente.uid;
     }
     

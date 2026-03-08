@@ -54,7 +54,6 @@ export class AuthService {
 
       // Si el usuario no existe en Firestore, crearlo automáticamente
       if (!usuarioFirestore) {
-        console.log('Usuario no encontrado en Firestore, creando automáticamente...');
         await this.usuariosService.crearUsuario({
           email: emailNormalizado,
           nombre: resultado.user?.displayName || emailNormalizado.split('@')[0],
@@ -70,6 +69,12 @@ export class AuthService {
         if (!usuarioFirestore) {
           throw new Error('Error al crear el usuario en el sistema');
         }
+      }
+
+      // Verificar si el usuario está activo
+      if (usuarioFirestore.estado !== 'activo') {
+        await signOut(this.auth);
+        throw new Error('Tu cuenta ha sido desactivada. Contacta al administrador.');
       }
 
       // Guardar en localStorage

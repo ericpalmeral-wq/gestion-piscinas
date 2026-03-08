@@ -40,8 +40,6 @@ export class ListaPiscinasComponent implements OnInit {
     const esAdmin = usuarioActual?.rol === 'administrador' || usuarioActual?.rol === 'gestor';
     const esTecnico = usuarioActual?.rol === 'tecnico';
 
-    console.log('Iniciando carga de piscinas... Rol:', usuarioActual?.rol);
-
     // Si es técnico, obtener solo las piscinas asignadas
     const observable = esTecnico && usuarioActual
       ? this.piscinasService.obtenerPiscinasAsignadasATecnico(usuarioActual.uid)
@@ -49,7 +47,6 @@ export class ListaPiscinasComponent implements OnInit {
 
     observable.subscribe({
       next: (piscinas: any[]) => {
-        console.log('Piscinas cargadas exitosamente:', piscinas);
         const piscinasFormateadas = piscinas.map(p => ({
           ...p,
           fechaCreacion: p.fechaCreacion instanceof Date ? p.fechaCreacion : new Date(p.fechaCreacion || Date.now()),
@@ -58,10 +55,7 @@ export class ListaPiscinasComponent implements OnInit {
         this.piscinas.set(piscinasFormateadas);
         this.cargando.set(false);
       },
-      error: (err: any) => {
-        console.error('Error completo:', err);
-        console.error('Error mensaje:', err.message);
-        console.error('Error code:', err.code);
+      error: () => {
         this.error.set('Error al cargar las piscinas. Verifica la configuración de Firebase y que la colección "piscinas" exista en Firestore.');
         this.cargando.set(false);
       }

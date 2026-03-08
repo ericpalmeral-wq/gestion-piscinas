@@ -141,8 +141,8 @@ export class PiscinaDetalleComponent implements OnInit {
         const clientes = usuarios.filter(u => u.rol === 'cliente' && u.estado === 'activo');
         this.clientes.set(clientes);
       },
-      error: (error) => {
-        console.error('Error al cargar clientes:', error);
+      error: () => {
+        // Error al cargar clientes
       }
     });
   }
@@ -150,13 +150,11 @@ export class PiscinaDetalleComponent implements OnInit {
   cargarTecnicos(): void {
     this.usuariosService.obtenerUsuarios().subscribe({
       next: (usuarios) => {
-        console.log('[PiscinaDetalle] Todos los usuarios:', usuarios);
         const tecnicos = usuarios.filter(u => u.rol === 'tecnico');
-        console.log('[PiscinaDetalle] Técnicos encontrados:', tecnicos);
         this.tecnicos.set(tecnicos);
       },
-      error: (error) => {
-        console.error('Error al cargar técnicos:', error);
+      error: () => {
+        // Error al cargar técnicos
       }
     });
   }

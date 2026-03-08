@@ -346,6 +346,5 @@ export class PiscinasService {
     for (const piscina of piscinasPrueba) {
       await this.agregarPiscina(piscina);
     }
-    console.log('Datos de prueba de piscinas agregados correctamente');
   }
 }

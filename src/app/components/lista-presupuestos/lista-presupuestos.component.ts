@@ -256,17 +256,13 @@ export class ListaPresupuestosComponent implements OnInit {
   }
 
   cambiarEstadoModal(nuevoEstado: 'pendiente' | 'aceptado'): void {
-    console.log('cambiarEstadoModal llamado con:', nuevoEstado);
     if (!this.presupuestoSeleccionado?.id) {
-      console.log('No hay presupuesto seleccionado o no tiene ID');
       return;
     }
     
     const id = this.presupuestoSeleccionado.id;
-    console.log('Actualizando presupuesto con ID:', id);
     
     this.presupuestosService.actualizarPresupuesto(id, { estado: nuevoEstado }).then(() => {
-      console.log('Actualización exitosa, nuevo estado:', nuevoEstado);
       // Actualizar en el modal - crear nuevo objeto para forzar detección
       if (this.presupuestoSeleccionado && this.presupuestoSeleccionado.id === id) {
         this.presupuestoSeleccionado = {
@@ -280,8 +276,8 @@ export class ListaPresupuestosComponent implements OnInit {
         this.presupuestos[index] = { ...this.presupuestos[index], estado: nuevoEstado };
       }
       this.cdr.detectChanges();
-    }).catch(err => {
-      console.error('Error al cambiar estado:', err);
+    }).catch(() => {
+      // Error al cambiar estado
     });
   }
 }
