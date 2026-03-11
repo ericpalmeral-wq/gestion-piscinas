@@ -134,6 +134,56 @@
   font-size: 12px;
 }
 
+/* Radio Group para Roles */
+.radio-group {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.radio-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border: 2px solid #e5e7eb;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: #fafafa;
+}
+
+.radio-option:hover {
+  border-color: #667eea;
+  background: #f5f3ff;
+}
+
+.radio-option.selected {
+  border-color: #667eea;
+  background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%);
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+}
+
+.radio-option input[type="radio"] {
+  display: none;
+}
+
+.radio-icon {
+  font-size: 20px;
+}
+
+.radio-label {
+  font-weight: 500;
+  color: #374151;
+  font-size: 14px;
+}
+
+@media (max-width: 480px) {
+  .radio-group {
+    grid-template-columns: 1fr;
+  }
+}
+
 .botones {
   display: flex;
   gap: 12px;

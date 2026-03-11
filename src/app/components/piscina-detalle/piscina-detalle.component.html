@@ -291,16 +291,21 @@
           </thead>
           <tbody>
             <tr *ngFor="let p of presupuestos()" class="fila-presupuesto" (click)="abrirModalPresupuesto(p)">
-              <td class="celda-descripcion">{{ p.descripcion }}</td>
-              <td class="celda-fecha">{{ formatearFecha(p.fechaCreacion) }}</td>
-              <td class="celda-total">{{ getTotalLineas(p.lineas) | number:'1.2-2' }} €</td>
-              <td class="celda-estado">
+              <td class="celda-descripcion" data-label="Descripción">{{ p.descripcion }}</td>
+              <td class="celda-fecha" data-label="Fecha">{{ formatearFecha(p.fechaCreacion) }}</td>
+              <td class="celda-total" data-label="Total">{{ getTotalLineas(p.lineas) | number:'1.2-2' }} €</td>
+              <td class="celda-estado" data-label="Estado" (click)="usuarioActual()?.rol === 'cliente' && p.estado === 'pendiente' ? aceptarPresupuesto(p, $event) : null">
                 <span class="badge-estado"
-                  [ngClass]="p.estado === 'pendiente' ? 'estado-pendiente' : 'estado-aceptado'">
+                  [ngClass]="{
+                    'estado-pendiente': p.estado === 'pendiente',
+                    'estado-aceptado': p.estado === 'aceptado',
+                    'estado-clickable': usuarioActual()?.rol === 'cliente' && p.estado === 'pendiente'
+                  }"
+                  [title]="usuarioActual()?.rol === 'cliente' && p.estado === 'pendiente' ? 'Haz clic para aceptar' : ''">
                   {{ p.estado === 'pendiente' ? 'Pendiente' : 'Aceptado' }}
                 </span>
               </td>
-              <td class="celda-acciones" (click)="$event.stopPropagation()">
+              <td class="celda-acciones" data-label="Acciones" (click)="$event.stopPropagation()">
                 <button class="btn-descargar-pdf" (click)="generarPDFPresupuesto(p)" title="Descargar PDF">
                   📄
                 </button>
@@ -408,10 +413,10 @@
                   </thead>
                   <tbody>
                     <tr *ngFor="let linea of pres.lineas">
-                      <td class="td-cantidad">{{ linea.cantidad }}</td>
-                      <td class="td-descripcion">{{ linea.descripcion }}</td>
-                      <td class="td-precio">{{ linea.precioUnitario | number:'1.2-2' }} €</td>
-                      <td class="td-total"><strong>{{ linea.total | number:'1.2-2' }} €</strong></td>
+                      <td class="td-cantidad" data-label="Cantidad">{{ linea.cantidad }}</td>
+                      <td class="td-descripcion" data-label="Descripción">{{ linea.descripcion }}</td>
+                      <td class="td-precio" data-label="Precio Unit.">{{ linea.precioUnitario | number:'1.2-2' }} €</td>
+                      <td class="td-total" data-label="Total"><strong>{{ linea.total | number:'1.2-2' }} €</strong></td>
                     </tr>
                   </tbody>
                 </table>
@@ -425,6 +430,11 @@
           </div>
 
           <div class="modal-pie">
+            <button *ngIf="usuarioActual()?.rol === 'cliente' && pres.estado === 'pendiente'" 
+                    class="btn-aceptar-presupuesto" 
+                    (click)="aceptarPresupuesto(pres, $event)">
+              ✓ Aceptar Presupuesto
+            </button>
             <button class="btn-descargar-pdf-modal" (click)="generarPDFPresupuesto(presupuestoSeleccionado()!)">📄
               Descargar PDF</button>
             <button class="btn-cerrar" (click)="cerrarModalPresupuesto()">Cerrar</button>

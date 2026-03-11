@@ -5,6 +5,9 @@
       <h1>📚 Libro de Registro</h1>
       <span class="nombre-piscina" *ngIf="piscina()">{{ piscina()!.nombre }}</span>
     </div>
+    <button class="btn-descargar-pdf" (click)="descargarPDF()" [disabled]="generandoPDF()">
+      {{ generandoPDF() ? '⏳ Generando...' : '📄 Descargar PDF' }}
+    </button>
   </div>
 
   <!-- Mensajes -->

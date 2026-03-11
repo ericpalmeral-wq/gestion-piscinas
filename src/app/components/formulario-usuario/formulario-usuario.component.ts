@@ -29,11 +29,11 @@ export class FormularioUsuarioComponent implements OnInit {
   error = signal<string>('');
 
   readonly ROLES = [
-    { valor: 'administrador', etiqueta: 'Administrador' },
-    { valor: 'gestor', etiqueta: 'Gestor' },
-    { valor: 'tecnico', etiqueta: 'Técnico' },
-    { valor: 'cliente', etiqueta: 'Cliente' },
-    { valor: 'invitado', etiqueta: 'Invitado' }
+    { valor: 'administrador', etiqueta: 'Administrador', icono: '👑' },
+    { valor: 'gestor', etiqueta: 'Gestor', icono: '📋' },
+    { valor: 'tecnico', etiqueta: 'Técnico', icono: '🔧' },
+    { valor: 'cliente', etiqueta: 'Cliente', icono: '👤' },
+    { valor: 'invitado', etiqueta: 'Invitado', icono: '👁️' }
   ];
 
   ngOnInit(): void {

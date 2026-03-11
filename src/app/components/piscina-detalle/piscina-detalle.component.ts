@@ -322,6 +322,43 @@ export class PiscinaDetalleComponent implements OnInit {
     setTimeout(() => this.presupuestoSeleccionado.set(null), 300);
   }
 
+  // Permite al cliente aceptar un presupuesto pendiente
+  async aceptarPresupuesto(presupuesto: Presupuesto, event: Event): Promise<void> {
+    event.stopPropagation();
+    
+    // Solo clientes pueden aceptar y solo si está pendiente
+    if (this.usuarioActual()?.rol !== 'cliente' || presupuesto.estado !== 'pendiente') {
+      return;
+    }
+    
+    if (!presupuesto.id) return;
+    
+    const confirmar = confirm('¿Deseas aceptar este presupuesto?');
+    if (!confirmar) return;
+    
+    try {
+      await this.presupuestosService.actualizarPresupuesto(presupuesto.id, { estado: 'aceptado' });
+      
+      // Actualizar la lista local
+      const presupuestosActualizados = this.presupuestos().map(p => 
+        p.id === presupuesto.id ? { ...p, estado: 'aceptado' as const } : p
+      );
+      this.presupuestos.set(presupuestosActualizados);
+      
+      // Si está en el modal, actualizar también
+      if (this.presupuestoSeleccionado()?.id === presupuesto.id) {
+        this.presupuestoSeleccionado.set({ ...presupuesto, estado: 'aceptado' });
+      }
+      
+      this.suceso.set('Presupuesto aceptado correctamente');
+      setTimeout(() => this.suceso.set(null), 3000);
+    } catch (error) {
+      console.error('Error al aceptar presupuesto:', error);
+      this.error.set('Error al aceptar el presupuesto');
+      setTimeout(() => this.error.set(null), 3000);
+    }
+  }
+
   generarPDFPresupuesto(presupuesto: Presupuesto): void {
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();

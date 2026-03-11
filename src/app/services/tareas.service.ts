@@ -64,7 +64,8 @@ export class TareasService {
       prioridad: data['prioridad'] || 'media',
       fechaCreacion: data['fechaCreacion'],
       fechaVencimiento: data['fechaVencimiento'],
-      responsable: data['responsable']
+      responsable: data['responsable'],
+      resolucion: data['resolucion']
     } as Tarea;
   }
 }

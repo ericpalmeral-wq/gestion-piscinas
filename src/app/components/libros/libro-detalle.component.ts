@@ -18,6 +18,8 @@ import {
 } from '../../models/libro';
 import { Piscina } from '../../models/piscina';
 import { Usuario } from '../../models/usuario';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 @Component({
   selector: 'app-libro-detalle',
@@ -37,6 +39,7 @@ export class LibroDetalleComponent implements OnInit {
   usuarioActual = signal<Usuario | null>(null);
   cargando = signal(true);
   guardando = signal(false);
+  generandoPDF = signal(false);
   error = signal<string | null>(null);
   exito = signal<string | null>(null);
 
@@ -126,6 +129,418 @@ export class LibroDetalleComponent implements OnInit {
   puedeEditar(): boolean {
     const rol = this.usuarioActual()?.rol;
     return rol === 'administrador' || rol === 'tecnico';
+  }
+
+  // ===== Descargar PDF =====
+  async descargarPDF(): Promise<void> {
+    if (!this.libro()) return;
+    
+    this.generandoPDF.set(true);
+    
+    try {
+      const doc = new jsPDF();
+      const libro = this.libro()!;
+      const piscinaNombre = this.piscina()?.nombre || 'Piscina';
+      let yPos = 20;
+      
+      // ===== PORTADA =====
+      doc.setFontSize(22);
+      doc.setTextColor(59, 130, 246);
+      doc.text('LIBRO DE REGISTRO', 105, 60, { align: 'center' });
+      doc.text('DE PISCINA', 105, 72, { align: 'center' });
+      
+      doc.setFontSize(18);
+      doc.setTextColor(0, 0, 0);
+      doc.text(piscinaNombre, 105, 100, { align: 'center' });
+      
+      const id = libro.identificacionPiscina;
+      doc.setFontSize(12);
+      doc.setTextColor(100, 100, 100);
+      doc.text(id.direccion || '', 105, 115, { align: 'center' });
+      doc.text(`${id.municipio || ''} - ${id.provincia || ''}`, 105, 125, { align: 'center' });
+      
+      doc.setFontSize(10);
+      doc.text(`Generado el ${new Date().toLocaleDateString('es-ES')}`, 105, 250, { align: 'center' });
+      
+      // ===== PÁGINA 2: IDENTIFICACIÓN =====
+      doc.addPage();
+      yPos = 20;
+      
+      doc.setFontSize(16);
+      doc.setTextColor(139, 92, 246);
+      doc.text('1. IDENTIFICACIÓN DE LA PISCINA', 14, yPos);
+      yPos += 12;
+      
+      // Datos generales
+      doc.setFontSize(11);
+      doc.setTextColor(59, 130, 246);
+      doc.text('Datos Generales', 14, yPos);
+      yPos += 8;
+      
+      doc.setFontSize(10);
+      doc.setTextColor(0, 0, 0);
+      const datosGenerales = [
+        ['Nombre', id.nombrePiscina || piscinaNombre],
+        ['Dirección', id.direccion || 'N/A'],
+        ['Municipio', id.municipio || 'N/A'],
+        ['Código Postal', id.codigoPostal || 'N/A'],
+        ['Provincia', id.provincia || 'N/A'],
+        ['Tipo de Piscina', id.tipoPiscina || 'N/A'],
+        ['Uso', id.uso || 'N/A'],
+        ['Apertura Temporada', id.fechaAperturaTemporada || 'N/A'],
+        ['Cierre Temporada', id.fechaCierreTemporada || 'N/A']
+      ];
+      
+      autoTable(doc, {
+        startY: yPos,
+        head: [['Campo', 'Valor']],
+        body: datosGenerales,
+        styles: { fontSize: 9 },
+        headStyles: { fillColor: [139, 92, 246] },
+        columnStyles: { 0: { fontStyle: 'bold', cellWidth: 50 } },
+        margin: { left: 14, right: 14 }
+      });
+      
+      yPos = (doc as any).lastAutoTable.finalY + 12;
+      
+      // Datos del titular
+      doc.setFontSize(11);
+      doc.setTextColor(59, 130, 246);
+      doc.text('Datos del Titular', 14, yPos);
+      yPos += 8;
+      
+      const datosTitular = [
+        ['Nombre/Razón Social', id.titular?.nombre || 'N/A'],
+        ['NIF/CIF', id.titular?.nifCif || 'N/A'],
+        ['Teléfono', id.titular?.telefono || 'N/A'],
+        ['Email', id.titular?.email || 'N/A']
+      ];
+      
+      autoTable(doc, {
+        startY: yPos,
+        head: [['Campo', 'Valor']],
+        body: datosTitular,
+        styles: { fontSize: 9 },
+        headStyles: { fillColor: [139, 92, 246] },
+        columnStyles: { 0: { fontStyle: 'bold', cellWidth: 50 } },
+        margin: { left: 14, right: 14 }
+      });
+      
+      yPos = (doc as any).lastAutoTable.finalY + 15;
+      
+      // ===== DATOS DE VASOS =====
+      if (libro.datosVasos && libro.datosVasos.length > 0) {
+        if (yPos > 200) {
+          doc.addPage();
+          yPos = 20;
+        }
+        
+        doc.setFontSize(16);
+        doc.setTextColor(139, 92, 246);
+        doc.text('2. DATOS DE LOS VASOS', 14, yPos);
+        yPos += 10;
+        
+        const datosVasos = libro.datosVasos.map(v => [
+          v.idVaso || '-',
+          v.tipoVaso || '-',
+          v.usoVaso || '-',
+          v.volumenM3?.toString() || '-',
+          v.superficieM2?.toString() || '-',
+          `${v.profundidadMinimaM || '-'} - ${v.profundidadMaximaM || '-'}`,
+          v.sistemaTratamiento || '-',
+          v.tipoDesinfectante || '-'
+        ]);
+        
+        autoTable(doc, {
+          startY: yPos,
+          head: [['ID', 'Tipo', 'Uso', 'Vol (m³)', 'Sup (m²)', 'Prof (m)', 'Tratamiento', 'Desinfectante']],
+          body: datosVasos,
+          styles: { fontSize: 7 },
+          headStyles: { fillColor: [16, 185, 129] },
+          margin: { left: 14, right: 14 }
+        });
+        
+        yPos = (doc as any).lastAutoTable.finalY + 15;
+      }
+      
+      // ===== CONTROLES DIARIOS DE AGUA =====
+      doc.addPage();
+      yPos = 20;
+      
+      doc.setFontSize(16);
+      doc.setTextColor(139, 92, 246);
+      doc.text('3. CONTROLES DIARIOS DE AGUA', 14, yPos);
+      yPos += 10;
+      
+      if (libro.controlesDiariosAgua && libro.controlesDiariosAgua.length > 0) {
+        const datosControles = libro.controlesDiariosAgua.map(c => [
+          c.fecha || '-',
+          c.hora || '-',
+          c.idVaso || '-',
+          c.ph?.toString() || '-',
+          c.desinfectanteResidualLibreMgL?.toString() || '-',
+          c.desinfectanteResidualCombinadoMgL?.toString() || '-',
+          c.turbidezNTU?.toString() || '-',
+          c.temperaturaAguaC?.toString() || '-',
+          c.transparenciaCorrecta ? 'Sí' : 'No'
+        ]);
+        
+        autoTable(doc, {
+          startY: yPos,
+          head: [['Fecha', 'Hora', 'Vaso', 'pH', 'Cl Libre', 'Cl Comb.', 'Turbidez', 'Temp', 'Transp.']],
+          body: datosControles,
+          styles: { fontSize: 7 },
+          headStyles: { fillColor: [59, 130, 246] },
+          margin: { left: 14, right: 14 },
+          didDrawPage: (data: any) => {
+            yPos = data.cursor.y;
+          }
+        });
+        
+        yPos = (doc as any).lastAutoTable.finalY + 15;
+      } else {
+        doc.setFontSize(10);
+        doc.setTextColor(128, 128, 128);
+        doc.text('No hay controles diarios registrados', 14, yPos);
+        yPos += 15;
+      }
+      
+      // ===== CONTROLES DE AIRE (PISCINAS CUBIERTAS) =====
+      if (libro.controlesAirePiscinaCubierta && libro.controlesAirePiscinaCubierta.length > 0) {
+        doc.addPage();
+        yPos = 20;
+        
+        doc.setFontSize(16);
+        doc.setTextColor(139, 92, 246);
+        doc.text('4. CONTROLES DE AIRE (PISCINA CUBIERTA)', 14, yPos);
+        yPos += 10;
+        
+        const datosAire = libro.controlesAirePiscinaCubierta.map(c => [
+          c.fecha || '-',
+          c.hora || '-',
+          c.temperaturaAmbienteC?.toString() || '-',
+          c.humedadRelativaPorcentaje?.toString() || '-',
+          c.co2Ppm?.toString() || '-',
+          c.cloroAmbienteMgM3?.toString() || '-',
+          c.observaciones?.substring(0, 25) || '-'
+        ]);
+        
+        autoTable(doc, {
+          startY: yPos,
+          head: [['Fecha', 'Hora', 'Temp (°C)', 'Humedad (%)', 'CO₂ (ppm)', 'Cl Amb.', 'Observaciones']],
+          body: datosAire,
+          styles: { fontSize: 8 },
+          headStyles: { fillColor: [234, 179, 8] },
+          margin: { left: 14, right: 14 }
+        });
+        
+        yPos = (doc as any).lastAutoTable.finalY + 15;
+      }
+      
+      // ===== CONTROLES PERIÓDICOS =====
+      if (libro.controlesPeriodicosAgua && libro.controlesPeriodicosAgua.length > 0) {
+        doc.addPage();
+        yPos = 20;
+        
+        doc.setFontSize(16);
+        doc.setTextColor(139, 92, 246);
+        doc.text('5. CONTROLES PERIÓDICOS DE AGUA', 14, yPos);
+        yPos += 10;
+        
+        const datosPeriodicos = libro.controlesPeriodicosAgua.map(c => [
+          c.fechaMuestreo || '-',
+          c.idVaso || '-',
+          c.ph?.toString() || '-',
+          c.desinfectanteResidualLibreMgL?.toString() || '-',
+          c.turbidezNTU?.toString() || '-',
+          c.eColiUfc100ml?.toString() || '-',
+          c.pseudomonasAeruginosaUfc100ml?.toString() || '-',
+          c.resultadoConforme ? 'Sí' : 'No',
+          c.laboratorio || '-'
+        ]);
+        
+        autoTable(doc, {
+          startY: yPos,
+          head: [['Fecha', 'Vaso', 'pH', 'Cl Libre', 'Turbidez', 'E.Coli', 'Pseudom.', 'Conforme', 'Lab.']],
+          body: datosPeriodicos,
+          styles: { fontSize: 7 },
+          headStyles: { fillColor: [139, 92, 246] },
+          margin: { left: 14, right: 14 }
+        });
+        
+        yPos = (doc as any).lastAutoTable.finalY + 15;
+      }
+      
+      // ===== INCIDENCIAS =====
+      doc.addPage();
+      yPos = 20;
+      
+      doc.setFontSize(16);
+      doc.setTextColor(139, 92, 246);
+      doc.text('6. INCIDENCIAS', 14, yPos);
+      yPos += 10;
+      
+      if (libro.incidencias && libro.incidencias.length > 0) {
+        const datosIncidencias = libro.incidencias.map(i => [
+          i.fecha || '-',
+          i.hora || '-',
+          i.idVaso || '-',
+          i.descripcionIncidencia?.substring(0, 30) || '-',
+          i.parametroAfectado || '-',
+          i.valorDetectado || '-',
+          i.medidasCorrectoras?.substring(0, 25) || '-',
+          i.fechaResolucion || 'Pendiente'
+        ]);
+        
+        autoTable(doc, {
+          startY: yPos,
+          head: [['Fecha', 'Hora', 'Vaso', 'Descripción', 'Parámetro', 'Valor', 'Medidas', 'Resolución']],
+          body: datosIncidencias,
+          styles: { fontSize: 7 },
+          headStyles: { fillColor: [239, 68, 68] },
+          margin: { left: 14, right: 14 }
+        });
+        
+        yPos = (doc as any).lastAutoTable.finalY + 15;
+      } else {
+        doc.setFontSize(10);
+        doc.setTextColor(128, 128, 128);
+        doc.text('No hay incidencias registradas', 14, yPos);
+        yPos += 15;
+      }
+      
+      // ===== TRATAMIENTOS DE AGUA =====
+      doc.addPage();
+      yPos = 20;
+      
+      doc.setFontSize(16);
+      doc.setTextColor(139, 92, 246);
+      doc.text('7. TRATAMIENTOS DE AGUA', 14, yPos);
+      yPos += 10;
+      
+      if (libro.tratamientosAgua && libro.tratamientosAgua.length > 0) {
+        const datosTratamientos = libro.tratamientosAgua.map(t => [
+          t.fecha || '-',
+          t.hora || '-',
+          t.idVaso || '-',
+          t.productoUtilizado || '-',
+          t.dosisAplicada || '-',
+          t.motivoTratamiento?.substring(0, 30) || '-',
+          t.responsable || '-'
+        ]);
+        
+        autoTable(doc, {
+          startY: yPos,
+          head: [['Fecha', 'Hora', 'Vaso', 'Producto', 'Dosis', 'Motivo', 'Responsable']],
+          body: datosTratamientos,
+          styles: { fontSize: 8 },
+          headStyles: { fillColor: [16, 185, 129] },
+          margin: { left: 14, right: 14 }
+        });
+        
+        yPos = (doc as any).lastAutoTable.finalY + 15;
+      } else {
+        doc.setFontSize(10);
+        doc.setTextColor(128, 128, 128);
+        doc.text('No hay tratamientos registrados', 14, yPos);
+        yPos += 15;
+      }
+      
+      // ===== MANTENIMIENTO DE INSTALACIONES =====
+      if (yPos > 200) {
+        doc.addPage();
+        yPos = 20;
+      }
+      
+      doc.setFontSize(16);
+      doc.setTextColor(139, 92, 246);
+      doc.text('8. MANTENIMIENTO DE INSTALACIONES', 14, yPos);
+      yPos += 10;
+      
+      if (libro.mantenimientoInstalaciones && libro.mantenimientoInstalaciones.length > 0) {
+        const datosMantenimiento = libro.mantenimientoInstalaciones.map(m => [
+          m.fecha || '-',
+          m.tipoMantenimiento || '-',
+          m.descripcion?.substring(0, 35) || '-',
+          m.empresaResponsable || '-',
+          m.tecnico || '-'
+        ]);
+        
+        autoTable(doc, {
+          startY: yPos,
+          head: [['Fecha', 'Tipo', 'Descripción', 'Empresa', 'Técnico']],
+          body: datosMantenimiento,
+          styles: { fontSize: 8 },
+          headStyles: { fillColor: [107, 114, 128] },
+          margin: { left: 14, right: 14 }
+        });
+        
+        yPos = (doc as any).lastAutoTable.finalY + 15;
+      } else {
+        doc.setFontSize(10);
+        doc.setTextColor(128, 128, 128);
+        doc.text('No hay mantenimientos registrados', 14, yPos);
+        yPos += 15;
+      }
+      
+      // ===== RESUMEN ANUAL SILOE =====
+      if (libro.resumenAnualSILOE) {
+        if (yPos > 180) {
+          doc.addPage();
+          yPos = 20;
+        }
+        
+        doc.setFontSize(16);
+        doc.setTextColor(139, 92, 246);
+        doc.text('9. RESUMEN ANUAL SILOE', 14, yPos);
+        yPos += 10;
+        
+        const s = libro.resumenAnualSILOE;
+        const datosResumen = [
+          ['Año', s.anio || 'N/A'],
+          ['Nº Total Muestreos', s.numeroTotalMuestreos?.toString() || '0'],
+          ['Nº Muestreos Conformes', s.numeroMuestreosConformes?.toString() || '0'],
+          ['Nº Incidencias', s.numeroIncidencias?.toString() || '0'],
+          ['pH Medio', s.valorMedioPh?.toString() || '-'],
+          ['pH Mínimo', s.valorMinimoPh?.toString() || '-'],
+          ['pH Máximo', s.valorMaximoPh?.toString() || '-'],
+          ['Desinfectante Medio', s.valorMedioDesinfectante?.toString() || '-'],
+          ['Desinfectante Mínimo', s.valorMinimoDesinfectante?.toString() || '-'],
+          ['Desinfectante Máximo', s.valorMaximoDesinfectante?.toString() || '-']
+        ];
+        
+        autoTable(doc, {
+          startY: yPos,
+          head: [['Indicador', 'Valor']],
+          body: datosResumen,
+          styles: { fontSize: 9 },
+          headStyles: { fillColor: [59, 130, 246] },
+          columnStyles: { 0: { fontStyle: 'bold', cellWidth: 60 } },
+          margin: { left: 14, right: 100 }
+        });
+      }
+      
+      // ===== PIE DE PÁGINA EN TODAS LAS PÁGINAS =====
+      const totalPaginas = doc.getNumberOfPages();
+      for (let i = 1; i <= totalPaginas; i++) {
+        doc.setPage(i);
+        doc.setFontSize(8);
+        doc.setTextColor(128, 128, 128);
+        doc.text(`Página ${i} de ${totalPaginas}`, 105, 290, { align: 'center' });
+        if (i > 1) {
+          doc.text(`${piscinaNombre} - Libro de Registro`, 14, 290);
+        }
+      }
+      
+      // Descargar
+      doc.save(`Libro_Registro_${piscinaNombre.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`);
+      
+    } catch (error) {
+      console.error('Error al generar PDF:', error);
+      this.error.set('Error al generar el PDF');
+    } finally {
+      this.generandoPDF.set(false);
+    }
   }
 
   // ===== Guardar identificación =====

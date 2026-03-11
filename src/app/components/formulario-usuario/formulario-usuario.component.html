@@ -45,17 +45,22 @@
 
       <!-- Rol -->
       <div class="grupo-formulario">
-        <label for="rol">Rol *</label>
-        <select
-          id="rol"
-          [(ngModel)]="usuarioEditado().rol"
-          name="rol"
-          required
-        >
+        <label>Rol *</label>
+        <div class="radio-group">
           @for (rol of ROLES; track rol.valor) {
-            <option [value]="rol.valor">{{ rol.etiqueta }}</option>
+            <label class="radio-option" [class.selected]="usuarioEditado().rol === rol.valor">
+              <input
+                type="radio"
+                name="rol"
+                [value]="rol.valor"
+                [(ngModel)]="usuarioEditado().rol"
+                required
+              />
+              <span class="radio-icon">{{ rol.icono }}</span>
+              <span class="radio-label">{{ rol.etiqueta }}</span>
+            </label>
           }
-        </select>
+        </div>
       </div>
 
       <!-- Estado -->

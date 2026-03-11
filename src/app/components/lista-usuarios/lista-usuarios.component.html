@@ -50,17 +50,12 @@
               <td class="email">{{ usuario.email }}</td>
               <td>{{ usuario.nombre }}</td>
               <td>
-                <select
-                  class="select-rol"
-                  (ngModelChange)="cambiarRolEvent(usuario, $event)"
+                <span
+                  class="badge-rol"
                   [style.backgroundColor]="obtenerColorRol(usuario.rol)"
                 >
-                  <option value="administrador">Administrador</option>
-                  <option value="gestor">Gestor</option>
-                  <option value="tecnico">Técnico</option>
-                  <option value="cliente">Cliente</option>
-                  <option value="invitado">Invitado</option>
-                </select>
+                  {{ usuario.rol | uppercase }}
+                </span>
               </td>
               <td>
                 <button

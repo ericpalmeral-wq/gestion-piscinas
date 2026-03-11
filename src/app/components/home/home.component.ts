@@ -1,6 +1,6 @@
-import { Component, OnInit, signal, inject } from '@angular/core';
+import { Component, OnInit, signal, inject, ChangeDetectorRef, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { RouterLink, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { forkJoin, firstValueFrom } from 'rxjs';
 import { PiscinasService } from '../../services/piscinas.service';
@@ -33,6 +33,9 @@ export class HomeComponent implements OnInit {
   private usuariosService = inject(UsuariosService);
   private seedService = inject(SeedService);
   private librosService = inject(LibrosService);
+  private cdr = inject(ChangeDetectorRef);
+  private ngZone = inject(NgZone);
+  private router = inject(Router);
 
   usuarioActual = signal<Usuario | null>(null);
   cargando = signal(true);
@@ -49,6 +52,11 @@ export class HomeComponent implements OnInit {
   // Gestor
   tareasCompletadas = signal<Tarea[]>([]);
   presupuestosAceptados = signal<Presupuesto[]>([]);
+  todasLasTareasGestor = signal<Tarea[]>([]);
+  todasLasPiscinasGestor = signal<Piscina[]>([]);
+  terminoBuscadorGestor = '';
+  paginaActualGestor = 0;
+  readonly elementosPorPaginaGestor = 10;
 
   // Cliente
   piscinasDelCliente = signal<Piscina[]>([]);
@@ -63,6 +71,23 @@ export class HomeComponent implements OnInit {
   errorModalTarea = '';
   enviadoTarea = false;
   nuevaTarea: Tarea = this.crearTareaVacia();
+
+  // Modal Resolución
+  mostrarModalResolucion = false;
+  tareaACompletar: Tarea | null = null;
+  resolucionTexto = '';
+  guardandoResolucion = false;
+
+  // Modal Detalle Tarea
+  mostrarModalDetalleTarea = false;
+  tareaSeleccionada: Tarea | null = null;
+
+  // Modal Piscina Técnico (pestañas)
+  mostrarModalPiscinaTecnico = false;
+  piscinaSeleccionadaTecnico: Piscina | null = null;
+  pestanaActivaTecnico: 'parametros' | 'tareas' | 'limpieza' = 'parametros';
+  tareasDePiscina = signal<Tarea[]>([]);
+  cargandoTareasPiscina = signal(false);
 
   estados = [
     { valor: 'pendiente', etiqueta: 'Pendiente' },
@@ -165,6 +190,11 @@ export class HomeComponent implements OnInit {
           presupuestos.filter(p => p.estado === 'aceptado')
             .sort((a, b) => this.compararFechas(b.fechaCreacion, a.fechaCreacion)).slice(0, 5)
         );
+        // Todas las tareas para el gestor (tabla completa)
+        this.todasLasTareasGestor.set(
+          tareas.sort((a, b) => this.compararFechas(b.fechaCreacion, a.fechaCreacion))
+        );
+        this.todasLasPiscinasGestor.set(piscinas);
         
         this.cargando.set(false);
       },
@@ -382,6 +412,124 @@ export class HomeComponent implements OnInit {
     }
   }
 
+  // === Métodos del Modal Piscina Técnico ===
+  abrirModalPiscinaTecnico(piscina: Piscina): void {
+    this.piscinaSeleccionadaTecnico = piscina;
+    this.pestanaActivaTecnico = 'parametros';
+    this.mostrarModalPiscinaTecnico = true;
+    this.cargarTareasDePiscina(piscina.id!);
+  }
+
+  cerrarModalPiscinaTecnico(): void {
+    this.mostrarModalPiscinaTecnico = false;
+    this.piscinaSeleccionadaTecnico = null;
+    this.tareasDePiscina.set([]);
+  }
+
+  cambiarPestanaTecnico(pestana: 'parametros' | 'tareas' | 'limpieza'): void {
+    this.pestanaActivaTecnico = pestana;
+  }
+
+  cargarTareasDePiscina(piscinaId: string): void {
+    this.cargandoTareasPiscina.set(true);
+    this.tareasService.obtenerTareasPorPiscina(piscinaId).subscribe({
+      next: (tareas) => {
+        this.tareasDePiscina.set(tareas);
+        this.cargandoTareasPiscina.set(false);
+      },
+      error: () => {
+        this.cargandoTareasPiscina.set(false);
+      }
+    });
+  }
+
+  async guardarParametrosTecnico(): Promise<void> {
+    if (!this.piscinaSeleccionadaTecnico) return;
+    
+    const piscina = this.piscinaSeleccionadaTecnico;
+    
+    // Guardar parámetros de la piscina
+    await this.actualizarParametrosPiscina(piscina);
+    
+    // Crear registro diario en el libro
+    try {
+      const libro = await firstValueFrom(this.librosService.obtenerLibroPorPiscina(piscina.id!));
+      
+      if (libro && libro.id) {
+        const ahora = new Date();
+        const year = ahora.getFullYear();
+        const month = (ahora.getMonth() + 1).toString().padStart(2, '0');
+        const day = ahora.getDate().toString().padStart(2, '0');
+        const fechaStr = `${year}-${month}-${day}`;
+        const horaStr = `${ahora.getHours().toString().padStart(2, '0')}:${ahora.getMinutes().toString().padStart(2, '0')}`;
+        
+        const control: ControlDiarioAgua = {
+          fecha: fechaStr,
+          hora: horaStr,
+          idVaso: piscina.id || 'vaso-principal',
+          ph: piscina.pHAgua ?? 7.4,
+          desinfectanteResidualLibreMgL: piscina.nivelCloro ?? 1.0,
+          desinfectanteResidualCombinadoMgL: parseFloat((Math.random() * 0.4).toFixed(2)), // Máx 0.6 mg/L
+          turbidezNTU: parseFloat((0.2 + Math.random() * 0.3).toFixed(2)), // Entre 0.2 y 0.5 NTU
+          transparenciaCorrecta: true,
+          color: 'Cristalino',
+          olor: 'Normal',
+          temperaturaAguaC: parseFloat((25 + Math.random() * 3).toFixed(1)), // Entre 25 y 28°C
+          observaciones: 'Control registrado por técnico'
+        };
+        
+        await this.librosService.agregarControlDiarioAgua(libro.id, control);
+        alert('✅ Parámetros actualizados y registro añadido al libro');
+      } else {
+        alert('✅ Parámetros actualizados (no se encontró libro para esta piscina)');
+      }
+    } catch (error) {
+      console.error('Error al añadir registro al libro:', error);
+      alert('✅ Parámetros actualizados (error al añadir registro al libro)');
+    }
+  }
+
+  async registrarLimpiezaHoyModal(): Promise<void> {
+    if (!this.piscinaSeleccionadaTecnico) return;
+    this.piscinaSeleccionadaTecnico.ultimaLimpieza = new Date();
+    await this.actualizarParametrosPiscina(this.piscinaSeleccionadaTecnico);
+    alert('✅ Limpieza registrada correctamente');
+  }
+
+  cambiarEstadoTareaTecnico(tarea: Tarea, event: Event): void {
+    event.preventDefault();
+    event.stopPropagation();
+    if (!tarea.id) return;
+
+    const estadosSiguientes: { [key: string]: 'pendiente' | 'en progreso' | 'completada' } = {
+      'pendiente': 'en progreso',
+      'en progreso': 'completada',
+      'completada': 'pendiente'
+    };
+
+    const nuevoEstado = estadosSiguientes[tarea.estado];
+    
+    // Si va a pasar a completada, cerrar modal y mostrar modal de resolución
+    if (nuevoEstado === 'completada') {
+      if (confirm('¿Estás seguro de que deseas completar esta tarea?')) {
+        this.cerrarModalPiscinaTecnico();
+        this.tareaACompletar = tarea;
+        this.resolucionTexto = tarea.resolucion || '';
+        this.mostrarModalResolucion = true;
+      }
+      return;
+    }
+    
+    this.tareasService.actualizarTarea(tarea.id, { estado: nuevoEstado }).then(() => {
+      this.ngZone.run(() => {
+        tarea.estado = nuevoEstado;
+        this.cdr.detectChanges();
+      });
+    }).catch((err) => {
+      console.error('Error al actualizar estado:', err);
+    });
+  }
+
   // === Métodos del Modal Nueva Tarea ===
   crearTareaVacia(): Tarea {
     return {
@@ -448,5 +596,212 @@ export class HomeComponent implements OnInit {
   obtenerNombrePiscina(piscinaId: string): string {
     const piscina = this.piscinasDelTecnico().find(p => p.id === piscinaId);
     return piscina ? piscina.nombre : 'Sin especificar';
+  }
+
+  cambiarEstadoTarea(tarea: Tarea, event: Event): void {
+    event.preventDefault();
+    event.stopPropagation();
+    if (!tarea.id) return;
+
+    const estadosSiguientes: { [key: string]: 'pendiente' | 'en progreso' | 'completada' } = {
+      'pendiente': 'en progreso',
+      'en progreso': 'completada',
+      'completada': 'pendiente'
+    };
+
+    const nuevoEstado = estadosSiguientes[tarea.estado];
+    
+    // Si va a pasar a completada, mostrar confirmación y modal de resolución
+    if (nuevoEstado === 'completada') {
+      if (confirm('¿Estás seguro de que deseas completar esta tarea?')) {
+        this.tareaACompletar = tarea;
+        this.resolucionTexto = tarea.resolucion || '';
+        this.mostrarModalResolucion = true;
+      }
+      return;
+    }
+    
+    this.tareasService.actualizarTarea(tarea.id, { estado: nuevoEstado }).then(() => {
+      this.ngZone.run(() => {
+        tarea.estado = nuevoEstado;
+      });
+    }).catch((err) => {
+      console.error('Error al actualizar estado:', err);
+    });
+  }
+
+  cerrarModalResolucion(): void {
+    this.mostrarModalResolucion = false;
+    this.tareaACompletar = null;
+    this.resolucionTexto = '';
+  }
+
+  guardarResolucion(): void {
+    if (!this.tareaACompletar?.id) return;
+    
+    this.guardandoResolucion = true;
+    const tareaRef = this.tareaACompletar;
+    const resolucion = this.resolucionTexto;
+    const fechaCompletada = new Date().toISOString().split('T')[0];
+    
+    this.tareasService.actualizarTarea(tareaRef.id!, { 
+      estado: 'completada',
+      resolucion: resolucion,
+      fechaVencimiento: fechaCompletada
+    }).then(() => {
+      this.ngZone.run(() => {
+        tareaRef.estado = 'completada';
+        tareaRef.resolucion = resolucion;
+        tareaRef.fechaVencimiento = fechaCompletada;
+        this.guardandoResolucion = false;
+        this.cerrarModalResolucion();
+        this.cdr.detectChanges();
+      });
+    }).catch((err) => {
+      this.ngZone.run(() => {
+        console.error('Error al guardar resolución:', err);
+        this.guardandoResolucion = false;
+        this.cerrarModalResolucion();
+        this.cdr.detectChanges();
+        alert('Error al completar la tarea. Verifica que estés autenticado.');
+      });
+    });
+  }
+
+  cambiarEstadoPresupuesto(presupuesto: Presupuesto, event: Event): void {
+    event.preventDefault();
+    event.stopPropagation();
+    if (!presupuesto.id) return;
+
+    const nuevoEstado: 'pendiente' | 'aceptado' = presupuesto.estado === 'pendiente' ? 'aceptado' : 'pendiente';
+    
+    this.presupuestosService.actualizarPresupuesto(presupuesto.id, { estado: nuevoEstado }).then(() => {
+      this.ngZone.run(() => {
+        presupuesto.estado = nuevoEstado;
+      });
+    }).catch((err) => {
+      console.error('Error al actualizar estado del presupuesto:', err);
+    });
+  }
+
+  // Modal Detalle Tarea
+  abrirDetalleTarea(tarea: Tarea): void {
+    this.tareaSeleccionada = tarea;
+    this.mostrarModalDetalleTarea = true;
+  }
+
+  cerrarDetalleTarea(): void {
+    this.mostrarModalDetalleTarea = false;
+    this.tareaSeleccionada = null;
+  }
+
+  cambiarEstadoDesdeModal(): void {
+    if (!this.tareaSeleccionada) return;
+    
+    // Guardar referencia antes de cerrar el modal
+    const tarea = this.tareaSeleccionada;
+    
+    // Crear un evento falso para reutilizar la lógica existente
+    const fakeEvent = { preventDefault: () => {}, stopPropagation: () => {} } as Event;
+    
+    if (tarea.estado === 'en progreso') {
+      // Va a completarse, cerrar modal de detalle y abrir modal de resolución
+      this.cerrarDetalleTarea();
+      if (confirm('¿Estás seguro de que deseas completar esta tarea?')) {
+        this.tareaACompletar = tarea;
+        this.resolucionTexto = tarea.resolucion || '';
+        this.mostrarModalResolucion = true;
+      }
+    } else {
+      // Pasar de pendiente a en progreso
+      this.cambiarEstadoTarea(tarea, fakeEvent);
+      this.cerrarDetalleTarea();
+    }
+  }
+
+  // ========== Métodos para tabla de tareas del gestor ==========
+  obtenerNombrePiscinaGestor(piscinaId: string): string {
+    const piscina = this.todasLasPiscinasGestor().find(p => p.id === piscinaId);
+    return piscina ? piscina.nombre : 'Sin especificar';
+  }
+
+  obtenerClaseEstado(estado: string): string {
+    switch (estado) {
+      case 'completada': return 'estado-completada';
+      case 'en progreso': return 'estado-en-progreso';
+      case 'pendiente': return 'estado-pendiente';
+      default: return 'estado-pendiente';
+    }
+  }
+
+  obtenerClasePrioridad(prioridad: string): string {
+    switch (prioridad) {
+      case 'alta': return 'prioridad-alta';
+      case 'media': return 'prioridad-media';
+      case 'baja': return 'prioridad-baja';
+      default: return 'prioridad-media';
+    }
+  }
+
+  get tareasFiltradas(): Tarea[] {
+    const termino = this.terminoBuscadorGestor.toLowerCase().trim();
+    if (!termino) {
+      return this.todasLasTareasGestor();
+    }
+    return this.todasLasTareasGestor().filter(tarea =>
+      tarea.descripcion.toLowerCase().includes(termino) ||
+      this.obtenerNombrePiscinaGestor(tarea.piscinaId).toLowerCase().includes(termino)
+    );
+  }
+
+  get tareasPaginadasGestor(): Tarea[] {
+    const inicio = this.paginaActualGestor * this.elementosPorPaginaGestor;
+    const fin = inicio + this.elementosPorPaginaGestor;
+    return this.tareasFiltradas.slice(inicio, fin);
+  }
+
+  get totalPaginasGestor(): number {
+    return Math.ceil(this.tareasFiltradas.length / this.elementosPorPaginaGestor);
+  }
+
+  paginaAnteriorGestor(): void {
+    if (this.paginaActualGestor > 0) {
+      this.paginaActualGestor--;
+    }
+  }
+
+  paginaSiguienteGestor(): void {
+    if (this.paginaActualGestor < this.totalPaginasGestor - 1) {
+      this.paginaActualGestor++;
+    }
+  }
+
+  actualizarBuscadorGestor(event: Event): void {
+    this.terminoBuscadorGestor = (event.target as HTMLInputElement).value;
+    this.paginaActualGestor = 0;
+  }
+
+  verTareaGestor(id: string | undefined): void {
+    if (id) {
+      this.router.navigate(['/tareas', id]);
+    }
+  }
+
+  eliminarTareaGestor(id: string | undefined, event: Event): void {
+    event.stopPropagation();
+    if (id && confirm('¿Estás seguro de que deseas eliminar esta tarea?')) {
+      this.tareasService.eliminarTarea(id).then(() => {
+        this.ngZone.run(() => {
+          // Actualizar la lista de tareas
+          this.todasLasTareasGestor.set(
+            this.todasLasTareasGestor().filter(t => t.id !== id)
+          );
+          this.cdr.detectChanges();
+        });
+      }).catch((err) => {
+        console.error('Error al eliminar tarea:', err);
+        alert('Error al eliminar la tarea');
+      });
+    }
   }
 }

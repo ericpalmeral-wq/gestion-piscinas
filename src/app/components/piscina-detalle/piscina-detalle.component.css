@@ -184,6 +184,43 @@
   color: #10b981;
   border: 1px solid #b2dfdb;
 }
+
+.estado-clickable {
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.estado-clickable:hover {
+  background: #d4edda;
+  color: #28a745;
+  border-color: #28a745;
+  transform: scale(1.05);
+  box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+}
+
+.estado-clickable::after {
+  content: '✓';
+  position: absolute;
+  right: -8px;
+  top: -8px;
+  background: #28a745;
+  color: white;
+  font-size: 10px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.estado-clickable:hover::after {
+  opacity: 1;
+}
+
 .presupuesto-icon {
   font-size: 22px;
   color: #667eea;
@@ -1202,43 +1239,157 @@
 }
 
 @media (max-width: 768px) {
+  .tabla-presupuestos-contenedor {
+    overflow-x: visible;
+    margin: 0 -10px;
+    padding: 0 10px;
+  }
+
+  .tabla-presupuestos {
+    min-width: unset;
+    width: 100%;
+  }
+
   .tabla-presupuestos thead {
     display: none;
   }
 
-  .tabla-presupuestos tbody,
-  .tabla-presupuestos tr,
-  .tabla-presupuestos td {
-    display: block;
-    width: 100%;
+  .tabla-presupuestos tbody {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
   }
 
   .tabla-presupuestos tr {
-    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     border: 1px solid #e5e7eb;
-    border-radius: 6px;
     overflow: hidden;
+    padding: 0;
   }
 
   .tabla-presupuestos td {
-    padding: 10px 16px;
-    border-bottom: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    border-bottom: 1px solid #f0f0f0;
+    width: auto !important;
+    max-width: none !important;
     text-align: right;
+  }
+
+  .tabla-presupuestos td:last-child {
+    border-bottom: none;
   }
 
   .tabla-presupuestos td::before {
     content: attr(data-label);
-    float: left;
     font-weight: 600;
-    color: #374151;
+    color: #667eea;
+    font-size: 13px;
+    text-align: left;
+    flex-shrink: 0;
+    margin-right: 12px;
   }
 
+  .celda-descripcion {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white !important;
+    font-weight: 600;
+    border-radius: 12px 12px 0 0;
+  }
+
+  .celda-descripcion::before {
+    color: rgba(255, 255, 255, 0.8) !important;
+  }
+
+  .celda-total {
+    font-size: 16px !important;
+    color: #10b981 !important;
+  }
+
+  .celda-estado {
+    justify-content: space-between;
+  }
+
+  .celda-acciones {
+    justify-content: space-between !important;
+    background: #f8f9fa;
+  }
+
+  .btn-descargar-pdf {
+    width: 42px;
+    height: 42px;
+    font-size: 20px;
+  }
+
+  /* Formulario responsive */
   .fila-formulario {
     grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .grupo-formulario {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .grupo-formulario label {
+    min-width: unset;
+  }
+
+  .grupo-formulario input,
+  .grupo-formulario select {
+    width: 100%;
   }
 
   .linea-formulario {
-    grid-template-columns: 1fr;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .linea-formulario input {
+    width: 100%;
+  }
+
+  .btn-agregar-linea {
+    width: 100%;
+    margin-top: 4px;
+  }
+
+  .item-linea {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .item-linea span {
+    word-break: break-word;
+  }
+
+  .fila-total {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .btn-guardar-presupuesto {
+    width: 100%;
+    align-self: stretch;
+  }
+
+  .formulario-presupuesto-seccion {
+    padding: 16px;
+  }
+
+  .formulario-presupuesto-seccion h4 {
+    font-size: 16px;
+    margin-bottom: 16px;
   }
 }
 
@@ -1450,6 +1601,28 @@
   display: flex;
   gap: 10px;
   justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+.btn-aceptar-presupuesto {
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-aceptar-presupuesto:hover {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
 }
 
 .btn-descargar-pdf-modal {
@@ -1737,28 +1910,115 @@
   }
 
   .modal-cuerpo {
-    padding: 20px;
+    padding: 16px;
+  }
+
+  .info-presupuesto {
+    gap: 8px;
+  }
+
+  .fila-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .fila-info .etiqueta {
+    font-size: 12px;
+  }
+
+  .fila-info .valor {
+    font-size: 14px;
+  }
+
+  .lineas-modal h3 {
+    font-size: 14px;
+    margin-bottom: 10px;
   }
 
   .tabla-lineas-responsive {
-    overflow-x: auto;
+    overflow-x: visible;
   }
 
   .tabla-lineas {
     font-size: 12px;
   }
 
-  .tabla-lineas th,
+  .tabla-lineas thead {
+    display: none;
+  }
+
+  .tabla-lineas tbody {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .tabla-lineas tr {
+    display: flex;
+    flex-direction: column;
+    background: #f8f9fa;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid #e5e7eb;
+  }
+
   .tabla-lineas td {
-    padding: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 14px;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .tabla-lineas td:last-child {
+    border-bottom: none;
+    background: #e8f5e9;
+  }
+
+  .tabla-lineas td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: #667eea;
+    font-size: 12px;
+  }
+
+  .td-descripcion {
+    word-break: break-word;
+    text-align: right;
   }
 
   .total-modal {
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 16px;
     font-size: 14px;
   }
 
   .total-modal .monto {
-    font-size: 18px;
+    font-size: 22px;
+  }
+
+  .modal-pie {
+    flex-direction: column;
+    gap: 10px;
+    padding: 16px;
+  }
+
+  .modal-pie button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .btn-descargar-pdf-modal {
+    padding: 12px 16px;
+    font-size: 14px;
+  }
+
+  .btn-cerrar {
+    padding: 12px 16px;
+    font-size: 14px;
   }
 }
 

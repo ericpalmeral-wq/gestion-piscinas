@@ -7,4 +7,5 @@ export interface Tarea {
   fechaCreacion: string;
   fechaVencimiento: string;
   responsable?: string;
+  resolucion?: string;
 }

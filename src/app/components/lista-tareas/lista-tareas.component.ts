@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -30,6 +30,12 @@ export class ListaTareasComponent implements OnInit {
   enviado = false;
   nuevaTarea: Tarea = this.crearTareaVacia();
 
+  // Modal Resolución
+  mostrarModalResolucion = false;
+  tareaACompletar: Tarea | null = null;
+  resolucionTexto = '';
+  guardandoResolucion = false;
+
   estados = [
     { valor: 'pendiente', etiqueta: 'Pendiente' },
     { valor: 'en progreso', etiqueta: 'En Progreso' },
@@ -46,6 +52,7 @@ export class ListaTareasComponent implements OnInit {
   private piscinasService = inject(PiscinasService);
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
+  private ngZone = inject(NgZone);
 
   ngOnInit(): void {
     this.cargarPiscinas();
@@ -95,6 +102,73 @@ export class ListaTareasComponent implements OnInit {
         this.cargarTareas();
       });
     }
+  }
+
+  cambiarEstado(tarea: Tarea, event: Event): void {
+    event.stopPropagation();
+    if (!tarea.id) return;
+
+    const estadosSiguientes: { [key: string]: 'pendiente' | 'en progreso' | 'completada' } = {
+      'pendiente': 'en progreso',
+      'en progreso': 'completada',
+      'completada': 'pendiente'
+    };
+
+    const nuevoEstado = estadosSiguientes[tarea.estado];
+    
+    // Si va a pasar a completada, mostrar confirmación y modal de resolución
+    if (nuevoEstado === 'completada') {
+      if (confirm('¿Estás seguro de que deseas completar esta tarea?')) {
+        this.tareaACompletar = tarea;
+        this.resolucionTexto = tarea.resolucion || '';
+        this.mostrarModalResolucion = true;
+      }
+      return;
+    }
+    
+    this.tareasService.actualizarTarea(tarea.id, { estado: nuevoEstado }).then(() => {
+      this.ngZone.run(() => {
+        tarea.estado = nuevoEstado;
+      });
+    }).catch((err) => {
+      console.error('Error al actualizar estado:', err);
+    });
+  }
+
+  cerrarModalResolucion(): void {
+    this.mostrarModalResolucion = false;
+    this.tareaACompletar = null;
+    this.resolucionTexto = '';
+  }
+
+  guardarResolucion(): void {
+    if (!this.tareaACompletar?.id) return;
+    
+    this.guardandoResolucion = true;
+    const tareaRef = this.tareaACompletar;
+    const resolucion = this.resolucionTexto;
+    const fechaCompletada = new Date().toISOString().split('T')[0];
+    
+    this.tareasService.actualizarTarea(tareaRef.id!, { 
+      estado: 'completada',
+      resolucion: resolucion,
+      fechaVencimiento: fechaCompletada
+    }).then(() => {
+      this.ngZone.run(() => {
+        tareaRef.estado = 'completada';
+        tareaRef.resolucion = resolucion;
+        tareaRef.fechaVencimiento = fechaCompletada;
+        this.guardandoResolucion = false;
+        this.cerrarModalResolucion();
+      });
+    }).catch((err) => {
+      this.ngZone.run(() => {
+        console.error('Error al guardar resolución:', err);
+        this.guardandoResolucion = false;
+        this.cerrarModalResolucion();
+        alert('Error al completar la tarea. Verifica que estés autenticado.');
+      });
+    });
   }
 
   formatearFecha(fecha: string): string {

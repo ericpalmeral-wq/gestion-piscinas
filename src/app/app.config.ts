@@ -7,7 +7,7 @@ import { provideFirestore, getFirestore } from '@angular/fire/firestore';
 
 import { routes } from './app.routes';
 import { firebaseConfig } from '../environments/firebase.config';
-import { initializeAppCheck, provideAppCheck, ReCaptchaV3Provider } from '@angular/fire/app-check';
+// import { initializeAppCheck, provideAppCheck, ReCaptchaV3Provider } from '@angular/fire/app-check';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -17,12 +17,13 @@ export const appConfig: ApplicationConfig = {
     provideAuth(() => getAuth()),
     provideFirestore(() => getFirestore()),
 
-    provideAppCheck(() => {
-      const app = initializeApp(firebaseConfig);
-      return initializeAppCheck(app, {
-        provider: new ReCaptchaV3Provider('6LeEIIQsAAAAANX_LYhDrPIJXlR-0vhMgZoP5ojw'),
-        isTokenAutoRefreshEnabled: true
-      });
-    })
+    // App Check desactivado para desarrollo local
+    // provideAppCheck(() => {
+    //   const app = initializeApp(firebaseConfig);
+    //   return initializeAppCheck(app, {
+    //     provider: new ReCaptchaV3Provider('6LeEIIQsAAAAANX_LYhDrPIJXlR-0vhMgZoP5ojw'),
+    //     isTokenAutoRefreshEnabled: true
+    //   });
+    // })
   ]
 };

@@ -48,7 +48,11 @@
           <td class="celda-descripcion">{{ t.descripcion }}</td>
           <td class="celda-fecha">{{ formatearFecha(t.fechaVencimiento) }}</td>
           <td class="celda-estado">
-            <span class="badge-estado" [ngClass]="obtenerClaseEstado(t.estado)">
+            <span 
+              class="badge-estado badge-clickeable" 
+              [ngClass]="obtenerClaseEstado(t.estado)"
+              (click)="cambiarEstado(t, $event)"
+              title="Click para cambiar estado">
               {{ t.estado | uppercase }}
             </span>
           </td>
@@ -218,6 +222,58 @@
           [disabled]="guardandoTarea"
         >
           {{ guardandoTarea ? 'Guardando...' : 'Crear Tarea' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Resolución -->
+<div class="modal-overlay" *ngIf="mostrarModalResolucion" (click)="cerrarModalResolucion()">
+  <div class="modal-contenido modal-resolucion" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>✅ Completar Tarea</h2>
+      <button type="button" class="btn-cerrar-modal" (click)="cerrarModalResolucion()" [disabled]="guardandoResolucion">
+        ✕
+      </button>
+    </div>
+
+    <div class="formulario-modal">
+      <div class="info-tarea-completar" *ngIf="tareaACompletar">
+        <p><strong>Tarea:</strong> {{ tareaACompletar.descripcion }}</p>
+        <p><strong>Piscina:</strong> {{ obtenerNombrePiscina(tareaACompletar.piscinaId) }}</p>
+      </div>
+
+      <div class="grupo-formulario">
+        <label for="resolucion" class="etiqueta">
+          Resolución <span class="opcional">(Opcional)</span>
+        </label>
+        <textarea
+          id="resolucion"
+          [(ngModel)]="resolucionTexto"
+          class="campo-entrada"
+          rows="4"
+          placeholder="Describe cómo se resolvió la tarea..."
+          [disabled]="guardandoResolucion"
+        ></textarea>
+      </div>
+
+      <div class="grupo-botones-modal">
+        <button
+          type="button"
+          class="btn btn-secundario"
+          (click)="cerrarModalResolucion()"
+          [disabled]="guardandoResolucion"
+        >
+          Cancelar
+        </button>
+        <button
+          type="button"
+          class="btn btn-primario btn-completar"
+          (click)="guardarResolucion()"
+          [disabled]="guardandoResolucion"
+        >
+          {{ guardandoResolucion ? 'Guardando...' : 'Completar Tarea' }}
         </button>
       </div>
     </div>

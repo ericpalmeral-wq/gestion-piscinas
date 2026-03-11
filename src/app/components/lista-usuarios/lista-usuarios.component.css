@@ -127,24 +127,15 @@
   color: #667eea;
 }
 
-.select-rol {
-  padding: 6px 10px;
-  border: none;
-  border-radius: 6px;
+.badge-rol {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 20px;
   color: white;
   font-weight: 600;
-  cursor: pointer;
-  font-size: 12px;
-  transition: all 0.3s ease;
-}
-
-.select-rol:hover {
-  opacity: 0.9;
-}
-
-.select-rol option {
-  color: #333;
-  background: white;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
 }
 
 .btn-estado {

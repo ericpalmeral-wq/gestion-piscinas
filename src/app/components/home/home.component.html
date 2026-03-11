@@ -5,11 +5,8 @@
       <p class="hero-subtitle" *ngIf="usuarioActual()">
         {{ usuarioActual()!.nombre }} — <span class="rol-badge">{{ usuarioActual()!.rol | uppercase }}</span>
       </p>
-      <button 
-        *ngIf="usuarioActual()?.rol === 'administrador'" 
-        class="btn-generar-controles" 
-        (click)="generarControlesDiarios()"
-        [disabled]="generandoControles()">
+      <button *ngIf="usuarioActual()?.rol === 'administrador'" class="btn-generar-controles"
+        (click)="generarControlesDiarios()" [disabled]="generandoControles()">
         {{ generandoControles() ? '⏳ Generando...' : '📋 Generar Controles Diarios' }}
       </button>
     </div>
@@ -21,8 +18,9 @@
   </div>
 
 
-  <!-- ========== DASHBOARD PRINCIPAL (solo admin y gestor) ========== -->
-  <section class="dashboard-section" *ngIf="!cargando() && usuarioActual() && (usuarioActual()?.rol === 'administrador')">
+  <!-- ========== DASHBOARD PRINCIPAL (solo admin) ========== -->
+  <section class="dashboard-section"
+    *ngIf="!cargando() && usuarioActual() && (usuarioActual()?.rol === 'administrador' )">
     <div class="dashboard-grid">
 
       <!-- Panel: Últimas Piscinas -->
@@ -92,7 +90,9 @@
             <div class="item-link">
               <div class="item-principal">
                 <span class="item-nombre">{{ pres.descripcion }}</span>
-                <span class="item-badge" [ngClass]="pres.estado === 'pendiente' ? 'badge-pendiente' : 'badge-aceptado'">
+                <span class="item-badge badge-clickeable"
+                  [ngClass]="pres.estado === 'pendiente' ? 'badge-pendiente' : 'badge-aceptado'"
+                  (click)="cambiarEstadoPresupuesto(pres, $event)" title="Click para cambiar estado">
                   {{ pres.estado | uppercase }}
                 </span>
               </div>
@@ -114,21 +114,23 @@
         </div>
         <div class="panel-body">
           <div *ngIf="ultimasTareas().length === 0" class="panel-vacio">No hay tareas registradas</div>
-          <div *ngFor="let t of ultimasTareas()" class="panel-item">
-            <a [routerLink]="['/tareas', t.id]" class="item-link">
+          <div *ngFor="let t of ultimasTareas()" class="panel-item panel-item-clickeable"
+            (click)="abrirDetalleTarea(t)">
+            <div class="item-link">
               <div class="item-principal">
                 <span class="item-nombre">{{ t.descripcion }}</span>
-                <span class="item-badge" [ngClass]="{
+                <span class="item-badge badge-clickeable" [ngClass]="{
                   'badge-pendiente': t.estado === 'pendiente',
                   'badge-progreso': t.estado === 'en progreso',
                   'badge-completada': t.estado === 'completada'
-                }">{{ t.estado | uppercase }}</span>
+                }" (click)="cambiarEstadoTarea(t, $event)" title="Click para cambiar estado">{{ t.estado | uppercase
+                  }}</span>
               </div>
               <div class="item-detalle">
                 <span>📅 {{ formatearFecha(t.fechaVencimiento) }}</span>
                 <span class="item-prioridad" [ngClass]="'prioridad-' + t.prioridad">{{ t.prioridad | uppercase }}</span>
               </div>
-            </a>
+            </div>
           </div>
         </div>
       </div>
@@ -152,9 +154,8 @@
                 <div class="barra-item-mini">
                   <span class="barra-label">Consumo</span>
                   <div class="barra-contenedor">
-                    <div class="barra-relleno"
-                         [style.width.%]="getConsumoPercent(p.consumoSemanal)"
-                         style="background: #3b82f6">
+                    <div class="barra-relleno" [style.width.%]="getConsumoPercent(p.consumoSemanal)"
+                      style="background: #3b82f6">
                     </div>
                   </div>
                   <span class="barra-valor-mini">{{ p.consumoSemanal || 0 }} L</span>
@@ -163,9 +164,8 @@
                 <div class="barra-item-mini">
                   <span class="barra-label">Algibón</span>
                   <div class="barra-contenedor">
-                    <div class="barra-relleno"
-                         [style.width.%]="getQuimicoPercent(p.algibonL, 'algibon')"
-                         style="background: #10b981">
+                    <div class="barra-relleno" [style.width.%]="getQuimicoPercent(p.algibonL, 'algibon')"
+                      style="background: #10b981">
                     </div>
                   </div>
                   <span class="barra-valor-mini">{{ p.algibonL || 0 }} L</span>
@@ -174,9 +174,8 @@
                 <div class="barra-item-mini">
                   <span class="barra-label">Baja pH</span>
                   <div class="barra-contenedor">
-                    <div class="barra-relleno"
-                         [style.width.%]="getQuimicoPercent(p.bajaPHL, 'bajaPH')"
-                         style="background: #f59e0b">
+                    <div class="barra-relleno" [style.width.%]="getQuimicoPercent(p.bajaPHL, 'bajaPH')"
+                      style="background: #f59e0b">
                     </div>
                   </div>
                   <span class="barra-valor-mini">{{ p.bajaPHL || 0 }} L</span>
@@ -206,9 +205,12 @@
             </div>
           </div>
           <div class="grafica-leyenda">
-            <span class="leyenda-item"><span class="leyenda-color" style="background: #3b82f6"></span> Consumo (m³)</span>
-            <span class="leyenda-item"><span class="leyenda-color" style="background: #10b981"></span> Algibón (L)</span>
-            <span class="leyenda-item"><span class="leyenda-color" style="background: #f59e0b"></span> Baja pH (L)</span>
+            <span class="leyenda-item"><span class="leyenda-color" style="background: #3b82f6"></span> Consumo
+              (m³)</span>
+            <span class="leyenda-item"><span class="leyenda-color" style="background: #10b981"></span> Algibón
+              (L)</span>
+            <span class="leyenda-item"><span class="leyenda-color" style="background: #f59e0b"></span> Baja pH
+              (L)</span>
           </div>
         </div>
       </div>
@@ -216,57 +218,77 @@
   </section>
 
   <!-- ========== DASHBOARD GESTOR (solo visible para gestores) ========== -->
-  <section class="dashboard-section" *ngIf="!cargando() && usuarioActual()?.rol === 'gestor' && false">
-    <div class="dashboard-grid dashboard-grid-2">
+  <section class="dashboard-section dashboard-gestor" *ngIf="!cargando() && usuarioActual()?.rol === 'gestor'">
+    <div class="seccion-header">
+      <h2>✅ Gestión de Tareas</h2>
+      <p>Listado completo de tareas del sistema</p>
+    </div>
 
-      <!-- Panel: Tareas Completadas -->
-      <div class="panel">
-        <div class="panel-header" style="border-color: #10b981">
-          <span class="panel-icon" style="background: #10b981">✅</span>
-          <h3>Tareas Completadas</h3>
-          <a routerLink="/tareas" class="panel-link">Ver todas →</a>
-        </div>
-        <div class="panel-body">
-          <div *ngIf="tareasCompletadas().length === 0" class="panel-vacio">No hay tareas completadas</div>
-          <div *ngFor="let t of tareasCompletadas()" class="panel-item">
-            <a [routerLink]="['/tareas', t.id]" class="item-link">
-              <div class="item-principal">
-                <span class="item-nombre">{{ t.descripcion }}</span>
-                <span class="item-badge badge-completada">COMPLETADA</span>
-              </div>
-              <div class="item-detalle">
-                <span>📅 {{ formatearFecha(t.fechaCreacion) }}</span>
-                <span *ngIf="t.responsable">👤 {{ t.responsable }}</span>
-              </div>
-            </a>
-          </div>
+    <div *ngIf="todasLasTareasGestor().length === 0" class="panel-vacio-gestor">
+      <p class="icono-vacio">📋</p>
+      <h3>No hay tareas registradas</h3>
+      <p>Actualmente no hay ninguna tarea en el sistema</p>
+    </div>
+
+    <div *ngIf="todasLasTareasGestor().length > 0" class="tabla-tareas-gestor-contenedor">
+      <!-- Buscador -->
+      <div class="buscador-contenedor-gestor">
+        <input type="text" class="input-buscador-gestor" placeholder="🔍 Buscar por descripción o piscina..."
+          [value]="terminoBuscadorGestor" (input)="actualizarBuscadorGestor($event)" />
+        <div *ngIf="terminoBuscadorGestor" class="info-busqueda-gestor">
+          {{ tareasFiltradas.length }} resultado(s) encontrado(s)
         </div>
       </div>
 
-      <!-- Panel: Presupuestos Aceptados -->
-      <div class="panel">
-        <div class="panel-header" style="border-color: #3b82f6">
-          <span class="panel-icon" style="background: #3b82f6">💰</span>
-          <h3>Presupuestos Aceptados</h3>
-          <a routerLink="/presupuestos" class="panel-link">Ver todos →</a>
-        </div>
-        <div class="panel-body">
-          <div *ngIf="presupuestosAceptados().length === 0" class="panel-vacio">No hay presupuestos aceptados</div>
-          <div *ngFor="let pres of presupuestosAceptados()" class="panel-item">
-            <div class="item-link">
-              <div class="item-principal">
-                <span class="item-nombre">{{ pres.descripcion }}</span>
-                <span class="item-badge badge-aceptado">ACEPTADO</span>
-              </div>
-              <div class="item-detalle">
-                <span>📅 {{ formatearFecha(pres.fechaCreacion) }}</span>
-                <span class="item-monto">{{ getTotalLineas(pres.lineas) | number:'1.2-2' }} €</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <table class="tabla-tareas-gestor">
+        <thead>
+          <tr>
+            <th>Piscina</th>
+            <th>Descripción</th>
+            <th>Vencimiento</th>
+            <th>Estado</th>
+            <th>Prioridad</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let t of tareasPaginadasGestor" class="fila-tarea-gestor" (click)="abrirDetalleTarea(t)">
+            <td class="celda-piscina">{{ obtenerNombrePiscinaGestor(t.piscinaId) }}</td>
+            <td class="celda-descripcion">{{ t.descripcion }}</td>
+            <td class="celda-fecha">{{ formatearFecha(t.fechaVencimiento) }}</td>
+            <td class="celda-estado">
+              <span class="badge-estado " [ngClass]="obtenerClaseEstado(t.estado)">
+                {{ t.estado | uppercase }}
+              </span>
+            </td>
+            <td class="celda-prioridad">
+              <span class="badge-prioridad" [ngClass]="obtenerClasePrioridad(t.prioridad)">
+                {{ t.prioridad | uppercase }}
+              </span>
+            </td>
+            <td class="celda-acciones" (click)="$event.stopPropagation()">
 
+              <button class="btn-eliminar-gestor" (click)="eliminarTareaGestor(t.id, $event)" title="Eliminar">
+                🗑️
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Paginación -->
+      <div *ngIf="todasLasTareasGestor().length > elementosPorPaginaGestor" class="paginacion-gestor">
+        <button (click)="paginaAnteriorGestor()" [disabled]="paginaActualGestor === 0" class="btn-paginacion-gestor">
+          ← Anterior
+        </button>
+        <span class="info-pagina-gestor">
+          Página {{ paginaActualGestor + 1 }} de {{ totalPaginasGestor }}
+        </span>
+        <button (click)="paginaSiguienteGestor()" [disabled]="paginaActualGestor === totalPaginasGestor - 1"
+          class="btn-paginacion-gestor">
+          Siguiente →
+        </button>
+      </div>
     </div>
   </section>
 
@@ -276,13 +298,14 @@
       <h2 style="color: #1f2937; margin: 0 0 8px 0;">Mis Piscinas</h2>
       <p style="color: #6b7280; margin: 0;">Listado de piscinas asignadas a tu cuenta</p>
     </div>
-    
-    <div *ngIf="piscinasDelCliente().length === 0" class="panel-vacio" style="text-align: center; padding: 60px 20px; background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+
+    <div *ngIf="piscinasDelCliente().length === 0" class="panel-vacio"
+      style="text-align: center; padding: 60px 20px; background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
       <p style="font-size: 48px; margin: 0 0 16px 0;">🏊</p>
       <h3 style="color: #1f2937; margin: 0 0 8px 0;">No tienes piscinas asignadas</h3>
       <p style="color: #6b7280; margin: 0;">Contacta con el administrador para que te asigne una piscina</p>
     </div>
-    
+
     <div class="dashboard-grid" *ngIf="piscinasDelCliente().length > 0">
       <div *ngFor="let p of piscinasDelCliente()" class="panel">
         <div class="panel-header" style="border-color: #3b82f6">
@@ -302,7 +325,9 @@
               <span>📅 <strong>Última limpieza:</strong> {{ formatearFecha(p.ultimaLimpieza) }}</span>
             </div>
           </div>
-          <a [routerLink]="['/piscinas', p.id]" class="btn-ver-detalle" style="display: block; text-align: center; margin-top: 16px; padding: 10px; background: #3b82f6; color: white; border-radius: 8px; text-decoration: none; font-weight: 600;">Ver Detalles →</a>
+          <a [routerLink]="['/piscinas', p.id]" class="btn-ver-detalle"
+            style="display: block; text-align: center; margin-top: 16px; padding: 10px; background: #3b82f6; color: white; border-radius: 8px; text-decoration: none; font-weight: 600;">Ver
+            Detalles →</a>
         </div>
       </div>
     </div>
@@ -312,74 +337,125 @@
   <section class="dashboard-section" *ngIf="!cargando() && usuarioActual()?.rol === 'tecnico'">
     <div class="seccion-header" style="text-align: center; margin-bottom: 24px;">
       <h2 style="color: #1f2937; margin: 0 0 8px 0;">Mis Piscinas Asignadas</h2>
-      <p style="color: #6b7280; margin: 0;">Actualiza los parámetros de las piscinas que tienes asignadas</p>
+      <p style="color: #6b7280; margin: 0;">Piscinas que tienes asignadas para mantenimiento</p>
     </div>
-    
-    <div *ngIf="piscinasDelTecnico().length === 0" class="panel-vacio" style="text-align: center; padding: 60px 20px; background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+
+    <div *ngIf="piscinasDelTecnico().length === 0" class="panel-vacio"
+      style="text-align: center; padding: 60px 20px; background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
       <p style="font-size: 48px; margin: 0 0 16px 0;">🔧</p>
       <h3 style="color: #1f2937; margin: 0 0 8px 0;">No tienes piscinas asignadas</h3>
       <p style="color: #6b7280; margin: 0;">Contacta con el administrador para que te asigne piscinas</p>
     </div>
-    
+
     <div class="dashboard-grid" *ngIf="piscinasDelTecnico().length > 0">
-      <div *ngFor="let p of piscinasDelTecnico()" class="panel panel-tecnico">
+      <div *ngFor="let p of piscinasDelTecnico()" class="panel panel-tecnico panel-clickeable" (click)="abrirModalPiscinaTecnico(p)">
         <div class="panel-header" style="border-color: #8b5cf6">
-          <span class="panel-icon panel-icon-clickable" style="background: #8b5cf6" (click)="abrirModalTarea(p)" title="Añadir tarea a esta piscina">🔧</span>
+          <span class="panel-icon panel-icon-clickable" style="background: #8b5cf6" 
+            (click)="$event.stopPropagation(); abrirModalTarea(p)" title="Añadir tarea a esta piscina">🔧</span>
           <h3>{{ p.nombre }}</h3>
           <span class="item-badge" [style.background]="p.estado === 'abierta' ? '#10b981' : '#6b7280'">
             {{ p.estado | uppercase }}
           </span>
         </div>
-  
-          
-
-          <!-- Formulario de actualización de parámetros -->
-          <div class="parametros-form" style="margin-top: 16px; padding: 16px; background: #f3f4f6; border-radius: 8px;">
-            <h4 style="margin: 0 0 16px 0; color: #374151; font-size: 14px; font-weight: 600;">Parámetros del Agua</h4>
-            
-            <div class="form-group" style="margin-bottom: 12px;">
-              <label style="display: block; font-size: 12px; color: #6b7280; margin-bottom: 4px;">🧪 Nivel de Cloro (ppm)</label>
-              <input type="number" [(ngModel)]="p.nivelCloro" step="0.1" min="0" max="10"
-                     style="width: 100%; padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; box-sizing: border-box;"
-                     [disabled]="actualizandoPiscina() === p.id">
-            </div>
-            
-            <div class="form-group" style="margin-bottom: 12px;">
-              <label style="display: block; font-size: 12px; color: #6b7280; margin-bottom: 4px;">💧 Nivel de pH</label>
-              <input type="number" [(ngModel)]="p.pHAgua" step="0.1" min="0" max="14"
-                     style="width: 100%; padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; box-sizing: border-box;"
-                     [disabled]="actualizandoPiscina() === p.id">
-            </div>
-            
-            <div class="form-group" style="margin-bottom: 16px;">
-              <label style="display: block; font-size: 12px; color: #6b7280; margin-bottom: 4px;">📅 Última Limpieza</label>
-              <div style="display: flex; gap: 8px;">
-                <input type="date" [ngModel]="p.ultimaLimpieza | date:'yyyy-MM-dd'" 
-                       (ngModelChange)="actualizarFechaLimpieza(p, $event)"
-                       style="flex: 1; padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;"
-                       [disabled]="actualizandoPiscina() === p.id">
-                <button (click)="registrarLimpiezaHoy(p)" 
-                        style="padding: 10px 16px; background: #10b981; color: white; border: none; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap;"
-                        [disabled]="actualizandoPiscina() === p.id">
-                  Hoy
-                </button>
-              </div>
-            </div>
-
-            <button (click)="actualizarParametrosPiscina(p)" 
-                    style="width: 100%; padding: 12px; background: #8b5cf6; color: white; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: background 0.3s;"
-                    [disabled]="actualizandoPiscina() === p.id"
-                    [style.opacity]="actualizandoPiscina() === p.id ? '0.7' : '1'">
-              {{ actualizandoPiscina() === p.id ? 'Guardando...' : 'Guardar Cambios' }}
-            </button>
+        <div class="panel-body" style="padding: 16px;">
+          <div class="item-detalle" style="display: flex; align-items: center; gap: 8px; color: #6b7280;">
+            <span>📅 <strong>Última limpieza:</strong> {{ formatearFecha(p.ultimaLimpieza) }}</span>
           </div>
-
-          <a [routerLink]="['/piscinas', p.id]" class="btn-ver-detalle" style="display: block; text-align: center; margin-top: 12px; padding: 10px; background: #6b7280; color: white; border-radius: 8px; text-decoration: none; font-weight: 600;">Ver Detalles →</a>
         </div>
       </div>
+    </div>
 
   </section>
 
+</div>
+
+<!-- Modal Piscina Técnico (con pestañas) -->
+<div class="modal-overlay" *ngIf="mostrarModalPiscinaTecnico" (click)="cerrarModalPiscinaTecnico()">
+  <div class="modal-contenido modal-piscina-tecnico" (click)="$event.stopPropagation()">
+    <div class="modal-header modal-header-tecnico">
+      <h2>🏊 {{ piscinaSeleccionadaTecnico?.nombre }}</h2>
+      <span class="badge-estado-modal" [style.background]="piscinaSeleccionadaTecnico?.estado === 'abierta' ? '#10b981' : '#6b7280'">
+        {{ piscinaSeleccionadaTecnico?.estado | uppercase }}
+      </span>
+      <button type="button" class="btn-cerrar-modal" (click)="cerrarModalPiscinaTecnico()">
+        ✕
+      </button>
+    </div>
+
+    <!-- Pestañas -->
+    <div class="pestanas-tecnico">
+      <button 
+        class="pestana-btn" 
+        [class.activa]="pestanaActivaTecnico === 'parametros'"
+        (click)="cambiarPestanaTecnico('parametros')">
+        🧪 Parámetros
+      </button>
+      <button 
+        class="pestana-btn" 
+        [class.activa]="pestanaActivaTecnico === 'tareas'"
+        (click)="cambiarPestanaTecnico('tareas')">
+        ✅ Tareas ({{ tareasDePiscina().length }})
+      </button>
+      <button 
+        class="pestana-btn" 
+        [class.activa]="pestanaActivaTecnico === 'limpieza'"
+        (click)="cambiarPestanaTecnico('limpieza')">
+        🧹 Limpieza
+      </button>
+    </div>
+
+    <!-- Contenido Pestaña: Parámetros -->
+    <div class="pestana-contenido" *ngIf="pestanaActivaTecnico === 'parametros' && piscinaSeleccionadaTecnico">
+      <div class="form-grupo-tecnico">
+        <label>🧪 Nivel de Cloro (ppm)</label>
+        <input type="number" [(ngModel)]="piscinaSeleccionadaTecnico.nivelCloro" step="0.1" min="0" max="10"
+          [disabled]="actualizandoPiscina() === piscinaSeleccionadaTecnico.id">
+      </div>
+      <div class="form-grupo-tecnico">
+        <label>💧 Nivel de pH</label>
+        <input type="number" [(ngModel)]="piscinaSeleccionadaTecnico.pHAgua" step="0.1" min="0" max="14"
+          [disabled]="actualizandoPiscina() === piscinaSeleccionadaTecnico.id">
+      </div>
+      <button class="btn-guardar-tecnico" (click)="guardarParametrosTecnico()" 
+        [disabled]="actualizandoPiscina() === piscinaSeleccionadaTecnico.id">
+        {{ actualizandoPiscina() === piscinaSeleccionadaTecnico.id ? 'Guardando...' : '💾 Guardar Parámetros' }}
+      </button>
+    </div>
+
+    <!-- Contenido Pestaña: Tareas -->
+    <div class="pestana-contenido" *ngIf="pestanaActivaTecnico === 'tareas'">
+      <div *ngIf="cargandoTareasPiscina()" class="cargando-tareas-modal">
+        <p>Cargando tareas...</p>
+      </div>
+      <div *ngIf="!cargandoTareasPiscina() && tareasDePiscina().length === 0" class="sin-tareas-modal">
+        <p>📋 No hay tareas asignadas a esta piscina</p>
+      </div>
+      <div *ngIf="!cargandoTareasPiscina() && tareasDePiscina().length > 0" class="lista-tareas-modal">
+        <div *ngFor="let t of tareasDePiscina()" class="tarea-item-modal" (click)="cambiarEstadoTareaTecnico(t, $event)">
+          <div class="tarea-info">
+            <span class="tarea-descripcion">{{ t.descripcion }}</span>
+            <span class="tarea-fecha">📅 {{ formatearFecha(t.fechaVencimiento) }}</span>
+          </div>
+          <div class="tarea-badges">
+            <span class="badge-estado-mini badge-clickeable" [ngClass]="obtenerClaseEstado(t.estado)" title="Click para cambiar estado">{{ t.estado | uppercase }}</span>
+            <span class="badge-prioridad-mini" [ngClass]="obtenerClasePrioridad(t.prioridad)">{{ t.prioridad | uppercase }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contenido Pestaña: Limpieza -->
+    <div class="pestana-contenido" *ngIf="pestanaActivaTecnico === 'limpieza' && piscinaSeleccionadaTecnico">
+      <div class="info-limpieza">
+        <p class="ultima-limpieza-label">📅 Última limpieza registrada:</p>
+        <p class="ultima-limpieza-fecha">{{ formatearFecha(piscinaSeleccionadaTecnico.ultimaLimpieza) }}</p>
+      </div>
+      <button class="btn-registrar-limpieza" (click)="registrarLimpiezaHoyModal()"
+        [disabled]="actualizandoPiscina() === piscinaSeleccionadaTecnico.id">
+        {{ actualizandoPiscina() === piscinaSeleccionadaTecnico.id ? 'Guardando...' : '🧹 Registrar Limpieza Hoy' }}
+      </button>
+    </div>
+  </div>
 </div>
 
 <!-- Modal Nueva Tarea (Técnico) -->
@@ -408,27 +484,16 @@
         <label for="descripcion" class="etiqueta">
           Descripción <span class="requerido">*</span>
         </label>
-        <textarea
-          id="descripcion"
-          [(ngModel)]="nuevaTarea.descripcion"
-          class="campo-entrada"
-          [class.error]="enviadoTarea && !nuevaTarea.descripcion.trim()"
-          rows="3"
-          placeholder="Describe la tarea..."
-          [disabled]="guardandoTarea"
-        ></textarea>
+        <textarea id="descripcion" [(ngModel)]="nuevaTarea.descripcion" class="campo-entrada"
+          [class.error]="enviadoTarea && !nuevaTarea.descripcion.trim()" rows="3" placeholder="Describe la tarea..."
+          [disabled]="guardandoTarea"></textarea>
       </div>
 
       <!-- Fila: Estado y Prioridad -->
       <div class="fila-dos-columnas">
         <div class="grupo-formulario">
           <label for="estado" class="etiqueta">Estado</label>
-          <select
-            id="estado"
-            [(ngModel)]="nuevaTarea.estado"
-            class="campo-seleccion"
-            [disabled]="guardandoTarea"
-          >
+          <select id="estado" [(ngModel)]="nuevaTarea.estado" class="campo-seleccion" [disabled]="guardandoTarea">
             <option *ngFor="let est of estados" [value]="est.valor">
               {{ est.etiqueta }}
             </option>
@@ -437,12 +502,7 @@
 
         <div class="grupo-formulario">
           <label for="prioridad" class="etiqueta">Prioridad</label>
-          <select
-            id="prioridad"
-            [(ngModel)]="nuevaTarea.prioridad"
-            class="campo-seleccion"
-            [disabled]="guardandoTarea"
-          >
+          <select id="prioridad" [(ngModel)]="nuevaTarea.prioridad" class="campo-seleccion" [disabled]="guardandoTarea">
             <option *ngFor="let pri of prioridades" [value]="pri.valor">
               {{ pri.etiqueta }}
             </option>
@@ -455,14 +515,8 @@
         <label for="fechaVencimiento" class="etiqueta">
           Fecha de Vencimiento <span class="requerido">*</span>
         </label>
-        <input
-          type="date"
-          id="fechaVencimiento"
-          [(ngModel)]="nuevaTarea.fechaVencimiento"
-          class="campo-entrada"
-          [class.error]="enviadoTarea && !nuevaTarea.fechaVencimiento"
-          [disabled]="guardandoTarea"
-        />
+        <input type="date" id="fechaVencimiento" [(ngModel)]="nuevaTarea.fechaVencimiento" class="campo-entrada"
+          [class.error]="enviadoTarea && !nuevaTarea.fechaVencimiento" [disabled]="guardandoTarea" />
       </div>
 
       <!-- Responsable -->
@@ -470,33 +524,117 @@
         <label for="responsable" class="etiqueta">
           Responsable <span class="opcional">(Opcional)</span>
         </label>
-        <input
-          type="text"
-          id="responsable"
-          [(ngModel)]="nuevaTarea.responsable"
-          class="campo-entrada"
-          placeholder="Nombre del responsable"
-          [disabled]="guardandoTarea"
-        />
+        <input type="text" id="responsable" [(ngModel)]="nuevaTarea.responsable" class="campo-entrada"
+          placeholder="Nombre del responsable" [disabled]="guardandoTarea" />
       </div>
 
       <!-- Botones -->
       <div class="grupo-botones-modal">
-        <button
-          type="button"
-          class="btn btn-secundario"
-          (click)="cerrarModalTarea()"
-          [disabled]="guardandoTarea"
-        >
+        <button type="button" class="btn btn-secundario" (click)="cerrarModalTarea()" [disabled]="guardandoTarea">
           Cancelar
         </button>
-        <button
-          type="button"
-          class="btn btn-primario"
-          (click)="guardarNuevaTarea()"
-          [disabled]="guardandoTarea"
-        >
+        <button type="button" class="btn btn-primario" (click)="guardarNuevaTarea()" [disabled]="guardandoTarea">
           {{ guardandoTarea ? 'Guardando...' : 'Crear Tarea' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Resolución -->
+<div class="modal-overlay" *ngIf="mostrarModalResolucion" (click)="cerrarModalResolucion()">
+  <div class="modal-contenido modal-resolucion" (click)="$event.stopPropagation()">
+    <div class="modal-header modal-header-completar">
+      <h2>✅ Completar Tarea</h2>
+      <button type="button" class="btn-cerrar-modal" (click)="cerrarModalResolucion()" [disabled]="guardandoResolucion">
+        ✕
+      </button>
+    </div>
+
+    <div class="formulario-modal">
+      <div class="info-tarea-completar" *ngIf="tareaACompletar">
+        <p><strong>Tarea:</strong> {{ tareaACompletar.descripcion }}</p>
+      </div>
+
+      <div class="grupo-formulario">
+        <label for="resolucion" class="etiqueta">
+          Resolución <span class="opcional">(Opcional)</span>
+        </label>
+        <textarea id="resolucion" [(ngModel)]="resolucionTexto" class="campo-entrada" rows="4"
+          placeholder="Describe cómo se resolvió la tarea..." [disabled]="guardandoResolucion"></textarea>
+      </div>
+
+      <div class="grupo-botones-modal">
+        <button type="button" class="btn btn-secundario" (click)="cerrarModalResolucion()"
+          [disabled]="guardandoResolucion">
+          Cancelar
+        </button>
+        <button type="button" class="btn btn-primario btn-completar" (click)="guardarResolucion()"
+          [disabled]="guardandoResolucion">
+          {{ guardandoResolucion ? 'Guardando...' : 'Completar Tarea' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Detalle Tarea -->
+<div class="modal-overlay" *ngIf="mostrarModalDetalleTarea && tareaSeleccionada" (click)="cerrarDetalleTarea()">
+  <div class="modal-contenido modal-detalle-tarea" (click)="$event.stopPropagation()">
+    <div class="modal-header modal-header-tarea">
+      <h2>📋 Detalle de Tarea</h2>
+      <button type="button" class="btn-cerrar-modal" (click)="cerrarDetalleTarea()">
+        ✕
+      </button>
+    </div>
+
+    <div class="detalle-tarea-contenido">
+      <div class="detalle-tarea-estado">
+        <span class="badge-estado-grande" [ngClass]="{
+          'badge-pendiente': tareaSeleccionada.estado === 'pendiente',
+          'badge-progreso': tareaSeleccionada.estado === 'en progreso',
+          'badge-completada': tareaSeleccionada.estado === 'completada'
+        }">{{ tareaSeleccionada.estado | uppercase }}</span>
+        <span class="badge-prioridad-grande" [ngClass]="'prioridad-' + tareaSeleccionada.prioridad">
+          {{ tareaSeleccionada.prioridad | uppercase }}
+        </span>
+      </div>
+
+      <div class="detalle-tarea-info">
+        <div class="info-grupo">
+          <label>Descripción</label>
+          <p class="descripcion-tarea">{{ tareaSeleccionada.descripcion }}</p>
+        </div>
+
+        <div class="info-fila">
+          <div class="info-grupo">
+            <label>📅 Fecha de Vencimiento</label>
+            <p>{{ formatearFecha(tareaSeleccionada.fechaVencimiento) }}</p>
+          </div>
+          <div class="info-grupo">
+            <label>📆 Fecha de Creación</label>
+            <p>{{ formatearFecha(tareaSeleccionada.fechaCreacion) }}</p>
+          </div>
+        </div>
+
+        <div class="info-grupo" *ngIf="tareaSeleccionada.responsable">
+          <label>👤 Responsable</label>
+          <p>{{ tareaSeleccionada.responsable }}</p>
+        </div>
+
+        <div class="info-grupo" *ngIf="tareaSeleccionada.resolucion">
+          <label>✅ Resolución</label>
+          <p class="resolucion-tarea">{{ tareaSeleccionada.resolucion }}</p>
+        </div>
+      </div>
+
+      <div class="detalle-tarea-acciones">
+        <button class="btn btn-secundario" (click)="cerrarDetalleTarea()">
+          Cerrar
+        </button>
+        <button class="btn btn-primario" *ngIf="tareaSeleccionada.estado !== 'completada'"
+          (click)="cambiarEstadoDesdeModal()">
+          {{ tareaSeleccionada.estado === 'pendiente' ? 'Iniciar Tarea' : 'Completar Tarea' }}
         </button>
       </div>
     </div>
