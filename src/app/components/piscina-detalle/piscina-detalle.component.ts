@@ -359,240 +359,118 @@ export class PiscinaDetalleComponent implements OnInit {
     }
   }
 
-  generarPDFPresupuesto(presupuesto: Presupuesto): void {
+  async generarPDFPresupuesto(presupuesto: Presupuesto): Promise<void> {
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
-    const pageHeight = doc.internal.pageSize.getHeight();
     let yPosition = 15;
 
-    // Fondo de encabezado elegante
-    doc.setFillColor(102, 126, 234);
-    doc.rect(0, 0, pageWidth, 50, 'F');
+    // Logo centrado y más grande
+    try {
+      const logoBase64 = await this.cargarImagenBase64('assets/images/logo-ejl.png');
+      const logoWidth = 100;
+      const logoHeight = 50;
+      const logoX = (pageWidth - logoWidth) / 2;
+      doc.addImage(logoBase64, 'PNG', logoX, 3, logoWidth, logoHeight);
+    } catch (e) {
+      console.warn('No se pudo cargar el logo:', e);
+    }
 
-    // Encabezado principal
-    doc.setFontSize(28);
-    doc.setTextColor(255, 255, 255);
+    // Información del presupuesto
+    yPosition = 60;
+    doc.setFontSize(14);
+    doc.setTextColor(102, 126, 234);
     doc.setFont('helvetica', 'bold');
-    doc.text('GestiPool', 20, 28);
+    doc.text('Descripción presupuesto:', 20, yPosition);
 
-    doc.setFontSize(11);
-    doc.setFont('helvetica', 'normal');
-    doc.setTextColor(230, 230, 230);
-    doc.text('Sistema de Gestión de Piscinas', 20, 36);
-
-    doc.setFontSize(18);
-    doc.setTextColor(255, 255, 255);
-    doc.setFont('helvetica', 'bold');
-    doc.text('PRESUPUESTO', pageWidth - 20, 28, { align: 'right' });
-
-    // Contenido principal
-    yPosition = 58;
-    
-    // Información en dos columnas
-    doc.setFontSize(10);
-    doc.setTextColor(100, 100, 100);
-    doc.setFont('helvetica', 'bold');
-    doc.text('Información del Presupuesto', 20, yPosition);
-    
     yPosition += 8;
-    
-    // Bloque de información izquierdo
-    doc.setFontSize(9);
+    doc.setFontSize(11);
+    doc.setTextColor(0, 0, 0);
     doc.setFont('helvetica', 'normal');
-    const infoLeft = [
-      { label: 'ID:', value: presupuesto.id || 'N/A' },
-      { label: 'Descripción:', value: presupuesto.descripcion }
-    ];
+    const descLines = doc.splitTextToSize(presupuesto.descripcion, 170);
+    doc.text(descLines, 20, yPosition);
+    yPosition += descLines.length * 5 + 5;
 
-    infoLeft.forEach((info, idx) => {
-      doc.setTextColor(80, 80, 80);
-      doc.setFont('helvetica', 'bold');
-      doc.text(info.label, 20, yPosition);
-      doc.setFont('helvetica', 'normal');
-      doc.setTextColor(50, 50, 50);
-      doc.text(info.value, 45, yPosition);
-      yPosition += 6;
-    });
-
-    // Información derecha
-    const fechaFormateada = new Date(presupuesto.fechaCreacion).toLocaleDateString('es-ES', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
-    const estado = presupuesto.estado === 'pendiente' ? 'Pendiente' : 'Aceptado';
-    const estadoColor = presupuesto.estado === 'pendiente' ? [255, 152, 0] : [16, 185, 129];
-
-    yPosition -= 12;
-    doc.setTextColor(80, 80, 80);
+    // Fecha
+    doc.setFontSize(11);
+    doc.setTextColor(102, 126, 234);
     doc.setFont('helvetica', 'bold');
-    doc.text('Fecha:', pageWidth - 80, yPosition);
+    doc.text('Fecha:', 20, yPosition);
+    doc.setTextColor(0, 0, 0);
     doc.setFont('helvetica', 'normal');
-    doc.setTextColor(50, 50, 50);
-    doc.text(fechaFormateada, pageWidth - 60, yPosition);
+    doc.text(this.formatearFecha(presupuesto.fechaCreacion), 60, yPosition);
+    yPosition += 10;
 
-    yPosition += 6;
-    doc.setTextColor(80, 80, 80);
+    // Estado
+    doc.setTextColor(102, 126, 234);
     doc.setFont('helvetica', 'bold');
-    doc.text('Estado:', pageWidth - 80, yPosition);
-    
-    // Badge de estado
-    doc.setFillColor(estadoColor[0], estadoColor[1], estadoColor[2]);
-    doc.rect(pageWidth - 60, yPosition - 3, 25, 5, 'F');
-    doc.setTextColor(255, 255, 255);
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(7);
-    doc.text(estado, pageWidth - 48, yPosition + 1, { align: 'center' });
-
+    doc.text('Estado:', 20, yPosition);
+    doc.setTextColor(0, 0, 0);
+    doc.setFont('helvetica', 'normal');
+    doc.text(presupuesto.estado.toUpperCase(), 60, yPosition);
     yPosition += 15;
 
-    // Línea separadora decorativa
-    doc.setDrawColor(102, 126, 234);
-    doc.setLineWidth(0.5);
-    doc.line(20, yPosition, pageWidth - 20, yPosition);
-    yPosition += 8;
+    // Tabla de líneas
+    if (presupuesto.lineas && presupuesto.lineas.length > 0) {
+      doc.setFontSize(12);
+      doc.setTextColor(102, 126, 234);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Líneas del Presupuesto:', 20, yPosition);
+      yPosition += 10;
 
-    // Tabla de líneas de presupuesto
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor(255, 255, 255);
-    doc.setFillColor(102, 126, 234);
-    
-    const headers = ['Cantidad', 'Descripción', 'Precio Unit.', 'Total'];
-    const columnWidths = [20, 90, 35, 30];
-    const cellHeight = 8;
-    let xPos = 20;
-
-    // Dibuja headers
-    doc.setLineWidth(0.1);
-    doc.setDrawColor(102, 126, 234);
-    
-    headers.forEach((header, idx) => {
-      doc.rect(xPos, yPosition, columnWidths[idx], cellHeight, 'F');
+      // Encabezados de tabla
+      doc.setFillColor(102, 126, 234);
       doc.setTextColor(255, 255, 255);
-      // Calcular posición centrada manualmente
-      const textWidth = doc.getTextWidth(header);
-      const centeredX = xPos + (columnWidths[idx] - textWidth) / 2;
-      doc.text(header, centeredX, yPosition + 5);
-      xPos += columnWidths[idx];
-    });
+      doc.setFont('helvetica', 'bold');
+      doc.rect(20, yPosition - 5, 170, 7, 'F');
+      doc.text('Descripción', 25, yPosition);
+      doc.text('Cantidad', 110, yPosition);
+      doc.text('Precio', 135, yPosition);
+      doc.text('Total', 165, yPosition);
+      yPosition += 8;
 
-    yPosition += cellHeight;
-
-    // Filas de data
-    const rows = presupuesto.lineas.map(linea => [
-      linea.cantidad.toString(),
-      linea.descripcion,
-      `${linea.precioUnitario.toFixed(2)} €`,
-      `${linea.total.toFixed(2)} €`
-    ]);
-
-    doc.setFont('helvetica', 'normal');
-    doc.setTextColor(50, 50, 50);
-    
-    rows.forEach((row, idx) => {
-      xPos = 20;
-      const bgColor = idx % 2 === 0 ? [245, 247, 250] : [255, 255, 255];
-      doc.setFillColor(bgColor[0], bgColor[1], bgColor[2]);
-      
-      // Dibuja fondo fila
-      for (let i = 0; i < columnWidths.length; i++) {
-        doc.rect(xPos, yPosition, columnWidths[i], cellHeight, 'F');
-        xPos += columnWidths[i];
-      }
-
-      // Dibuja borde
-      doc.setDrawColor(220, 220, 220);
-      doc.setLineWidth(0.2);
-      doc.rect(20, yPosition, columnWidths.reduce((a, b) => a + b), cellHeight);
-
-      // Texto
-      xPos = 20;
-      row.forEach((cell, cellIdx) => {
-        // Cantidad centrada, Descripción a la izquierda, Precios a la derecha
-        let textX: number;
-        let align: 'left' | 'center' | 'right';
-        
-        if (cellIdx === 0) {
-          // Cantidad - centrada
-          textX = xPos + columnWidths[cellIdx] / 2;
-          align = 'center';
-        } else if (cellIdx === 1) {
-          // Descripción - a la izquierda con padding
-          textX = xPos + 3;
-          align = 'left';
-        } else {
-          // Precios - a la derecha con padding
-          textX = xPos + columnWidths[cellIdx] - 3;
-          align = 'right';
-        }
-        
-        doc.text(cell, textX, yPosition + 5, { align });
-        xPos += columnWidths[cellIdx];
+      // Filas de datos
+      doc.setTextColor(0, 0, 0);
+      doc.setFont('helvetica', 'normal');
+      presupuesto.lineas.forEach(linea => {
+        doc.text((linea as any).descripcion.substring(0, 25), 25, yPosition);
+        doc.text((linea as any).cantidad.toString(), 120, yPosition);
+        doc.text('€' + (linea as any).precioUnitario.toFixed(2), 135, yPosition);
+        doc.text('€' + linea.total.toFixed(2), 165, yPosition);
+        yPosition += 6;
       });
 
-      yPosition += cellHeight;
+      yPosition += 2;
+      doc.setDrawColor(102, 126, 234);
+      doc.line(20, yPosition, 190, yPosition);
+      yPosition += 5;
+
+      // SUBTotal
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(102, 126, 234);
+      doc.text('TOTAL:', 105, yPosition);
+      doc.setTextColor(0, 0, 0);
+      doc.text('€' + this.getTotalLineas(presupuesto.lineas).toFixed(2) + ' IVA incluido', 125, yPosition);
+    }
+
+    doc.save(`presupuesto-${presupuesto.descripcion.substring(0, 20)}.pdf`);
+  }
+
+  private cargarImagenBase64(url: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.crossOrigin = 'Anonymous';
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext('2d');
+        ctx?.drawImage(img, 0, 0);
+        resolve(canvas.toDataURL('image/png'));
+      };
+      img.onerror = reject;
+      img.src = url;
     });
-
-    // Línea separadora antes del total
-    yPosition += 3;
-    doc.setDrawColor(102, 126, 234);
-    doc.setLineWidth(0.5);
-    doc.line(20, yPosition, pageWidth - 20, yPosition);
-
-    // Resumen y Total
-    yPosition += 8;
-    const total = this.getTotalLineas(presupuesto.lineas);
-    
-    // Subtotal (si hubiera descuentos)
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'normal');
-    doc.setTextColor(100, 100, 100);
-    doc.text('Subtotal:', pageWidth - 65, yPosition);
-    doc.setTextColor(50, 50, 50);
-    doc.text(`${total.toFixed(2)} €`, pageWidth - 20, yPosition, { align: 'right' });
-
-    yPosition += 7;
-    doc.setDrawColor(102, 126, 234);
-    doc.setLineWidth(0.3);
-    doc.line(pageWidth - 100, yPosition, pageWidth - 20, yPosition);
-
-    // Total Grande
-    yPosition += 7;
-    doc.setFontSize(14);
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor(16, 185, 129);
-    doc.text('TOTAL:', pageWidth - 65, yPosition);
-    doc.setFontSize(16);
-    doc.text(`${total.toFixed(2)} €`, pageWidth - 20, yPosition, { align: 'right' });
-
-    // Footer elegante
-    yPosition = pageHeight - 20;
-    doc.setDrawColor(200, 200, 200);
-    doc.setLineWidth(0.5);
-    doc.line(20, yPosition, pageWidth - 20, yPosition);
-
-    yPosition += 5;
-    doc.setFontSize(8);
-    doc.setTextColor(150, 150, 150);
-    doc.setFont('helvetica', 'normal');
-    doc.text('GestiPool - Sistema de Gestión de Piscinas', pageWidth / 2, yPosition, { align: 'center' });
-    
-    yPosition += 4;
-    const fechaGeneracion = new Date().toLocaleDateString('es-ES', {
-      year: 'numeric',
-      month: 'numeric',
-      day: 'numeric'
-    });
-    const horaGeneracion = new Date().toLocaleTimeString('es-ES', {
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-    doc.text(`Generado: ${fechaGeneracion} a las ${horaGeneracion}`, pageWidth / 2, yPosition, { align: 'center' });
-
-    // Descargar
-    const nombreArchivo = `Presupuesto_${presupuesto.descripcion.replace(/\s+/g, '_')}_${new Date().getTime()}.pdf`;
-    doc.save(nombreArchivo);
   }
 
   generarQR(id: string): void {

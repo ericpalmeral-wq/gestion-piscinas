@@ -92,32 +92,31 @@ export class ListaPresupuestosComponent implements OnInit {
     return lineas.reduce((acc, l) => acc + l.total, 0);
   }
 
-  descargarPDF(presupuesto: Presupuesto): void {
+  async descargarPDF(presupuesto: Presupuesto): Promise<void> {
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
     const pageHeight = doc.internal.pageSize.getHeight();
     let yPosition = 15;
 
-    // Fondo de encabezado elegante
-    doc.setFillColor(102, 126, 234);
-    doc.rect(0, 0, pageWidth, 50, 'F');
 
-    // Encabezado principal
-    doc.setFontSize(28);
-    doc.setTextColor(255, 255, 255);
-    doc.setFont('helvetica', 'bold');
-    doc.text('GestiPool', 20, 28);
 
-    doc.setFontSize(11);
-    doc.setFont('helvetica', 'normal');
-    doc.text('Presupuesto', 20, 42);
+    // Logo centrado y más grande
+    try {
+      const logoBase64 = await this.cargarImagenBase64('assets/images/logo-ejl.png');
+      const logoWidth = 100;
+      const logoHeight = 50;
+      const logoX = (pageWidth - logoWidth) / 2;
+      doc.addImage(logoBase64, 'PNG', logoX, 3, logoWidth, logoHeight);
+    } catch (e) {
+      console.warn('No se pudo cargar el logo:', e);
+    }
 
     // Información del presupuesto
     yPosition = 60;
     doc.setFontSize(14);
     doc.setTextColor(102, 126, 234);
     doc.setFont('helvetica', 'bold');
-    doc.text('Descripción:', 20, yPosition);
+    doc.text('Descripción presupuesto:', 20, yPosition);
 
     yPosition += 8;
     doc.setFontSize(11);
@@ -160,8 +159,8 @@ export class ListaPresupuestosComponent implements OnInit {
       doc.setFont('helvetica', 'bold');
       doc.rect(20, yPosition - 5, 170, 7, 'F');
       doc.text('Descripción', 25, yPosition);
-      doc.text('Cantidad', 120, yPosition);
-      doc.text('Precio Unitario', 135, yPosition);
+      doc.text('Cantidad', 110, yPosition);
+      doc.text('Precio', 135, yPosition);
       doc.text('Total', 165, yPosition);
       yPosition += 8;
 
@@ -171,8 +170,8 @@ export class ListaPresupuestosComponent implements OnInit {
       presupuesto.lineas.forEach(linea => {
         doc.text((linea as any).descripcion.substring(0, 25), 25, yPosition);
         doc.text((linea as any).cantidad.toString(), 120, yPosition);
-        doc.text('$' + (linea as any).precioUnitario.toFixed(2), 135, yPosition);
-        doc.text('$' + linea.total.toFixed(2), 165, yPosition);
+        doc.text('€' + (linea as any).precioUnitario.toFixed(2), 135, yPosition);
+        doc.text('€' + linea.total.toFixed(2), 165, yPosition);
         yPosition += 6;
       });
 
@@ -185,12 +184,29 @@ export class ListaPresupuestosComponent implements OnInit {
       doc.setFontSize(12);
       doc.setFont('helvetica', 'bold');
       doc.setTextColor(102, 126, 234);
-      doc.text('TOTAL:', 135, yPosition);
+      doc.text('TOTAL:', 105, yPosition);
       doc.setTextColor(0, 0, 0);
-      doc.text('$' + this.calcularTotal(presupuesto.lineas).toFixed(2), 165, yPosition);
+      doc.text('€' + this.calcularTotal(presupuesto.lineas).toFixed(2) + ' IVA incluido', 125, yPosition);
     }
 
     doc.save(`presupuesto-${presupuesto.descripcion.substring(0, 20)}.pdf`);
+  }
+
+  private cargarImagenBase64(url: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.crossOrigin = 'Anonymous';
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext('2d');
+        ctx?.drawImage(img, 0, 0);
+        resolve(canvas.toDataURL('image/png'));
+      };
+      img.onerror = reject;
+      img.src = url;
+    });
   }
 
   crearNuevoPresupuesto(): void {
