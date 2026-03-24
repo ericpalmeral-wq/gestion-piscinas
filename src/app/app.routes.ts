@@ -13,6 +13,7 @@ import { TareaDetalleComponent } from './components/tarea-detalle/tarea-detalle.
 import { LibrosComponent } from './components/libros/libros.component';
 import { LibroDetalleComponent } from './components/libros/libro-detalle.component';
 import { PiscinaPublicaComponent } from './components/piscina-publica/piscina-publica.component';
+import { PerfilUsuarioComponent } from './components/perfil-usuario/perfil-usuario.component';
 import { requiereAutenticacion } from './guards/auth.guard';
 import { requiereRol } from './guards/rol.guard';
 
@@ -30,6 +31,12 @@ export const routes: Routes = [
   {
     path: '',
     component: HomeComponent,
+    canActivate: [requiereAutenticacion]
+  },
+  // Perfil: accesible por todos los usuarios autenticados
+  {
+    path: 'perfil',
+    component: PerfilUsuarioComponent,
     canActivate: [requiereAutenticacion]
   },
   // Detalle de piscina: accesible por todos los usuarios autenticados

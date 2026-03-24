@@ -1,0 +1,98 @@
+<div class="perfil-pagina">
+  <div class="perfil-contenedor">
+    <div class="perfil-encabezado">
+      <h1>👤 Mi Perfil</h1>
+      <p *ngIf="usuario()">{{ usuario()!.email }}</p>
+    </div>
+
+    <!-- Tarjeta: Datos personales -->
+    <div class="perfil-tarjeta">
+      <h2>Datos personales</h2>
+
+      <div class="campo-grupo">
+        <label for="email">Email</label>
+        <input id="email" type="text" [value]="usuario()?.email || ''" disabled class="input-deshabilitado" />
+      </div>
+
+      <div class="campo-grupo">
+        <label for="nombre">Nombre</label>
+        <input
+          id="nombre"
+          type="text"
+          [ngModel]="nombreEditado()"
+          (ngModelChange)="nombreEditado.set($event)"
+          placeholder="Tu nombre"
+          maxlength="80"
+        />
+      </div>
+
+      <div class="campo-grupo">
+        <label>Rol</label>
+        <input type="text" [value]="usuario()?.rol || ''" disabled class="input-deshabilitado" />
+      </div>
+
+      <div class="alerta alerta-error" *ngIf="errorPerfil()">{{ errorPerfil() }}</div>
+      <div class="alerta alerta-exito" *ngIf="exitoPerfil()">{{ exitoPerfil() }}</div>
+
+      <button
+        class="btn-guardar"
+        (click)="guardarPerfil()"
+        [disabled]="guardandoPerfil()"
+      >
+        {{ guardandoPerfil() ? 'Guardando...' : '💾 Guardar cambios' }}
+      </button>
+    </div>
+
+    <!-- Tarjeta: Cambiar contraseña -->
+    <div class="perfil-tarjeta">
+      <h2>Cambiar contraseña</h2>
+
+      <div class="campo-grupo">
+        <label for="contrasenaActual">Contraseña actual</label>
+        <input
+          id="contrasenaActual"
+          type="password"
+          [ngModel]="contrasenaActual()"
+          (ngModelChange)="contrasenaActual.set($event)"
+          placeholder="Tu contraseña actual"
+          autocomplete="current-password"
+        />
+      </div>
+
+      <div class="campo-grupo">
+        <label for="contrasenaNueva">Nueva contraseña</label>
+        <input
+          id="contrasenaNueva"
+          type="password"
+          [ngModel]="contrasenaNueva()"
+          (ngModelChange)="contrasenaNueva.set($event)"
+          placeholder="Mínimo 6 caracteres"
+          autocomplete="new-password"
+        />
+      </div>
+
+      <div class="campo-grupo">
+        <label for="contrasenaConfirmar">Confirmar nueva contraseña</label>
+        <input
+          id="contrasenaConfirmar"
+          type="password"
+          [ngModel]="contrasenaConfirmar()"
+          (ngModelChange)="contrasenaConfirmar.set($event)"
+          placeholder="Repite la nueva contraseña"
+          autocomplete="new-password"
+        />
+      </div>
+
+      <div class="alerta alerta-error" *ngIf="errorContrasena()">{{ errorContrasena() }}</div>
+      <div class="alerta alerta-exito" *ngIf="exitoContrasena()">{{ exitoContrasena() }}</div>
+
+      <button
+        class="btn-guardar"
+        (click)="cambiarContrasena()"
+        [disabled]="guardandoContrasena()"
+      >
+        {{ guardandoContrasena() ? 'Cambiando...' : '🔒 Cambiar contraseña' }}
+      </button>
+    </div>
+  </div>
+</div>

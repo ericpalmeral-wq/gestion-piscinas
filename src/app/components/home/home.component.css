@@ -506,9 +506,201 @@
   box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
 }
 
+/* Fila inferior: panel stat + gráfica */
+.fila-inferior {
+  margin-top: 20px;
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 20px;
+  align-items: stretch;
+}
+
+.panel-stat-piscinas {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex: 1;
+  padding: 24px 16px !important;
+}
+
+.stat-numero {
+  font-size: 56px;
+  font-weight: 800;
+  color: #6366f1;
+  line-height: 1;
+}
+
+.stat-subtexto {
+  font-size: 13px;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.stat-detalle {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+}
+
+.stat-chip {
+  display: block;
+  text-align: center;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.stat-link {
+  margin-top: 4px;
+  font-size: 13px;
+  color: #6366f1;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.stat-link:hover {
+  text-decoration: underline;
+}
+
+.panel-grafica-flex {
+  flex: 1;
+}
+
 /* Gráfica de Consumo */
 .panel-grafica {
-  margin-top: 20px;
+  margin-top: 0;
+}
+
+@media (max-width: 700px) {
+  .fila-inferior {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+/* Badge de número de piscinas en el encabezado del panel */
+.panel-num-piscinas {
+  margin-left: auto;
+  background: rgba(255,255,255,0.25);
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 20px;
+}
+
+/* Gráfica de columnas verticales */
+.grafica-col-body {
+  padding: 20px 16px 10px !important;
+}
+
+.grafica-col-contenedor {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  height: 280px;
+}
+
+.grafica-col-eje-y {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding-bottom: 36px;
+  padding-right: 8px;
+  font-size: 11px;
+  color: #9ca3af;
+  min-width: 40px;
+  flex-shrink: 0;
+}
+
+.grafica-col-area {
+  position: relative;
+  flex: 1;
+  display: flex;
+  align-items: flex-end;
+  gap: 20px;
+  padding-bottom: 36px;
+}
+
+.guia-lineas {
+  position: absolute;
+  inset: 0 0 36px 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  pointer-events: none;
+}
+
+.guia-linea {
+  width: 100%;
+  height: 1px;
+  background: #e5e7eb;
+}
+
+.grafica-col-grupo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  height: 100%;
+  justify-content: flex-end;
+  position: relative;
+}
+
+.grafica-col-valor {
+  font-size: 11px;
+  font-weight: 700;
+  color: #374151;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.grafica-col-barra-wrap {
+  width: 100%;
+  max-width: 64px;
+  display: flex;
+  align-items: flex-end;
+  height: calc(100% - 52px);
+}
+
+.grafica-col-barra {
+  width: 100%;
+  border-radius: 6px 6px 0 0;
+  transition: height 0.6s ease-out;
+  min-height: 4px;
+}
+
+.grafica-col-etiqueta {
+  position: absolute;
+  bottom: -28px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #6b7280;
+  text-align: center;
+  white-space: nowrap;
+}
+
+@media (max-width: 500px) {
+  .grafica-col-area {
+    gap: 10px;
+  }
+  .grafica-col-barra-wrap {
+    max-width: 44px;
+  }
+  .grafica-col-etiqueta {
+    font-size: 9px;
+  }
 }
 
 .grafica-body {

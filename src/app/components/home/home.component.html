@@ -137,84 +137,102 @@
 
     </div>
 
-    <!-- Panel: Gráfica de Consumo Semanal -->
-    <div class="panel panel-grafica">
-      <div class="panel-header" style="border-color: #06b6d4">
-        <span class="panel-icon" style="background: #06b6d4">📈</span>
-        <h3>Consumo y Químicos de Piscinas</h3>
-      </div>
-      <div class="panel-body grafica-body">
-        <div *ngIf="todasLasPiscinasGrafica().length === 0" class="panel-vacio">No hay datos</div>
-        <div *ngIf="todasLasPiscinasGrafica().length > 0" class="grafica-contenedor">
-          <div class="grafica-barras">
-            <div *ngFor="let p of todasLasPiscinasGrafica()" class="barra-grupo">
-              <div class="barra-grupo-nombre">{{ p.nombre }}</div>
-              <div class="barra-grupo-items">
-                <!-- Consumo Semanal -->
-                <div class="barra-item-mini">
-                  <span class="barra-label">Consumo</span>
-                  <div class="barra-contenedor">
-                    <div class="barra-relleno" [style.width.%]="getConsumoPercent(p.consumoSemanal)"
-                      style="background: #3b82f6">
-                    </div>
-                  </div>
-                  <span class="barra-valor-mini">{{ p.consumoSemanal || 0 }} L</span>
-                </div>
-                <!-- Algibón -->
-                <div class="barra-item-mini">
-                  <span class="barra-label">Algibón</span>
-                  <div class="barra-contenedor">
-                    <div class="barra-relleno" [style.width.%]="getQuimicoPercent(p.algibonL, 'algibon')"
-                      style="background: #10b981">
-                    </div>
-                  </div>
-                  <span class="barra-valor-mini">{{ p.algibonL || 0 }} L</span>
-                </div>
-                <!-- Baja pH -->
-                <div class="barra-item-mini">
-                  <span class="barra-label">Baja pH</span>
-                  <div class="barra-contenedor">
-                    <div class="barra-relleno" [style.width.%]="getQuimicoPercent(p.bajaPHL, 'bajaPH')"
-                      style="background: #f59e0b">
-                    </div>
-                  </div>
-                  <span class="barra-valor-mini">{{ p.bajaPHL || 0 }} L</span>
-                </div>
-              </div>
-            </div>
+    <!-- Fila inferior: stat + gráfica -->
+    <div class="fila-inferior">
+
+      <!-- Panel: Total de Piscinas -->
+      <div class="panel panel-stat-piscinas">
+        <div class="panel-header" style="border-color: #6366f1">
+          <span class="panel-icon" style="background: #6366f1">🏊</span>
+          <h3>Total de Piscinas</h3>
+        </div>
+        <div class="panel-body stat-body">
+          <div class="stat-numero">{{ todasLasPiscinasGrafica().length }}</div>
+          <div class="stat-subtexto">piscinas registradas</div>
+          <div class="stat-detalle">
+            <span class="stat-chip" style="background:#d1fae5;color:#065f46">
+              {{ getPiscinasPorEstado('abierta') }} abiertas
+            </span>
+            <span class="stat-chip" style="background:#f3f4f6;color:#374151">
+              {{ getPiscinasPorEstado('cerrada') }} cerradas
+            </span>
           </div>
-          <!-- Totales -->
-          <div class="grafica-totales">
-            <div class="totales-titulo">📊 Totales</div>
-            <div class="totales-items">
-              <div class="totales-item">
-                <span class="totales-color" style="background: #3b82f6"></span>
-                <span class="totales-label">Consumo:</span>
-                <span class="totales-valor">{{ getTotalConsumo() }} L</span>
-              </div>
-              <div class="totales-item">
-                <span class="totales-color" style="background: #10b981"></span>
-                <span class="totales-label">Algibón:</span>
-                <span class="totales-valor">{{ getTotalAlgibon() }} L</span>
-              </div>
-              <div class="totales-item">
-                <span class="totales-color" style="background: #f59e0b"></span>
-                <span class="totales-label">Baja pH:</span>
-                <span class="totales-valor">{{ getTotalBajaPH() }} L</span>
-              </div>
-            </div>
-          </div>
-          <div class="grafica-leyenda">
-            <span class="leyenda-item"><span class="leyenda-color" style="background: #3b82f6"></span> Consumo
-              (m³)</span>
-            <span class="leyenda-item"><span class="leyenda-color" style="background: #10b981"></span> Algibón
-              (L)</span>
-            <span class="leyenda-item"><span class="leyenda-color" style="background: #f59e0b"></span> Baja pH
-              (L)</span>
-          </div>
+          <a routerLink="/piscinas" class="stat-link">Ver todas →</a>
         </div>
       </div>
-    </div>
+
+      <!-- Panel: Gráfica de columnas de productos -->
+      <div class="panel panel-grafica panel-grafica-flex">
+        <div class="panel-header" style="border-color: #06b6d4">
+          <span class="panel-icon" style="background: #06b6d4">📊</span>
+          <h3>Resumen de Productos</h3>
+        </div>
+      <div class="panel-body grafica-col-body">
+        <div *ngIf="todasLasPiscinasGrafica().length === 0" class="panel-vacio">No hay datos</div>
+        <div *ngIf="todasLasPiscinasGrafica().length > 0" class="grafica-col-contenedor">
+
+          <!-- Eje Y: líneas de guía -->
+          <div class="grafica-col-eje-y">
+            <span>{{ getMaxColumna() | number:'1.0-0' }}</span>
+            <span>{{ (getMaxColumna() * 0.75) | number:'1.0-0' }}</span>
+            <span>{{ (getMaxColumna() * 0.5) | number:'1.0-0' }}</span>
+            <span>{{ (getMaxColumna() * 0.25) | number:'1.0-0' }}</span>
+            <span>0</span>
+          </div>
+
+          <!-- Columnas -->
+          <div class="grafica-col-area">
+            <!-- Líneas de guía horizontales -->
+            <div class="guia-lineas">
+              <div class="guia-linea"></div>
+              <div class="guia-linea"></div>
+              <div class="guia-linea"></div>
+              <div class="guia-linea"></div>
+              <div class="guia-linea"></div>
+            </div>
+
+            <!-- Columna: Consumo semanal -->
+            <div class="grafica-col-grupo">
+              <span class="grafica-col-valor">{{ getTotalConsumo() | number:'1.0-0' }} L</span>
+              <div class="grafica-col-barra-wrap">
+                <div class="grafica-col-barra"
+                  [style.height.%]="getColumnaPercent(getTotalConsumo())"
+                  style="background: linear-gradient(180deg,#38bdf8,#0ea5e9)">
+                </div>
+              </div>
+              <span class="grafica-col-etiqueta">💧 Consumo</span>
+            </div>
+
+            <!-- Columna: Algibón -->
+            <div class="grafica-col-grupo">
+              <span class="grafica-col-valor">{{ getTotalAlgibon() | number:'1.0-0' }} L</span>
+              <div class="grafica-col-barra-wrap">
+                <div class="grafica-col-barra"
+                  [style.height.%]="getColumnaPercent(getTotalAlgibon())"
+                  style="background: linear-gradient(180deg,#34d399,#10b981)">
+                </div>
+              </div>
+              <span class="grafica-col-etiqueta">🌿 Algibón</span>
+            </div>
+
+            <!-- Columna: Baja pH -->
+            <div class="grafica-col-grupo">
+              <span class="grafica-col-valor">{{ getTotalBajaPH() | number:'1.0-0' }} L</span>
+              <div class="grafica-col-barra-wrap">
+                <div class="grafica-col-barra"
+                  [style.height.%]="getColumnaPercent(getTotalBajaPH())"
+                  style="background: linear-gradient(180deg,#fbbf24,#f59e0b)">
+                </div>
+              </div>
+              <span class="grafica-col-etiqueta">🔽 Baja pH</span>
+            </div>
+
+          </div>
+        </div>
+      </div><!-- /panel-body -->
+      </div><!-- /panel gráfica -->
+
+    </div><!-- /fila-inferior -->
   </section>
 
   <!-- ========== DASHBOARD GESTOR (solo visible para gestores) ========== -->

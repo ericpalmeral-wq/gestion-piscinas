@@ -1,0 +1,137 @@
+.perfil-pagina {
+  min-height: 100vh;
+  background: #f3f4f6;
+  padding: 32px 16px;
+}
+
+.perfil-contenedor {
+  max-width: 560px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.perfil-encabezado {
+  text-align: center;
+}
+
+.perfil-encabezado h1 {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0 0 4px;
+}
+
+.perfil-encabezado p {
+  color: #6b7280;
+  margin: 0;
+  font-size: 14px;
+}
+
+.perfil-tarjeta {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.perfil-tarjeta h2 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #374151;
+  margin: 0 0 4px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.campo-grupo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.campo-grupo label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.campo-grupo input {
+  padding: 10px 12px;
+  border: 1.5px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 15px;
+  color: #1f2937;
+  transition: border-color 0.2s;
+  outline: none;
+  background: white;
+}
+
+.campo-grupo input:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
+}
+
+.input-deshabilitado {
+  background: #f9fafb !important;
+  color: #6b7280 !important;
+  cursor: not-allowed;
+}
+
+.alerta {
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.alerta-error {
+  background: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+}
+
+.alerta-exito {
+  background: #f0fdf4;
+  color: #16a34a;
+  border: 1px solid #bbf7d0;
+}
+
+.btn-guardar {
+  padding: 11px 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.1s;
+  align-self: flex-start;
+}
+
+.btn-guardar:hover:not(:disabled) {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.btn-guardar:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+@media (max-width: 600px) {
+  .perfil-pagina {
+    padding: 16px 8px;
+  }
+
+  .btn-guardar {
+    width: 100%;
+  }
+}

@@ -4,7 +4,10 @@ import {
   signInWithEmailAndPassword,
   signOut,
   user,
-  User
+  User,
+  updatePassword,
+  EmailAuthProvider,
+  reauthenticateWithCredential
 } from '@angular/fire/auth';
 import { from, Observable, BehaviorSubject } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -109,5 +112,25 @@ export class AuthService {
 
   obtenerRolActual(): string | null {
     return this.usuarioActual.getValue()?.rol || null;
+  }
+
+  async actualizarPerfil(uid: string, nombre: string): Promise<void> {
+    await this.usuariosService.actualizarUsuario(uid, { nombre });
+    const usuarioActual = this.usuarioActual.getValue();
+    if (usuarioActual) {
+      const actualizado = { ...usuarioActual, nombre };
+      localStorage.setItem('usuarioActual', JSON.stringify(actualizado));
+      this.usuarioActual.next(actualizado);
+    }
+  }
+
+  async cambiarContrasena(contrasenaActual: string, contrasenaNueva: string): Promise<void> {
+    const firebaseUser = this.auth.currentUser;
+    if (!firebaseUser || !firebaseUser.email) {
+      throw new Error('No hay sesión activa');
+    }
+    const credencial = EmailAuthProvider.credential(firebaseUser.email, contrasenaActual);
+    await reauthenticateWithCredential(firebaseUser, credencial);
+    await updatePassword(firebaseUser, contrasenaNueva);
   }
 }

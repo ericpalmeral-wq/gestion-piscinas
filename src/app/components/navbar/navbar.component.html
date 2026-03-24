@@ -117,6 +117,15 @@
             </div>
           </li>
           <li class="dropdown-item">
+            <a
+              routerLink="/perfil"
+              class="dropdown-link"
+              (click)="cerrarMenu()"
+            >
+              ✏️ Mi perfil
+            </a>
+          </li>
+          <li class="dropdown-item">
             <button class="dropdown-link logout-btn" (click)="logout()">
               🚪 Cerrar Sesión
             </button>

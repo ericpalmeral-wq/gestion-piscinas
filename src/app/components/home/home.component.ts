@@ -281,6 +281,33 @@ export class HomeComponent implements OnInit {
     return this.todasLasPiscinasGrafica().reduce((acc, p) => acc + (p.bajaPHL || 0), 0);
   }
 
+  getNumPiscinasConAlgibon(): number {
+    return this.todasLasPiscinasGrafica().filter(p => (p.algibonL || 0) > 0).length;
+  }
+
+  getNumPiscinasConBajaPH(): number {
+    return this.todasLasPiscinasGrafica().filter(p => (p.bajaPHL || 0) > 0).length;
+  }
+
+
+
+  getMaxColumna(): number {
+    return Math.max(
+      this.getTotalConsumo(),
+      this.getTotalAlgibon(),
+      this.getTotalBajaPH(),
+      1
+    );
+  }
+
+  getPiscinasPorEstado(estado: string): number {
+    return this.todasLasPiscinasGrafica().filter(p => p.estado === estado).length;
+  }
+
+  getColumnaPercent(valor: number): number {
+    return (valor / this.getMaxColumna()) * 100;
+  }
+
   /**
    * Devuelve el color según el nivel de consumo
    */
