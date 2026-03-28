@@ -40,11 +40,9 @@
       <thead>
         <tr>
           <th>Nombre</th>
-          <th>Ubicación</th>
-          <th>Tipo</th>
+          <th>Cliente</th>
           <th>CIF</th>
-          <th>Capacidad</th>
-          <th>Consumo Semanal</th>
+          <th>Técnico Asignado</th>
           <th>Cloro</th>
           <th>pH</th>
           <th>Filtración</th>
@@ -55,15 +53,9 @@
       <tbody>
         <tr *ngFor="let piscina of piscinasPaginadas" class="fila-piscina" (click)="verDetalle(piscina.id)">
           <td class="celda-nombre"><strong>{{ piscina.nombre }}</strong></td>
-          <td class="celda-ubicacion">📍 {{ piscina.ubicacion }}</td>
-          <td class="celda-tipo">
-            <span class="badge-tipo" [class.privada]="piscina.tipo === 'privada'" [class.comunidad]="piscina.tipo === 'comunidad'">
-              {{ piscina.tipo | uppercase }}
-            </span>
-          </td>
+          <td class="celda-cliente">{{ piscina.clienteNombre || '—' }}</td>
           <td class="celda-cif">{{ piscina.cif }}</td>
-          <td class="celda-capacidad">{{ piscina.capacidadLitros | number }} L</td>
-          <td class="celda-consumo">{{ piscina.consumoSemanal | number }} L/sem</td>
+          <td class="celda-tecnico">{{ obtenerNombresTecnicos(piscina.tecnicosAsignados) }}</td>
           <td class="celda-cloro">{{ piscina.nivelCloro }} ppm</td>
           <td class="celda-ph">{{ piscina.pHAgua }}</td>
           <td class="celda-filtracion">{{ piscina.horasFiltracion | number: '1.0-0' }}h</td>

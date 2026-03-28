@@ -591,7 +591,10 @@ export class PiscinaDetalleComponent implements OnInit {
       tipo: this.piscinaEditada()!.tipo || 'comunidad',
       observaciones: this.piscinaEditada()!.observaciones ?? '',
       clienteId: this.clienteSeleccionado() || '',
-      clienteNombre: this.clientes().find(c => c.uid === this.clienteSeleccionado())?.nombre || ''
+      clienteNombre: this.clientes().find(c => c.uid === this.clienteSeleccionado())?.nombre || '',
+      cuota: this.piscinaEditada()!.cuota ?? 0,
+      algibonL: this.piscinaEditada()!.algibonL ?? 0,
+      bajaPHL: this.piscinaEditada()!.bajaPHL ?? 0
     };
 
     this.piscinasService.actualizarPiscina(this.piscinaId, cambios).then(() => {

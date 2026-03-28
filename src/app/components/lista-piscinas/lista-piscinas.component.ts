@@ -4,7 +4,9 @@ import { RouterLink, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { PiscinasService } from '../../services/piscinas.service';
 import { AuthService } from '../../services/auth.service';
+import { UsuariosService } from '../../services/usuarios.service';
 import { Piscina, PiscinaData } from '../../models/piscina';
+import { Usuario } from '../../models/usuario';
 import { FormularioPiscinaComponent } from '../formulario-piscina/formulario-piscina.component';
 import { signal } from '@angular/core';
 
@@ -18,9 +20,11 @@ import { signal } from '@angular/core';
 export class ListaPiscinasComponent implements OnInit {
   private piscinasService = inject(PiscinasService);
   private authService = inject(AuthService);
+  private usuariosService = inject(UsuariosService);
   private router = inject(Router);
 
   piscinas = signal<Piscina[]>([]);
+  tecnicos = signal<Usuario[]>([]);
   mostrarModal = signal(false);
   cargando = signal(false);
   error = signal<string | null>(null);
@@ -30,6 +34,7 @@ export class ListaPiscinasComponent implements OnInit {
 
   ngOnInit(): void {
     this.cargarPiscinas();
+    this.cargarTecnicos();
   }
 
   cargarPiscinas(): void {
@@ -60,6 +65,24 @@ export class ListaPiscinasComponent implements OnInit {
         this.cargando.set(false);
       }
     });
+  }
+
+  cargarTecnicos(): void {
+    this.usuariosService.obtenerUsuarios().subscribe({
+      next: (usuarios) => {
+        this.tecnicos.set(usuarios.filter(u => u.rol === 'tecnico'));
+      }
+    });
+  }
+
+  obtenerNombresTecnicos(ids: string[] | undefined): string {
+    if (!ids || ids.length === 0) return '—';
+    const tecnicosList = this.tecnicos();
+    const nombres = ids.map(id => {
+      const tecnico = tecnicosList.find(t => t.uid === id);
+      return tecnico ? tecnico.nombre : null;
+    }).filter(Boolean);
+    return nombres.length > 0 ? nombres.join(', ') : '—';
   }
 
   abrirModal(): void {

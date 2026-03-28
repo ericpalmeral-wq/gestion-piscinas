@@ -24,6 +24,7 @@ export interface Piscina {
   tecnicosAsignados?: string[];
   clienteId?: string;
   clienteNombre?: string;
+  cuota?: number;
 }
 
 /**

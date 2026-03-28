@@ -268,6 +268,13 @@ export class HomeComponent implements OnInit {
   }
 
   /**
+   * Calcula el total de cuotas de mantenimiento de todas las piscinas
+   */
+  getTotalCuotas(): number {
+    return this.todasLasPiscinasGrafica().reduce((acc, p) => acc + (p.cuota || 0), 0);
+  }
+
+  /**
    * Calcula el total de algibón de todas las piscinas
    */
   getTotalAlgibon(): number {

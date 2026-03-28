@@ -2,11 +2,13 @@ import { Component, signal, inject } from '@angular/core';
 import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { NavbarComponent } from './components/navbar/navbar.component';
+import { FooterComponent } from './components/footer/footer.component';
+import { CookieConsentComponent } from './components/cookie-consent/cookie-consent.component';
 import { filter } from 'rxjs';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, NavbarComponent, CommonModule],
+  imports: [RouterOutlet, NavbarComponent, FooterComponent, CookieConsentComponent, CommonModule],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })

@@ -41,6 +41,19 @@
   </div>
 
   <div class="grupo-formulario">
+    <label>Cuota de Mantenimiento (€)</label>
+    <input
+      type="number"
+      name="cuota"
+      [(ngModel)]="formulario().cuota"
+      (change)="actualizarFormulario('cuota', formulario().cuota)"
+      placeholder="Ej: 150"
+      min="0"
+      step="0.01"
+    />
+  </div>
+
+  <div class="grupo-formulario">
     <label>CIF *</label>
     <input
       type="text"

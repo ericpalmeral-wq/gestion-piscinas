@@ -36,8 +36,10 @@
   transform: scale(1.05);
 }
 
-.logo-icon {
-  font-size: 28px;
+.logo-img {
+  height: 56px;
+  width: auto;
+  object-fit: contain;
 }
 
 .brand-text {

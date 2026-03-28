@@ -3,6 +3,12 @@ import { Firestore, collection, getDocs, addDoc, deleteDoc, doc, updateDoc, getD
 import { Observable, from } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Piscina } from '../models/piscina';
+
+function sinUndefined(obj: Record<string, any>): Record<string, any> {
+  return Object.fromEntries(
+    Object.entries(obj).filter(([, v]) => v !== undefined)
+  );
+}
 @Injectable({
   providedIn: 'root'
 })
@@ -72,11 +78,13 @@ export class PiscinasService {
   async agregarPiscina(piscina: Piscina): Promise<string> {
     try {
       const ref = collection(this.firestore, this.coleccion);
-      const docRef = await addDoc(ref, {
+      const docRef = await addDoc(ref, sinUndefined({
         ...piscina,
         fechaCreacion: piscina.fechaCreacion instanceof Date ? piscina.fechaCreacion.toISOString() : piscina.fechaCreacion,
-        ultimaLimpieza: piscina.ultimaLimpieza instanceof Date ? piscina.ultimaLimpieza.toISOString() : piscina.ultimaLimpieza
-      });
+        ultimaLimpieza: piscina.ultimaLimpieza instanceof Date ? piscina.ultimaLimpieza.toISOString() : piscina.ultimaLimpieza,
+        fechaApertura: piscina.fechaApertura instanceof Date ? piscina.fechaApertura.toISOString() : (piscina.fechaApertura ?? null),
+        fechaCierre: piscina.fechaCierre instanceof Date ? piscina.fechaCierre.toISOString() : (piscina.fechaCierre ?? null)
+      }));
       return docRef.id;
     } catch (error) {
       console.error('Error al agregar piscina:', error);
@@ -89,11 +97,13 @@ export class PiscinasService {
   async actualizarPiscina(id: string, piscina: Partial<Piscina>): Promise<void> {
     try {
       const docRef = doc(this.firestore, this.coleccion, id);
-      await updateDoc(docRef, {
+      await updateDoc(docRef, sinUndefined({
         ...piscina,
         ...(piscina.fechaCreacion instanceof Date && { fechaCreacion: piscina.fechaCreacion.toISOString() }),
-        ...(piscina.ultimaLimpieza instanceof Date && { ultimaLimpieza: piscina.ultimaLimpieza.toISOString() })
-      });
+        ...(piscina.ultimaLimpieza instanceof Date && { ultimaLimpieza: piscina.ultimaLimpieza.toISOString() }),
+        fechaApertura: piscina.fechaApertura instanceof Date ? piscina.fechaApertura.toISOString() : (piscina.fechaApertura ?? null),
+        fechaCierre: piscina.fechaCierre instanceof Date ? piscina.fechaCierre.toISOString() : (piscina.fechaCierre ?? null)
+      }));
     } catch (error) {
       console.error('Error al actualizar piscina:', error);
       throw error;

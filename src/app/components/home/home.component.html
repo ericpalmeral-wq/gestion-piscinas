@@ -157,6 +157,10 @@
               {{ getPiscinasPorEstado('cerrada') }} cerradas
             </span>
           </div>
+          <div class="stat-cuotas">
+            <span class="stat-cuotas-label">Total cuotas/mes:</span>
+            <span class="stat-cuotas-valor">{{ getTotalCuotas() | number:'1.2-2' }} €</span>
+          </div>
           <a routerLink="/piscinas" class="stat-link">Ver todas →</a>
         </div>
       </div>

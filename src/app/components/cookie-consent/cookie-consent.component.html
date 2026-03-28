@@ -1,0 +1,15 @@
+@if (visible()) {
+  <div class="cookie-banner">
+    <div class="cookie-content">
+      <span class="cookie-icon">🍪</span>
+      <p>
+        Usamos cookies para mejorar tu experiencia. Al continuar navegando, aceptas nuestra
+        <a routerLink="/politica-cookies">política de cookies</a>.
+      </p>
+    </div>
+    <div class="cookie-actions">
+      <button class="btn-aceptar" (click)="aceptar()">Aceptar</button>
+      <button class="btn-rechazar" (click)="rechazar()">Rechazar</button>
+    </div>
+  </div>
+}

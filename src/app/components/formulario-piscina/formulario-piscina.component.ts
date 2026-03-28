@@ -38,7 +38,8 @@ export class FormularioPiscinaComponent implements OnInit {
     observaciones: '',
     tecnicosAsignados: [],
     clienteId: '',
-    clienteNombre: ''
+    clienteNombre: '',
+    cuota: 0
   });
 
   tecnicos = signal<Usuario[]>([]);

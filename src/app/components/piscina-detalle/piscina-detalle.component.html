@@ -117,6 +117,12 @@
           </select>
         </div>
         <div class="detalle-fila">
+          <span class="etiqueta">Cuota de Mantenimiento:</span>
+          <span class="valor" *ngIf="!editando()">{{ (piscina()!.cuota ?? 0) | number:'1.2-2' }} €/mes</span>
+          <input type="number" *ngIf="editando()" [(ngModel)]="piscinaEditada()!.cuota" name="cuota" class="input-edicion"
+            step="0.01" min="0" placeholder="€/mes">
+        </div>
+        <div class="detalle-fila">
           <span class="etiqueta">Algibón (L):</span>
           <span class="valor" *ngIf="!editando()">{{ piscina()!.algibonL ?? 0 }} L</span>
           <input type="number" *ngIf="editando()" [(ngModel)]="piscinaEditada()!.algibonL" name="algibonL" class="input-edicion"
