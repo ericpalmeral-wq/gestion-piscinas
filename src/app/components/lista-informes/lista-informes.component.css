@@ -4,11 +4,27 @@
   border-radius: 12px;
   box-shadow: 0 4px 16px rgba(102, 126, 234, 0.08);
   padding: 32px 24px;
+  margin-top: 24px;
   margin-bottom: 32px;
   border-left: 6px solid #f59e0b;
   max-width: 1200px;
   margin-left: auto;
   margin-right: auto;
+}
+
+.informes-cabecera {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.informes-cabecera h3 {
+  color: #1f2937;
+  font-size: 20px;
+  margin: 0;
 }
 
 .informes-seccion h3 {
@@ -36,9 +52,7 @@
 }
 
 .tabla-informes-contenedor {
-  overflow-x: auto;
   margin-bottom: 30px;
-  -webkit-overflow-scrolling: touch;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   background: white;
@@ -56,13 +70,15 @@
 
 .input-buscador {
   flex: 1;
-  min-width: 250px;
+  min-width: 0;
+  width: 100%;
   padding: 12px 16px;
   border: 2px solid #e5e7eb;
   border-radius: 8px;
   font-size: 14px;
   font-family: inherit;
   transition: all 0.3s ease;
+  box-sizing: border-box;
 }
 
 .input-buscador:focus {
@@ -85,7 +101,6 @@
 
 .tabla-informes {
   width: 100%;
-  min-width: 700px;
   border-collapse: collapse;
   background: white;
 }
@@ -273,7 +288,6 @@
 
 @media (max-width: 768px) {
   .tabla-informes {
-    min-width: 500px;
     font-size: 12px;
   }
 
@@ -311,6 +325,157 @@
   .btn-eliminar {
     font-size: 14px;
     padding: 4px 6px;
+  }
+}
+
+/* Tarjetas móvil - ocultas en escritorio */
+.tarjetas-mobile {
+  display: none;
+}
+
+@media (max-width: 600px) {
+  .informes-seccion {
+    padding: 16px 12px;
+    border-radius: 8px;
+    border-left-width: 4px;
+  }
+
+  .tabla-informes-contenedor .tabla-informes {
+    display: none;
+  }
+
+  .tarjetas-mobile {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 12px;
+  }
+
+  .tarjeta-informe {
+    background: white;
+    border-radius: 10px;
+    padding: 16px;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    cursor: pointer;
+    transition: box-shadow 0.2s, transform 0.2s;
+  }
+
+  .tarjeta-informe:hover {
+    box-shadow: 0 4px 16px rgba(245,158,11,0.15);
+    transform: translateY(-1px);
+  }
+
+  .tarjeta-cabecera {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    gap: 8px;
+  }
+
+  .tarjeta-nombre {
+    font-weight: 700;
+    color: #1f2937;
+    font-size: 15px;
+    flex: 1;
+  }
+
+  .tarjeta-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: 14px;
+  }
+
+  .tarjeta-meta {
+    font-size: 13px;
+    color: #6b7280;
+  }
+
+  .tarjeta-acciones {
+    display: flex;
+    gap: 8px;
+    border-top: 1px solid #f3f4f6;
+    padding-top: 12px;
+  }
+
+  .tarjeta-acciones .btn-editar,
+  .tarjeta-acciones .btn-descargar-pdf {
+    flex: 1;
+    padding: 8px 10px;
+    border-radius: 6px;
+    background: #f3f4f6;
+    font-size: 13px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    transition: background 0.2s;
+  }
+
+  .tarjeta-acciones .btn-editar {
+    color: #2563eb;
+  }
+
+  .tarjeta-acciones .btn-editar:hover {
+    background: #dbeafe;
+    transform: none;
+  }
+
+  .tarjeta-acciones .btn-descargar-pdf {
+    color: #7c3aed;
+  }
+
+  .tarjeta-acciones .btn-descargar-pdf:hover {
+    background: #ede9fe;
+    transform: none;
+  }
+
+  .tarjeta-acciones .btn-eliminar {
+    padding: 8px 10px;
+    border-radius: 6px;
+    background: #fee2e2;
+    color: #dc2626;
+    font-size: 16px;
+    border: none;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .tarjeta-acciones .btn-eliminar:hover {
+    background: #fecaca;
+    transform: none;
+  }
+
+  .buscador-contenedor {
+    padding: 12px;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .input-buscador {
+    min-width: unset;
+    width: 100%;
+  }
+
+  .paginacion {
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 12px;
+  }
+
+  .btn-paginacion {
+    padding: 8px 14px;
+    font-size: 13px;
+  }
+
+  .info-pagina {
+    min-width: unset;
+    font-size: 13px;
   }
 }
 

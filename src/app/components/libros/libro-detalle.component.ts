@@ -98,14 +98,16 @@ export class LibroDetalleComponent implements OnInit {
         next: async (libro) => {
           if (libro) {
             this.libro.set(libro);
-          } else {
-            // Crear libro nuevo
+          } else if (this.puedeEditar()) {
+            // Crear libro nuevo solo si tiene permisos de edición
             const libroId = await this.librosService.crearLibro(this.piscinaId);
             this.librosService.obtenerLibroPorId(libroId).subscribe({
               next: (nuevoLibro) => {
                 this.libro.set(nuevoLibro);
               }
             });
+          } else {
+            this.error.set('No hay libro de registro disponible para esta piscina');
           }
           this.cargando.set(false);
         },

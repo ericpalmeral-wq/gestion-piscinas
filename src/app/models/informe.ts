@@ -6,5 +6,6 @@ export interface Informe {
   fechaCreacion: string;
   fechaActualizacion: string;
   estadoGeneral: 'bien' | 'regular' | 'mal';
+  observacion?: string;
   lineas: LineaInforme[];
 }

@@ -91,7 +91,8 @@
 }
 
 .grupo-formulario input,
-.grupo-formulario select {
+.grupo-formulario select,
+.grupo-formulario textarea {
   padding: 10px 12px;
   border: 1px solid #d1d5db;
   border-radius: 6px;
@@ -103,7 +104,8 @@
 }
 
 .grupo-formulario input:focus,
-.grupo-formulario select:focus {
+.grupo-formulario select:focus,
+.grupo-formulario textarea:focus {
   outline: none;
   border-color: #f59e0b;
   box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
@@ -174,36 +176,56 @@
   border-color: #f59e0b;
 }
 
-.input-estado {
-  padding: 8px 10px;
-  border: 1px solid #d1d5db;
+.input-observacion {
+  width: 100%;
+  padding: 6px 10px;
+  border: 1px solid #e5e7eb;
   border-radius: 4px;
-  font-size: 13px;
+  font-size: 12px;
   font-family: inherit;
-  min-width: 100px;
+  color: #6b7280;
+  background: #f9fafb;
+  margin-top: 8px;
+  box-sizing: border-box;
 }
 
-.input-estado:focus {
+.input-observacion:focus {
   outline: none;
   border-color: #f59e0b;
+  background: white;
+  color: #1f2937;
 }
 
-.estado-badge {
-  padding: 4px 10px;
-  border-radius: 12px;
+.btn-estado {
+  padding: 6px 14px;
+  border: none;
+  border-radius: 20px;
   font-size: 11px;
   font-weight: 700;
+  cursor: pointer;
   white-space: nowrap;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  letter-spacing: 0.5px;
 }
 
-.badge-bien {
+.btn-estado:hover {
+  transform: scale(1.07);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.btn-estado-bien {
   background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
   color: #065f46;
 }
 
-.badge-regular {
+.btn-estado-regular {
   background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
   color: #78350f;
+}
+
+.btn-estado-mal {
+  background: linear-gradient(135deg, #fecaca 0%, #fca5a5 100%);
+  color: #7f1d1d;
 }
 
 .badge-mal {
@@ -297,43 +319,93 @@
   transform: translateY(-2px);
 }
 
+/* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {
   .informe-detalle-contenedor {
-    padding: 12px;
+    padding: 16px 12px;
   }
 
   .encabezado-informe {
     flex-direction: column;
     align-items: flex-start;
+    margin-bottom: 20px;
+    gap: 10px;
   }
 
   .encabezado-informe h2 {
     font-size: 22px;
   }
 
+  .formulario-informe {
+    gap: 20px;
+  }
+
+  .seccion-info,
+  .seccion-lineas {
+    padding: 16px;
+    border-left-width: 4px;
+  }
+
   .grupo-doble {
     grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  /* Líneas: descripción + toggle en fila, observación debajo */
+  .item-linea {
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px;
   }
 
   .linea-contenido {
-    flex-wrap: wrap;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: nowrap;
   }
 
   .input-descripcion {
-    flex-basis: 100%;
+    flex: 1;
+    min-width: 0; /* evita overflow */
+    font-size: 14px;
   }
 
-  .input-estado {
-    flex: 1;
-    min-width: 80px;
+  .btn-estado {
+    flex-shrink: 0;
+    font-size: 11px;
+    padding: 6px 10px;
+  }
+
+  .input-observacion {
+    width: 100%;
+    box-sizing: border-box;
+    margin-top: 0;
+    font-size: 13px;
+  }
+
+  .btn-eliminar-linea {
+    align-self: flex-end;
+    padding: 6px 14px;
+    font-size: 13px;
+  }
+
+  .btn-agregar-linea {
+    width: 100%;
+    padding: 12px;
   }
 
   .botones-accion {
     flex-direction: column;
+    gap: 10px;
+    padding-top: 14px;
   }
 
   .btn-guardar,
   .btn-cancelar {
     max-width: none;
+    width: 100%;
+    font-size: 14px;
+    padding: 13px 16px;
   }
 }

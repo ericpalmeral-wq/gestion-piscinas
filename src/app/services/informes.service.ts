@@ -80,7 +80,11 @@ export class InformesService {
       fechaCreacion: data['fechaCreacion'],
       fechaActualizacion: data['fechaActualizacion'],
       estadoGeneral: data['estadoGeneral'] || 'bien',
-      lineas: data['lineas'] || []
+      observacion: data['observacion'] || '',
+      lineas: (data['lineas'] || []).map((l: any) => ({
+        ...l,
+        observacion: l['observacion'] || ''
+      }))
     } as Informe;
   }
 

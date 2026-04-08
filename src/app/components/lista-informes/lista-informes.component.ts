@@ -174,6 +174,19 @@ export class ListaInformesComponent implements OnInit {
 
     yPosition += 15;
 
+    // Observaciones
+    if (informe.observacion) {
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(80, 80, 80);
+      doc.text('Observaciones:', 20, yPosition);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(50, 50, 50);
+      const obsLines = doc.splitTextToSize(informe.observacion, pageWidth - 90);
+      doc.text(obsLines, 70, yPosition);
+      yPosition += Math.max(obsLines.length * 5, 6) + 4;
+    }
+
     // Línea separadora
     doc.setDrawColor(245, 158, 11);
     doc.setLineWidth(0.5);
@@ -199,8 +212,8 @@ export class ListaInformesComponent implements OnInit {
       doc.setTextColor(255, 255, 255);
       doc.setFillColor(245, 158, 11);
       
-      const headers = ['#', 'Descripción', 'Estado'];
-      const columnWidths = [15, 130, 35];
+      const headers = ['#', 'Descripción', 'Estado', 'Observación'];
+      const columnWidths = [10, 75, 30, 55];
       let xPos = 20;
 
       headers.forEach((header, idx) => {
@@ -234,9 +247,9 @@ export class ListaInformesComponent implements OnInit {
         doc.rect(xPos, yPosition, columnWidths[1], 8, 'F');
         doc.setTextColor(50, 50, 50);
         doc.setFont('helvetica', 'normal');
-        const descripcionTruncada = linea.descripcion.length > 40 ? 
-          linea.descripcion.substring(0, 37) + '...' : linea.descripcion;
-        doc.text(descripcionTruncada, xPos + 3, yPosition + 5);
+        const descripcionTruncada = linea.descripcion.length > 28 ? 
+          linea.descripcion.substring(0, 25) + '...' : linea.descripcion;
+        doc.text(descripcionTruncada, xPos + 2, yPosition + 5);
         
         // Dibuja fila - Estado
         xPos += columnWidths[1];
@@ -245,6 +258,17 @@ export class ListaInformesComponent implements OnInit {
         doc.setTextColor(255, 255, 255);
         doc.setFont('helvetica', 'bold');
         doc.text(linea.estado.toUpperCase(), xPos + columnWidths[2] / 2, yPosition + 5, { align: 'center' });
+
+        // Dibuja fila - Observación
+        xPos += columnWidths[2];
+        doc.setFillColor(bgColor[0], bgColor[1], bgColor[2]);
+        doc.rect(xPos, yPosition, columnWidths[3], 8, 'F');
+        doc.setTextColor(80, 80, 80);
+        doc.setFont('helvetica', 'normal');
+        const obsTruncada = (linea.observacion || '').length > 28
+          ? (linea.observacion || '').substring(0, 25) + '...'
+          : (linea.observacion || '');
+        doc.text(obsTruncada, xPos + 2, yPosition + 5);
 
         yPosition += 8;
       });

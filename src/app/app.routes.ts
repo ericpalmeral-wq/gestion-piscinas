@@ -95,7 +95,7 @@ export const routes: Routes = [
   {
     path: 'libros/:piscinaId',
     component: LibroDetalleComponent,
-    canActivate: [requiereAutenticacion, requiereRol('administrador', 'tecnico')]
+    canActivate: [requiereAutenticacion, requiereRol('administrador', 'tecnico', 'cliente')]
   },
   {
     path: 'politica-cookies',

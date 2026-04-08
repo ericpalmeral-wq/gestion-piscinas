@@ -36,12 +36,21 @@ export class InformeDetalleComponent implements OnInit {
     if (id === 'nuevo') {
       this.esNuevo = true;
       const ahora = new Date().toISOString().split('T')[0];
+      const piscinaIdParam = this.route.snapshot.queryParamMap.get('piscinaId') || '';
+      const descripcionesDefault = [
+        'Motor', 'Filtro', 'Tubería sala máquinas', 'Cuadro eléctrico',
+        'Ventilación', 'Acceso sala máquinas', 'Fichas de datos de seguridad',
+        'Valla de acceso', 'Tablón de anuncios', 'Marcas de profundidad',
+        'Flotadores', 'Duchas', 'Juntas piscina', 'Botiquín',
+        'Libro de registro', 'Protocolo de autocontrol', 'Skimmers'
+      ];
       this.informe = {
-        piscinaId: '',
+        piscinaId: piscinaIdParam,
         fechaCreacion: ahora,
         fechaActualizacion: ahora,
         estadoGeneral: 'bien',
-        lineas: []
+        observacion: '',
+        lineas: descripcionesDefault.map(desc => ({ descripcion: desc, estado: 'bien' as const, observacion: '' }))
       };
       this.cargando = false;
       this.cdr.markForCheck();
@@ -81,14 +90,14 @@ export class InformeDetalleComponent implements OnInit {
     });
   }
 
+  ciclarEstado(linea: LineaInforme): void {
+    const ciclo: Record<string, 'bien' | 'regular' | 'mal'> = { bien: 'regular', regular: 'mal', mal: 'bien' };
+    linea.estado = ciclo[linea.estado];
+  }
+
   agregarLinea(): void {
     if (!this.informe) return;
-    
-    const nuevaLinea: LineaInforme = {
-      descripcion: '',
-      estado: 'bien'
-    };
-    
+    const nuevaLinea: LineaInforme = { descripcion: '', estado: 'bien', observacion: '' };
     this.informe.lineas.push(nuevaLinea);
   }
 

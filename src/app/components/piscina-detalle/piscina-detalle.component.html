@@ -6,7 +6,7 @@
     </div>
     <div class="botones-accion" *ngIf="!editando() && !cargando()">
       <button *ngIf="puedeEditar()" class="btn-editar-principal" (click)="iniciarEdicion()">✏️ Editar</button>
-      <a *ngIf="usuarioActual()?.rol === 'administrador' || usuarioActual()?.rol === 'tecnico'" 
+      <a *ngIf="usuarioActual()?.rol === 'administrador' || usuarioActual()?.rol === 'tecnico' || usuarioActual()?.rol === 'cliente'" 
          [routerLink]="['/libros', piscina()?.id]" 
          class="btn-libro">📚 Libro de Registro</a>
     </div>
@@ -61,14 +61,7 @@
       <!-- Información General -->
       <div class="seccion">
         <h3>📋 Información General</h3>
-        <div class="detalle-fila" *ngIf="!editando()">
-          <span class="etiqueta">Nombre:</span>
-          <span class="valor">{{ piscina()!.nombre }}</span>
-        </div>
-        <div class="detalle-fila" *ngIf="!editando()">
-          <span class="etiqueta">Ubicación:</span>
-          <span class="valor">{{ piscina()!.ubicacion }}</span>
-        </div>
+        
         <div class="detalle-fila">
           <span class="etiqueta">Capacidad:</span>
           <span class="valor" *ngIf="!editando()">{{ formatearNumero(piscina()!.capacidadLitros) }} L</span>
@@ -459,7 +452,7 @@
 
       <div *ngIf="!cargandoInforme() && !informe()" class="sin-informe">
         <p>No hay informe registrado para esta piscina.</p>
-        <button *ngIf="puedeEditar()" class="btn-crear-informe" routerLink="/informes/nuevo">
+        <button *ngIf="puedeEditar()" class="btn-crear-informe" [routerLink]="['/informes/nuevo']" [queryParams]="{piscinaId: piscina()?.id}">
           + Crear Informe
         </button>
       </div>

@@ -43,6 +43,11 @@
           <option value="mal">Mal</option>
         </select>
       </div>
+
+      <div class="grupo-formulario">
+        <label>Observaciones</label>
+        <textarea [(ngModel)]="informe.observacion" name="observacion" rows="4" placeholder="Escribe aquí las observaciones generales del informe..."></textarea>
+      </div>
     </div>
 
     <div class="seccion-lineas">
@@ -62,19 +67,21 @@
               placeholder="Descripción de la inspección"
               class="input-descripcion"
             />
-            <select 
-              [(ngModel)]="linea.estado" 
-              [name]="'estado-' + i"
-              class="input-estado"
+            <button
+              type="button"
+              (click)="ciclarEstado(linea)"
+              [ngClass]="'btn-estado btn-estado-' + linea.estado"
             >
-              <option value="bien">Bien</option>
-              <option value="regular">Regular</option>
-              <option value="mal">Mal</option>
-            </select>
-            <span [ngClass]="'estado-badge ' + obtenerClaseEstado(linea.estado)">
               {{ linea.estado | uppercase }}
-            </span>
+            </button>
           </div>
+          <input
+            type="text"
+            [(ngModel)]="linea.observacion"
+            [name]="'obs-' + i"
+            placeholder="Observación (opcional)"
+            class="input-observacion"
+          />
           <button 
             type="button" 
             (click)="eliminarLinea(i)" 
