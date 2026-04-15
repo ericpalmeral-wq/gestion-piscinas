@@ -57,167 +57,179 @@
       </div>
     </div>
 
-    <div class="grilla-detalles">
-      <!-- Información General -->
-      <div class="seccion">
-        <h3>📋 Información General</h3>
-        
-        <div class="detalle-fila">
-          <span class="etiqueta">Capacidad:</span>
-          <span class="valor" *ngIf="!editando()">{{ formatearNumero(piscina()!.capacidadLitros) }} L</span>
-          <input type="number" *ngIf="editando()" [(ngModel)]="piscinaEditada()!.capacidadLitros" name="capacidad"
-            class="input-edicion" step="0.01">
+    <!-- Pestañas: Detalles, Técnico, Presupuestos, Informes, Tareas -->
+    <div class="tabs-contenedor">
+      <div class="tabs-nav" *ngIf="!editando()">
+        <button class="tab-btn" [class.tab-activo]="tabActivo() === 'detalles'" (click)="tabActivo.set('detalles')">📋 Detalles</button>
+        <button class="tab-btn" [class.tab-activo]="tabActivo() === 'tecnico'" (click)="tabActivo.set('tecnico')">👷 Técnico</button>
+        <button class="tab-btn" *ngIf="usuarioActual()?.rol !== 'tecnico'" [class.tab-activo]="tabActivo() === 'presupuestos'" (click)="tabActivo.set('presupuestos')">💸 Presupuestos</button>
+        <button class="tab-btn" [class.tab-activo]="tabActivo() === 'informes'" (click)="tabActivo.set('informes')">📝 Informes</button>
+        <button class="tab-btn" *ngIf="puedeVerTareas()" [class.tab-activo]="tabActivo() === 'tareas'" (click)="tabActivo.set('tareas')">✅ Tareas</button>
+      </div>
+      <div class="tab-panel">
+
+    <!-- Tab: Detalles (también visible al editar) -->
+    <ng-container *ngIf="tabActivo() === 'detalles' || editando()">
+      <div class="grilla-detalles">
+        <!-- Información General -->
+        <div class="seccion">
+          <h3>📋 Información General</h3>
+          
+          <div class="detalle-fila">
+            <span class="etiqueta">Capacidad:</span>
+            <span class="valor" *ngIf="!editando()">{{ formatearNumero(piscina()!.capacidadLitros) }} L</span>
+            <input type="number" *ngIf="editando()" [(ngModel)]="piscinaEditada()!.capacidadLitros" name="capacidad"
+              class="input-edicion" step="0.01">
+          </div>
+          <div class="detalle-fila">
+            <span class="etiqueta">Profundidad Máxima:</span>
+            <span class="valor" *ngIf="!editando()">{{ formatearNumero(piscina()!.profundidadMaxima) }} m</span>
+            <input type="number" *ngIf="editando()" [(ngModel)]="piscinaEditada()!.profundidadMaxima" name="profundidad"
+              class="input-edicion" step="0.01">
+          </div>
         </div>
-        <div class="detalle-fila">
-          <span class="etiqueta">Profundidad Máxima:</span>
-          <span class="valor" *ngIf="!editando()">{{ formatearNumero(piscina()!.profundidadMaxima) }} m</span>
-          <input type="number" *ngIf="editando()" [(ngModel)]="piscinaEditada()!.profundidadMaxima" name="profundidad"
-            class="input-edicion" step="0.01">
+
+        <!-- Información Administrativa (solo para técnico y administrador) -->
+        <div class="seccion" *ngIf="usuarioActual()?.rol === 'administrador' || usuarioActual()?.rol === 'tecnico'">
+          <h3>📋 Información Administrativa</h3>
+          <div class="detalle-fila">
+            <span class="etiqueta">Tipo de Piscina:</span>
+            <span class="valor" *ngIf="!editando()">{{ piscina()!.tipo | uppercase }}</span>
+            <select *ngIf="editando()" [(ngModel)]="piscinaEditada()!.tipo" name="tipo" class="input-edicion">
+              <option value="comunidad">Comunidad</option>
+              <option value="privada">Privada</option>
+            </select>
+          </div>
+          <div class="detalle-fila">
+            <span class="etiqueta">CIF:</span>
+            <span class="valor" *ngIf="!editando()">{{ piscina()!.cif }}</span>
+            <input type="text" *ngIf="editando()" [(ngModel)]="piscinaEditada()!.cif" name="cif" class="input-edicion"
+              placeholder="Ej: A12345678">
+          </div>
+          <div class="detalle-fila">
+            <span class="etiqueta">Consumo Semanal:</span>
+            <span class="valor" *ngIf="!editando()">{{ piscina()!.consumoSemanal | number }} L/semana</span>
+            <input type="number" *ngIf="editando()" [(ngModel)]="piscinaEditada()!.consumoSemanal" name="consumo"
+              class="input-edicion" min="0">
+          </div>
+          <div class="detalle-fila">
+            <span class="etiqueta">Cliente Asignado:</span>
+            <span class="valor" *ngIf="!editando()">{{ piscina()!.clienteNombre || 'Sin cliente asignado' }}</span>
+            <select *ngIf="editando()" [(ngModel)]="clienteSeleccionado" (ngModelChange)="clienteSeleccionado.set($event)"
+              name="clienteId" class="input-edicion">
+              <option value="">-- Sin cliente asignado --</option>
+              <option *ngFor="let cliente of clientes()" [value]="cliente.uid">{{ cliente.nombre }} ({{ cliente.email }})
+              </option>
+            </select>
+          </div>
+          <div class="detalle-fila">
+            <span class="etiqueta">Cuota de Mantenimiento:</span>
+            <span class="valor" *ngIf="!editando()">{{ (piscina()!.cuota ?? 0) | number:'1.2-2' }} €/mes</span>
+            <input type="number" *ngIf="editando()" [(ngModel)]="piscinaEditada()!.cuota" name="cuota" class="input-edicion"
+              step="0.01" min="0" placeholder="€/mes">
+          </div>
+          <div class="detalle-fila">
+            <span class="etiqueta">Algibón (L):</span>
+            <span class="valor" *ngIf="!editando()">{{ piscina()!.algibonL ?? 0 }} L</span>
+            <input type="number" *ngIf="editando()" [(ngModel)]="piscinaEditada()!.algibonL" name="algibonL" class="input-edicion"
+              step="0.1" min="0">
+          </div>
+          <div class="detalle-fila">
+            <span class="etiqueta">Baja pH (L):</span>
+            <span class="valor" *ngIf="!editando()">{{ piscina()!.bajaPHL ?? 0 }} L</span>
+            <input type="number" *ngIf="editando()" [(ngModel)]="piscinaEditada()!.bajaPHL" name="bajaPHL" class="input-edicion"
+              step="0.1" min="0">
+          </div>
+        </div>
+
+        <!-- Parámetros Químicos -->
+        <div class="seccion">
+          <h3>🧪 Parámetros Químicos</h3>
+          <div class="detalle-fila" [class.alerta-quimica]="piscina()!.nivelCloro < 0.5 || piscina()!.nivelCloro > 3.0">
+            <span class="etiqueta">Nivel de Cloro:</span>
+            <span class="valor" *ngIf="!editando()">{{ piscina()!.nivelCloro }} ppm</span>
+            <input type="number" *ngIf="editando()" [(ngModel)]="piscinaEditada()!.nivelCloro" name="cloro"
+              class="input-edicion" step="0.1">
+          </div>
+          <div class="detalle-fila" [class.alerta-quimica]="piscina()!.pHAgua < 7.2 || piscina()!.pHAgua > 7.8">
+            <span class="etiqueta">pH del Agua:</span>
+            <span class="valor" *ngIf="!editando()">{{ piscina()!.pHAgua }}</span>
+            <input type="number" *ngIf="editando()" [(ngModel)]="piscinaEditada()!.pHAgua" name="ph" class="input-edicion"
+              step="0.1">
+          </div>
+        </div>
+
+        <!-- Mantenimiento -->
+        <div class="seccion">
+          <h3>🔧 Mantenimiento</h3>
+          <div class="detalle-fila" *ngIf="!esCliente()">
+            <span class="etiqueta">Fecha de Creación:</span>
+            <span class="valor">{{ formatearFecha(piscina()!.fechaCreacion) }}</span>
+          </div>
+          <div class="detalle-fila">
+            <span class="etiqueta">Última Limpieza:</span>
+            <span class="valor" *ngIf="!editando()">{{ formatearFecha(piscina()!.ultimaLimpieza) }}</span>
+            <input type="date" *ngIf="editando()" [(ngModel)]="piscinaEditada()!.ultimaLimpieza" name="ultimaLimpieza"
+              class="input-edicion">
+          </div>
+          <div class="detalle-fila">
+            <span class="etiqueta">Horas de Filtración:</span>
+            <span class="valor" *ngIf="!editando()">{{ piscina()!.horasFiltracion | number: '1.0-0' }} h</span>
+            <input type="number" *ngIf="editando()" [(ngModel)]="piscinaEditada()!.horasFiltracion" name="horasFiltracion"
+              class="input-edicion" step="0.5">
+          </div>
+        </div>
+
+        <!-- Temporada -->
+        <div class="seccion">
+          <h3>📅 Temporada</h3>
+          <div class="detalle-fila">
+            <span class="etiqueta">Fecha de Apertura:</span>
+            <span class="valor" *ngIf="!editando()">{{ piscina()!.fechaApertura ?
+              formatearFecha(piscina()!.fechaApertura!) : 'No definida' }}</span>
+            <input type="date" *ngIf="editando()" [(ngModel)]="piscinaEditada()!.fechaApertura" name="fechaApertura"
+              class="input-edicion">
+          </div>
+          <div class="detalle-fila">
+            <span class="etiqueta">Fecha de Cierre:</span>
+            <span class="valor" *ngIf="!editando()">{{ piscina()!.fechaCierre ? formatearFecha(piscina()!.fechaCierre!) :
+              'No definida' }}</span>
+            <input type="date" *ngIf="editando()" [(ngModel)]="piscinaEditada()!.fechaCierre" name="fechaCierre"
+              class="input-edicion">
+          </div>
+          <div class="detalle-fila">
+            <span class="etiqueta">Estado:</span>
+            <span class="valor" *ngIf="!editando()">{{ piscina()!.estado }}</span>
+            <select *ngIf="editando()" [(ngModel)]="piscinaEditada()!.estado" name="estado" class="input-edicion">
+              <option value="abierta">Abierta</option>
+              <option value="cerrada">Cerrada</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Observaciones (solo para no-clientes) -->
+        <div class="seccion seccion-completa" *ngIf="(piscina()!.observaciones || editando()) && !esCliente()">
+          <h3>📝 Observaciones</h3>
+          <p class="observaciones" *ngIf="!editando()">{{ piscina()!.observaciones || 'Sin observaciones' }}</p>
+          <textarea *ngIf="editando()" [(ngModel)]="piscinaEditada()!.observaciones" name="observaciones"
+            class="input-edicion-textarea" placeholder="Agregar observaciones..."></textarea>
         </div>
       </div>
 
-      <!-- Información Administrativa (solo para técnico y administrador) -->
-      <div class="seccion" *ngIf="usuarioActual()?.rol === 'administrador' || usuarioActual()?.rol === 'tecnico'">
-        <h3>📋 Información Administrativa</h3>
-        <div class="detalle-fila">
-          <span class="etiqueta">Tipo de Piscina:</span>
-          <span class="valor" *ngIf="!editando()">{{ piscina()!.tipo | uppercase }}</span>
-          <select *ngIf="editando()" [(ngModel)]="piscinaEditada()!.tipo" name="tipo" class="input-edicion">
-            <option value="comunidad">Comunidad</option>
-            <option value="privada">Privada</option>
-          </select>
-        </div>
-        <div class="detalle-fila">
-          <span class="etiqueta">CIF:</span>
-          <span class="valor" *ngIf="!editando()">{{ piscina()!.cif }}</span>
-          <input type="text" *ngIf="editando()" [(ngModel)]="piscinaEditada()!.cif" name="cif" class="input-edicion"
-            placeholder="Ej: A12345678">
-        </div>
-        <div class="detalle-fila">
-          <span class="etiqueta">Consumo Semanal:</span>
-          <span class="valor" *ngIf="!editando()">{{ piscina()!.consumoSemanal | number }} L/semana</span>
-          <input type="number" *ngIf="editando()" [(ngModel)]="piscinaEditada()!.consumoSemanal" name="consumo"
-            class="input-edicion" min="0">
-        </div>
-        <div class="detalle-fila">
-          <span class="etiqueta">Cliente Asignado:</span>
-          <span class="valor" *ngIf="!editando()">{{ piscina()!.clienteNombre || 'Sin cliente asignado' }}</span>
-          <select *ngIf="editando()" [(ngModel)]="clienteSeleccionado" (ngModelChange)="clienteSeleccionado.set($event)"
-            name="clienteId" class="input-edicion">
-            <option value="">-- Sin cliente asignado --</option>
-            <option *ngFor="let cliente of clientes()" [value]="cliente.uid">{{ cliente.nombre }} ({{ cliente.email }})
-            </option>
-          </select>
-        </div>
-        <div class="detalle-fila">
-          <span class="etiqueta">Cuota de Mantenimiento:</span>
-          <span class="valor" *ngIf="!editando()">{{ (piscina()!.cuota ?? 0) | number:'1.2-2' }} €/mes</span>
-          <input type="number" *ngIf="editando()" [(ngModel)]="piscinaEditada()!.cuota" name="cuota" class="input-edicion"
-            step="0.01" min="0" placeholder="€/mes">
-        </div>
-        <div class="detalle-fila">
-          <span class="etiqueta">Algibón (L):</span>
-          <span class="valor" *ngIf="!editando()">{{ piscina()!.algibonL ?? 0 }} L</span>
-          <input type="number" *ngIf="editando()" [(ngModel)]="piscinaEditada()!.algibonL" name="algibonL" class="input-edicion"
-            step="0.1" min="0">
-        </div>
-        <div class="detalle-fila">
-          <span class="etiqueta">Baja pH (L):</span>
-          <span class="valor" *ngIf="!editando()">{{ piscina()!.bajaPHL ?? 0 }} L</span>
-          <input type="number" *ngIf="editando()" [(ngModel)]="piscinaEditada()!.bajaPHL" name="bajaPHL" class="input-edicion"
-            step="0.1" min="0">
+      <!-- Estado de Mantenimiento (solo para técnico y administrador, solo en modo vista) -->
+      <div class="estado-mantenimiento"
+        *ngIf="!editando() && (usuarioActual()?.rol === 'administrador' || usuarioActual()?.rol === 'tecnico')">
+        <div class="indicador" [class.necesita-mantenimiento]="necesitaMantenimiento(piscina()!)">
+          <span class="icono">{{ necesitaMantenimiento(piscina()!) ? '⚠️' : '✓' }}</span>
+          <span class="texto">
+            {{ necesitaMantenimiento(piscina()!) ? 'Necesita Mantenimiento' : 'Estado Óptimo' }}
+          </span>
         </div>
       </div>
+    </ng-container>
 
-      <!-- Parámetros Químicos -->
-      <div class="seccion">
-        <h3>🧪 Parámetros Químicos</h3>
-        <div class="detalle-fila" [class.alerta-quimica]="piscina()!.nivelCloro < 0.5 || piscina()!.nivelCloro > 3.0">
-          <span class="etiqueta">Nivel de Cloro:</span>
-          <span class="valor" *ngIf="!editando()">{{ piscina()!.nivelCloro }} ppm</span>
-          <input type="number" *ngIf="editando()" [(ngModel)]="piscinaEditada()!.nivelCloro" name="cloro"
-            class="input-edicion" step="0.1">
-        </div>
-        <div class="detalle-fila" [class.alerta-quimica]="piscina()!.pHAgua < 7.2 || piscina()!.pHAgua > 7.8">
-          <span class="etiqueta">pH del Agua:</span>
-          <span class="valor" *ngIf="!editando()">{{ piscina()!.pHAgua }}</span>
-          <input type="number" *ngIf="editando()" [(ngModel)]="piscinaEditada()!.pHAgua" name="ph" class="input-edicion"
-            step="0.1">
-        </div>
-        
-      </div>
-
-      <!-- Mantenimiento -->
-      <div class="seccion">
-        <h3>🔧 Mantenimiento</h3>
-        <div class="detalle-fila" *ngIf="!esCliente()">
-          <span class="etiqueta">Fecha de Creación:</span>
-          <span class="valor">{{ formatearFecha(piscina()!.fechaCreacion) }}</span>
-        </div>
-        <div class="detalle-fila">
-          <span class="etiqueta">Última Limpieza:</span>
-          <span class="valor" *ngIf="!editando()">{{ formatearFecha(piscina()!.ultimaLimpieza) }}</span>
-          <input type="date" *ngIf="editando()" [(ngModel)]="piscinaEditada()!.ultimaLimpieza" name="ultimaLimpieza"
-            class="input-edicion">
-        </div>
-        <div class="detalle-fila">
-          <span class="etiqueta">Horas de Filtración:</span>
-          <span class="valor" *ngIf="!editando()">{{ piscina()!.horasFiltracion | number: '1.0-0' }} h</span>
-          <input type="number" *ngIf="editando()" [(ngModel)]="piscinaEditada()!.horasFiltracion" name="horasFiltracion"
-            class="input-edicion" step="0.5">
-        </div>
-
-      </div>
-
-      <!-- Temporada -->
-      <div class="seccion">
-        <h3>📅 Temporada</h3>
-        <div class="detalle-fila">
-          <span class="etiqueta">Fecha de Apertura:</span>
-          <span class="valor" *ngIf="!editando()">{{ piscina()!.fechaApertura ?
-            formatearFecha(piscina()!.fechaApertura!) : 'No definida' }}</span>
-          <input type="date" *ngIf="editando()" [(ngModel)]="piscinaEditada()!.fechaApertura" name="fechaApertura"
-            class="input-edicion">
-        </div>
-        <div class="detalle-fila">
-          <span class="etiqueta">Fecha de Cierre:</span>
-          <span class="valor" *ngIf="!editando()">{{ piscina()!.fechaCierre ? formatearFecha(piscina()!.fechaCierre!) :
-            'No definida' }}</span>
-          <input type="date" *ngIf="editando()" [(ngModel)]="piscinaEditada()!.fechaCierre" name="fechaCierre"
-            class="input-edicion">
-        </div>
-        <div class="detalle-fila">
-          <span class="etiqueta">Estado:</span>
-          <span class="valor" *ngIf="!editando()">{{ piscina()!.estado }}</span>
-          <select *ngIf="editando()" [(ngModel)]="piscinaEditada()!.estado" name="estado" class="input-edicion">
-            <option value="abierta">Abierta</option>
-            <option value="cerrada">Cerrada</option>
-          </select>
-        </div>
-      </div>
-
-      <!-- Observaciones (solo para no-clientes) -->
-      <div class="seccion seccion-completa" *ngIf="(piscina()!.observaciones || editando()) && !esCliente()">
-        <h3>📝 Observaciones</h3>
-        <p class="observaciones" *ngIf="!editando()">{{ piscina()!.observaciones || 'Sin observaciones' }}</p>
-        <textarea *ngIf="editando()" [(ngModel)]="piscinaEditada()!.observaciones" name="observaciones"
-          class="input-edicion-textarea" placeholder="Agregar observaciones..."></textarea>
-      </div>
-    </div>
-
-    <!-- Estado de Mantenimiento (solo para técnico y administrador) -->
-    <div class="estado-mantenimiento"
-      *ngIf="!editando() && (usuarioActual()?.rol === 'administrador' || usuarioActual()?.rol === 'tecnico')">
-      <div class="indicador" [class.necesita-mantenimiento]="necesitaMantenimiento(piscina()!)">
-        <span class="icono">{{ necesitaMantenimiento(piscina()!) ? '⚠️' : '✓' }}</span>
-        <span class="texto">
-          {{ necesitaMantenimiento(piscina()!) ? 'Necesita Mantenimiento' : 'Estado Óptimo' }}
-        </span>
-      </div>
-    </div>
-
-    <!-- Técnico Asignado -->
-    <div class="seccion tecnicos-seccion" *ngIf="!editando()">
+    <ng-container *ngIf="tabActivo() === 'tecnico'">
+    <div class="seccion tecnicos-seccion">
       <h3>👷 Técnico Asignado</h3>
 
       <!-- Técnico asignado -->
@@ -263,9 +275,11 @@
         </p>
       </div>
     </div>
+    </ng-container>
 
-    <!-- Presupuestos (solo administrador y cliente) -->
-    <div class="seccion presupuestos-seccion" *ngIf="usuarioActual()?.rol !== 'tecnico'">
+    <!-- Tab: Presupuestos -->
+    <ng-container *ngIf="tabActivo() === 'presupuestos' && usuarioActual()?.rol !== 'tecnico'">
+    <div class="seccion presupuestos-seccion">
       <h3>💸 Presupuestos</h3>
 
       <!-- Tabla Informativa de Presupuestos -->
@@ -325,36 +339,66 @@
             </div>
             <div class="grupo-formulario">
               <label>Descripción general:</label>
-              <input type="text" [(ngModel)]="presupuestoNuevo().descripcion" name="descripcion"
-                placeholder="Ej: Mantenimiento semestral" required />
+              <textarea [(ngModel)]="presupuestoNuevo().descripcion" name="descripcion"
+                placeholder="Ej: Mantenimiento semestral" required rows="4"></textarea>
             </div>
           </div>
 
-          <div class="grupo-formulario">
-            <label>Líneas del presupuesto:</label>
-            <div class="lineas-presupuesto">
-              <div class="linea-formulario">
-                <input type="number" [(ngModel)]="lineaNueva().cantidad" name="cantidad" min="1" step="1"
-                  placeholder="Cantidad" required />
-                <input type="text" [(ngModel)]="lineaNueva().descripcion" name="descLinea" placeholder="Descripción"
-                  required />
-                <input type="number" [(ngModel)]="lineaNueva().precioUnitario" name="precioUnitario" min="0" step="0.01"
-                  placeholder="Precio unitario" required />
-                <button type="button" class="btn-agregar-linea" (click)="agregarLineaPresupuesto()">+ Línea</button>
+          <div class="seccion-lineas">
+            <div class="lineas-header">
+              <label>Líneas del presupuesto:</label>
+              <button type="button" class="btn-agregar-linea" (click)="agregarLineaPresupuesto()">+ Agregar Línea</button>
+            </div>
+
+            <div *ngIf="presupuestoNuevo().lineas.length === 0" class="empty-lineas">
+              <p>No hay líneas. Haz clic en "+ Agregar Línea" para comenzar.</p>
+            </div>
+
+            <div *ngIf="presupuestoNuevo().lineas.length > 0" class="lineas-container">
+              <div class="lineas-table-responsive">
+                <table class="lineas-table">
+                  <thead>
+                    <tr>
+                      <th>Descripción</th>
+                      <th>Cantidad</th>
+                      <th>Precio Unitario</th>
+                      <th>Total</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let l of presupuestoNuevo().lineas; let i = index" class="linea-row">
+                      <td data-label="Descripción">
+                        <textarea [(ngModel)]="l.descripcion" [name]="'descLinea' + i" placeholder="Descripción" rows="2" class="form-control-inline"></textarea>
+                      </td>
+                      <td data-label="Cantidad">
+                        <input type="number" [(ngModel)]="l.cantidad" [name]="'cantidadLinea' + i" (change)="calcularTotalLineaPresupuesto(l)" min="1" class="form-control-inline">
+                      </td>
+                      <td data-label="Precio Unitario">
+                        <input type="number" [(ngModel)]="l.precioUnitario" [name]="'precioLinea' + i" (change)="calcularTotalLineaPresupuesto(l)" step="0.01" min="0" class="form-control-inline">
+                      </td>
+                      <td data-label="Total" class="total-campo">{{ l.total | number:'1.2-2' }}</td>
+                      <td class="acciones-linea">
+                        <button type="button" class="btn-eliminar-linea" (click)="eliminarLineaPresupuesto(i)">🗑️</button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
-              <ul class="lista-lineas" *ngIf="presupuestoNuevo().lineas.length > 0">
-                <li *ngFor="let l of presupuestoNuevo().lineas; let i = index" class="item-linea">
-                  <span>{{ l.cantidad }} x {{ l.descripcion }} @ {{ l.precioUnitario | number:'1.2-2' }} €</span>
-                  <strong>{{ l.total | number:'1.2-2' }} €</strong>
-                  <button type="button" class="btn-eliminar-linea" (click)="eliminarLineaPresupuesto(i)">🗑️</button>
-                </li>
-              </ul>
             </div>
           </div>
 
           <div class="fila-total">
-            <label>Total:</label>
+            <label>Subtotal:</label>
             <span class="total-presupuesto">{{ getTotalPresupuesto() | number:'1.2-2' }} €</span>
+          </div>
+          <div class="fila-total">
+            <label>IVA ({{ ivaPresupuesto }}%):</label>
+            <span class="total-presupuesto iva-importe">{{ getIvaImporteNuevo() | number:'1.2-2' }} €</span>
+          </div>
+          <div class="fila-total fila-total-final">
+            <label><strong>Total:</strong></label>
+            <span class="total-presupuesto"><strong>{{ getTotalConIvaNuevo() | number:'1.2-2' }} €</strong></span>
           </div>
 
           <button type="submit" class="btn-guardar-presupuesto" [disabled]="guardando()">
@@ -363,6 +407,7 @@
         </form>
       </div>
     </div>
+    </ng-container>
 
     <!-- Modal Detalle Presupuesto -->
     <div class="modal-overlay" *ngIf="mostrarModalPresupuesto()" (click)="cerrarModalPresupuesto()"></div>
@@ -442,7 +487,8 @@
       </div>
     </ng-container>
 
-    <!-- Sección Informes -->
+    <!-- Tab: Informes -->
+    <ng-container *ngIf="tabActivo() === 'informes'">
     <div class="seccion informe-seccion">
       <h3>📋 Informe Técnico</h3>
 
@@ -488,6 +534,7 @@
               <span class="linea-estado" [ngClass]="'estado-' + linea.estado">
                 {{ linea.estado | uppercase }}
               </span>
+              <span *ngIf="linea.observacion" class="linea-observacion">{{ linea.observacion }}</span>
             </div>
           </div>
         </div>
@@ -499,9 +546,11 @@
         </div>
       </div>
     </div>
+    </ng-container>
 
-    <!-- Sección Tareas (solo para administrador y técnico) -->
-    <div class="seccion tareas-seccion" *ngIf="puedeVerTareas()">
+    <!-- Tab: Tareas -->
+    <ng-container *ngIf="tabActivo() === 'tareas' && puedeVerTareas()">
+    <div class="seccion tareas-seccion">
       <h3>✅ Tareas de la Piscina</h3>
 
       <div *ngIf="cargandoTareas()" class="cargando-tareas">
@@ -550,6 +599,10 @@
             + Nueva Tarea
           </button>
         </div>
+      </div>
+    </div>
+    </ng-container>
+
       </div>
     </div>
 

@@ -63,7 +63,7 @@ export class InformeDetalleComponent implements OnInit {
     this.informesService.obtenerInforme(id).subscribe({
       next: (informe) => {
         if (informe) {
-          this.informe = informe;
+          this.informe = { ...informe, fechaActualizacion: new Date().toISOString().split('T')[0] };
         } else {
           this.error = 'Informe no encontrado';
         }

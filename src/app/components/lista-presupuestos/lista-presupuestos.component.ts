@@ -3,7 +3,10 @@ import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { PresupuestosService } from '../../services/presupuestos.service';
+import { AjustesService } from '../../services/ajustes.service';
+import { PiscinasService } from '../../services/piscinas.service';
 import { Presupuesto } from '../../models/presupuesto';
+import { Piscina } from '../../models/piscina';
 import jsPDF from 'jspdf';
 
 @Component({
@@ -15,21 +18,27 @@ import jsPDF from 'jspdf';
 })
 export class ListaPresupuestosComponent implements OnInit {
   presupuestos: Presupuesto[] = [];
+  piscinas: Piscina[] = [];
   cargando = true;
   error: string | null = null;
   paginaActual: number = 0;
   terminoBuscador: string = '';
   readonly elementosPorPagina = 10;
+  ivaGlobal = 21;
 
   // Modal
   presupuestoSeleccionado: Presupuesto | null = null;
   mostrarModal = false;
 
   private presupuestosService = inject(PresupuestosService);
+  private ajustesService = inject(AjustesService);
+  private piscinasService = inject(PiscinasService);
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
 
   ngOnInit(): void {
+    this.ajustesService.obtenerAjustes().subscribe(a => { this.ivaGlobal = a.iva; });
+    this.piscinasService.obtenerPiscinas().subscribe(p => { this.piscinas = p; this.cdr.markForCheck(); });
     this.cargarPresupuestos();
   }
 
@@ -90,6 +99,20 @@ export class ListaPresupuestosComponent implements OnInit {
 
   calcularTotal(lineas: { total: number }[]): number {
     return lineas.reduce((acc, l) => acc + l.total, 0);
+  }
+
+  obtenerNombrePiscina(piscinaId: string): string {
+    return this.piscinas.find(p => p.id === piscinaId)?.nombre || '—';
+  }
+
+  calcularTotalConIva(presupuesto: Presupuesto): number {
+    const subtotal = this.calcularTotal(presupuesto.lineas);
+    const iva = presupuesto.iva ?? this.ivaGlobal;
+    return subtotal * (1 + iva / 100);
+  }
+
+  getIvaPresupuesto(presupuesto: Presupuesto): number {
+    return presupuesto.iva ?? this.ivaGlobal;
   }
 
   async descargarPDF(presupuesto: Presupuesto): Promise<void> {
@@ -168,11 +191,19 @@ export class ListaPresupuestosComponent implements OnInit {
       doc.setTextColor(0, 0, 0);
       doc.setFont('helvetica', 'normal');
       presupuesto.lineas.forEach(linea => {
-        doc.text((linea as any).descripcion.substring(0, 25), 25, yPosition);
+        const descLinea = doc.splitTextToSize((linea as any).descripcion, 80);
+        const rowHeight = descLinea.length * 6;
+
+        if (yPosition + rowHeight > pageHeight - 20) {
+          doc.addPage();
+          yPosition = 20;
+        }
+
+        doc.text(descLinea, 25, yPosition);
         doc.text((linea as any).cantidad.toString(), 120, yPosition);
         doc.text('€' + (linea as any).precioUnitario.toFixed(2), 135, yPosition);
         doc.text('€' + linea.total.toFixed(2), 165, yPosition);
-        yPosition += 6;
+        yPosition += rowHeight;
       });
 
       yPosition += 2;
@@ -180,13 +211,37 @@ export class ListaPresupuestosComponent implements OnInit {
       doc.line(20, yPosition, 190, yPosition);
       yPosition += 5;
 
+      const subtotal = this.calcularTotal(presupuesto.lineas);
+      const iva = presupuesto.iva ?? this.ivaGlobal;
+      const ivaImporte = subtotal * (iva / 100);
+      const totalConIva = subtotal + ivaImporte;
+
+      // Subtotal
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(80, 80, 80);
+      doc.text('Subtotal:', 105, yPosition);
+      doc.setTextColor(0, 0, 0);
+      doc.setFont('helvetica', 'normal');
+      doc.text('€' + subtotal.toFixed(2), 140, yPosition);
+      yPosition += 6;
+
+      // IVA
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(80, 80, 80);
+      doc.text(`IVA (${iva}%):`, 105, yPosition);
+      doc.setTextColor(0, 0, 0);
+      doc.setFont('helvetica', 'normal');
+      doc.text('€' + ivaImporte.toFixed(2), 140, yPosition);
+      yPosition += 6;
+
       // Total
       doc.setFontSize(12);
       doc.setFont('helvetica', 'bold');
       doc.setTextColor(102, 126, 234);
       doc.text('TOTAL:', 105, yPosition);
       doc.setTextColor(0, 0, 0);
-      doc.text('€' + this.calcularTotal(presupuesto.lineas).toFixed(2) + ' IVA incluido', 125, yPosition);
+      doc.text('€' + totalConIva.toFixed(2), 140, yPosition);
     }
 
     doc.save(`presupuesto-${presupuesto.descripcion.substring(0, 20)}.pdf`);

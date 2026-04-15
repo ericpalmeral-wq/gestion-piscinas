@@ -6,6 +6,7 @@ import jsPDF from 'jspdf';
 import { PiscinasService } from '../../services/piscinas.service';
 import { UsuariosService } from '../../services/usuarios.service';
 import { AuthService } from '../../services/auth.service';
+import { AjustesService } from '../../services/ajustes.service';
 import { Piscina, PiscinaData } from '../../models/piscina';
 import { Usuario } from '../../models/usuario';
 import { Presupuesto } from '../../models/presupuesto';
@@ -54,6 +55,7 @@ export class PiscinaDetalleComponent implements OnInit {
   editando = signal(false);
   suceso = signal<string | null>(null);
   qrUrl = signal<string>('');
+  tabActivo = signal<string>('detalles');
   Math = Math; // Para usar Math en el template
   piscinaId: string | null = null;
 
@@ -69,27 +71,21 @@ export class PiscinaDetalleComponent implements OnInit {
     estado: 'pendiente'
   });
 
-  lineaNueva = signal<{ cantidad: number; descripcion: string; precioUnitario: number }>({ cantidad: 1, descripcion: '', precioUnitario: 0 });
-    agregarLineaPresupuesto(): void {
-      const l = this.lineaNueva();
-      if (!l.descripcion || !l.cantidad || !l.precioUnitario) return;
-      const total = l.cantidad * l.precioUnitario;
-      const nuevaLinea = { ...l, total };
-      const lineas = [...this.presupuestoNuevo().lineas, nuevaLinea];
-      this.presupuestoNuevo.set({
-        ...this.presupuestoNuevo(),
-        lineas
-      });
-      this.lineaNueva.set({ cantidad: 1, descripcion: '', precioUnitario: 0 });
-    }
+  agregarLineaPresupuesto(): void {
+    const nuevaLinea = { descripcion: '', cantidad: 1, precioUnitario: 0, total: 0 };
+    const lineas = [...this.presupuestoNuevo().lineas, nuevaLinea];
+    this.presupuestoNuevo.set({ ...this.presupuestoNuevo(), lineas });
+  }
 
-    eliminarLineaPresupuesto(idx: number): void {
-      const lineas = this.presupuestoNuevo().lineas.filter((_, i) => i !== idx);
-      this.presupuestoNuevo.set({
-        ...this.presupuestoNuevo(),
-        lineas
-      });
-    }
+  calcularTotalLineaPresupuesto(linea: any): void {
+    linea.total = linea.cantidad * linea.precioUnitario;
+    this.presupuestoNuevo.set({ ...this.presupuestoNuevo() });
+  }
+
+  eliminarLineaPresupuesto(idx: number): void {
+    const lineas = this.presupuestoNuevo().lineas.filter((_, i) => i !== idx);
+    this.presupuestoNuevo.set({ ...this.presupuestoNuevo(), lineas });
+  }
   cargandoPresupuestos = signal(false);
 
   // Informes
@@ -117,10 +113,14 @@ export class PiscinaDetalleComponent implements OnInit {
   private piscinasService = inject(PiscinasService);
   private usuariosService = inject(UsuariosService);
   private authService = inject(AuthService);
+  private ajustesService = inject(AjustesService);
+
+  ivaPresupuesto = 21;
 
   ngOnInit(): void {
     // Obtener usuario actual desde AuthService
     this.usuarioActual.set(this.authService.obtenerUsuarioActual());
+    this.ajustesService.obtenerAjustes().subscribe(a => { this.ivaPresupuesto = a.iva; });
     
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
@@ -279,7 +279,8 @@ export class PiscinaDetalleComponent implements OnInit {
     this.guardando.set(true);
     this.presupuestosService.agregarPresupuesto({
       ...p,
-      piscinaId: this.piscinaId
+      piscinaId: this.piscinaId,
+      iva: this.ivaPresupuesto
     }).then(() => {
       this.suceso.set('Presupuesto añadido');
       this.presupuestoNuevo.set({ piscinaId: this.piscinaId!, fechaCreacion: '', descripcion: '', lineas: [], estado: 'pendiente' });
@@ -294,6 +295,14 @@ export class PiscinaDetalleComponent implements OnInit {
 
   getTotalPresupuesto(): number {
     return this.presupuestoNuevo().lineas.reduce((acc, l) => acc + l.total, 0);
+  }
+
+  getIvaImporteNuevo(): number {
+    return this.getTotalPresupuesto() * (this.ivaPresupuesto / 100);
+  }
+
+  getTotalConIvaNuevo(): number {
+    return this.getTotalPresupuesto() + this.getIvaImporteNuevo();
   }
 
   eliminarPresupuesto(id: string): void {

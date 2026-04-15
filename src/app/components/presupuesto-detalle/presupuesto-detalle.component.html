@@ -28,12 +28,12 @@
 
     <div class="form-group">
       <label for="descripcion">Descripción:</label>
-      <input 
+      <textarea
         id="descripcion"
-        type="text"
+        rows="4"
         [(ngModel)]="presupuesto.descripcion"
         placeholder="Descripción del presupuesto"
-        class="form-control">
+        class="form-control"></textarea>
     </div>
 
     <div class="form-group">
@@ -82,14 +82,14 @@
             </thead>
             <tbody>
               <tr *ngFor="let linea of presupuesto.lineas; let i = index" class="linea-row">
-                <td>
-                  <input 
-                    type="text"
+                <td data-label="Descripción">
+                  <textarea
                     [(ngModel)]="linea.descripcion"
                     placeholder="Descripción"
-                    class="form-control-inline">
+                    rows="2"
+                    class="form-control-inline"></textarea>
                 </td>
-                <td>
+                <td data-label="Cantidad">
                   <input 
                     type="number"
                     [(ngModel)]="linea.cantidad"
@@ -97,7 +97,7 @@
                     min="1"
                     class="form-control-inline">
                 </td>
-                <td>
+                <td data-label="Precio Unitario">
                   <input 
                     type="number"
                     [(ngModel)]="linea.precioUnitario"
@@ -106,8 +106,8 @@
                     min="0"
                     class="form-control-inline">
                 </td>
-                <td class="total-campo">{{ linea.total | number: '1.2-2' }}</td>
-                <td class="acciones-linea">
+                <td data-label="Total" class="total-campo">{{ linea.total | number: '1.2-2' }}</td>
+                <td data-label="" class="acciones-linea">
                   <button 
                     class="btn-eliminar-linea"
                     (click)="eliminarLinea(i)"
@@ -121,8 +121,18 @@
         </div>
 
         <div class="total-presupuesto">
-          <strong>Total del Presupuesto: </strong>
-          <span class="monto">{{ obtenerTotalPresupuesto() | number: '1.2-2' }}</span>
+          <div class="total-fila">
+            <span>Subtotal:</span>
+            <span class="monto-subtotal">{{ getSubtotal() | number: '1.2-2' }} €</span>
+          </div>
+          <div class="total-fila">
+            <span>IVA ({{ iva }}%):</span>
+            <span class="monto-iva">{{ getIvaImporte() | number: '1.2-2' }} €</span>
+          </div>
+          <div class="total-fila total-final">
+            <strong>Total:</strong>
+            <span class="monto">{{ getTotalConIva() | number: '1.2-2' }} €</span>
+          </div>
         </div>
       </div>
     </div>

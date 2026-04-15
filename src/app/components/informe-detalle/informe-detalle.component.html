@@ -46,7 +46,7 @@
 
       <div class="grupo-formulario">
         <label>Observaciones</label>
-        <textarea [(ngModel)]="informe.observacion" name="observacion" rows="4" placeholder="Escribe aquí las observaciones generales del informe..."></textarea>
+        <textarea [(ngModel)]="informe.observacion" name="observacion" rows="12" placeholder="Escribe aquí las observaciones generales del informe..."></textarea>
       </div>
     </div>
 
@@ -59,37 +59,41 @@
 
       <div *ngIf="informe.lineas.length > 0" class="lista-lineas">
         <div *ngFor="let linea of informe.lineas; let i = index" class="item-linea">
-          <div class="linea-contenido">
-            <input 
-              type="text" 
-              [(ngModel)]="linea.descripcion" 
-              [name]="'desc-' + i"
-              placeholder="Descripción de la inspección"
-              class="input-descripcion"
-            />
-            <button
-              type="button"
-              (click)="ciclarEstado(linea)"
-              [ngClass]="'btn-estado btn-estado-' + linea.estado"
-            >
-              {{ linea.estado | uppercase }}
-            </button>
+          <div class="linea-principal">
+            <div class="linea-textos">
+              <input
+                type="text"
+                [(ngModel)]="linea.descripcion"
+                [name]="'desc-' + i"
+                placeholder="Descripción de la inspección"
+                class="input-descripcion"
+              />
+              <textarea
+                [(ngModel)]="linea.observacion"
+                [name]="'obs-' + i"
+                placeholder="Observación (opcional)"
+                class="input-observacion"
+                rows="3"
+              ></textarea>
+            </div>
+            <div class="linea-acciones">
+              <button
+                type="button"
+                (click)="ciclarEstado(linea)"
+                [ngClass]="'btn-estado btn-estado-' + linea.estado"
+              >
+                {{ linea.estado | uppercase }}
+              </button>
+              <button 
+                type="button" 
+                (click)="eliminarLinea(i)" 
+                class="btn-eliminar-linea"
+                title="Eliminar línea"
+              >
+                ✕
+              </button>
+            </div>
           </div>
-          <input
-            type="text"
-            [(ngModel)]="linea.observacion"
-            [name]="'obs-' + i"
-            placeholder="Observación (opcional)"
-            class="input-observacion"
-          />
-          <button 
-            type="button" 
-            (click)="eliminarLinea(i)" 
-            class="btn-eliminar-linea"
-            title="Eliminar línea"
-          >
-            ✕
-          </button>
         </div>
       </div>
 

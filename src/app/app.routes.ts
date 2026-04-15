@@ -15,6 +15,7 @@ import { LibroDetalleComponent } from './components/libros/libro-detalle.compone
 import { PiscinaPublicaComponent } from './components/piscina-publica/piscina-publica.component';
 import { PerfilUsuarioComponent } from './components/perfil-usuario/perfil-usuario.component';
 import { PoliticaCookiesComponent } from './components/politica-cookies/politica-cookies.component';
+import { AjustesComponent } from './components/ajustes/ajustes.component';
 import { requiereAutenticacion } from './guards/auth.guard';
 import { requiereRol } from './guards/rol.guard';
 
@@ -96,6 +97,11 @@ export const routes: Routes = [
     path: 'libros/:piscinaId',
     component: LibroDetalleComponent,
     canActivate: [requiereAutenticacion, requiereRol('administrador', 'tecnico', 'cliente')]
+  },
+  {
+    path: 'ajustes',
+    component: AjustesComponent,
+    canActivate: [requiereAutenticacion, requiereRol('administrador')]
   },
   {
     path: 'politica-cookies',

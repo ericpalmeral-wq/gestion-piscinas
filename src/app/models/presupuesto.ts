@@ -7,4 +7,5 @@ export interface Presupuesto {
   descripcion: string;
   lineas: LineaPresupuesto[];
   estado: 'pendiente' | 'aceptado';
+  iva?: number;
 }

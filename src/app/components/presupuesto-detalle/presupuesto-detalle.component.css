@@ -210,16 +210,44 @@
 }
 
 .total-presupuesto {
-  padding: 20px;
+  padding: 16px 20px;
   background-color: #f3f4f6;
   border-top: 2px solid #e5e7eb;
   border-bottom-left-radius: 6px;
   border-bottom-right-radius: 6px;
   display: flex;
-  justify-content: flex-end;
-  gap: 15px;
-  font-size: 18px;
-  color: #1f2937;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-end;
+}
+
+.total-fila {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  font-size: 14px;
+  color: #374151;
+}
+
+.total-final {
+  font-size: 17px;
+  margin-top: 4px;
+  padding-top: 8px;
+  border-top: 1px solid #d1d5db;
+}
+
+.monto-subtotal {
+  font-weight: 600;
+  color: #374151;
+  min-width: 90px;
+  text-align: right;
+}
+
+.monto-iva {
+  font-weight: 600;
+  color: #6b7280;
+  min-width: 90px;
+  text-align: right;
 }
 
 .monto {
@@ -311,15 +339,32 @@
 
   .lineas-table td {
     display: flex;
-    justify-content: space-between;
-    padding: 10px;
-    border-bottom: none;
+    flex-direction: column;
+    padding: 10px 12px;
+    border-bottom: 1px solid #f3f4f6;
   }
 
   .lineas-table td::before {
     content: attr(data-label);
     font-weight: 600;
-    color: #374151;
+    color: #6b7280;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+  }
+
+  .lineas-table td .form-control-inline {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .total-campo {
+    text-align: left;
+  }
+
+  .acciones-linea {
+    border-bottom: none !important;
   }
 
   .form-actions {

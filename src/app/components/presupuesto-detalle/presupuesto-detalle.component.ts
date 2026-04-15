@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { PresupuestosService } from '../../services/presupuestos.service';
 import { PiscinasService } from '../../services/piscinas.service';
+import { AjustesService } from '../../services/ajustes.service';
 import { Presupuesto } from '../../models/presupuesto';
 import { LineaPresupuesto } from '../../models/linea-presupuesto';
 import { Piscina } from '../../models/piscina';
@@ -22,14 +23,17 @@ export class PresupuestoDetalleComponent implements OnInit {
   error: string | null = null;
   esNuevo = false;
   guardando = false;
+  iva = 21;
 
   private presupuestosService = inject(PresupuestosService);
   private piscinasService = inject(PiscinasService);
+  private ajustesService = inject(AjustesService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
 
   ngOnInit(): void {
+    this.ajustesService.obtenerAjustes().subscribe(a => { this.iva = a.iva; this.cdr.markForCheck(); });
     this.cargarPiscinas();
     const id = this.route.snapshot.paramMap.get('id');
     
@@ -54,6 +58,9 @@ export class PresupuestoDetalleComponent implements OnInit {
       next: (presupuesto) => {
         if (presupuesto) {
           this.presupuesto = presupuesto;
+          if (presupuesto.iva !== undefined) {
+            this.iva = presupuesto.iva;
+          }
         } else {
           this.error = 'Presupuesto no encontrado';
         }
@@ -108,6 +115,18 @@ export class PresupuestoDetalleComponent implements OnInit {
     return this.presupuesto.lineas.reduce((sum, linea) => sum + linea.total, 0);
   }
 
+  getSubtotal(): number {
+    return this.obtenerTotalPresupuesto();
+  }
+
+  getIvaImporte(): number {
+    return this.getSubtotal() * (this.iva / 100);
+  }
+
+  getTotalConIva(): number {
+    return this.getSubtotal() + this.getIvaImporte();
+  }
+
   guardarPresupuesto(): void {
     if (!this.presupuesto) return;
     
@@ -126,6 +145,7 @@ export class PresupuestoDetalleComponent implements OnInit {
 
     const presupuestoData = {
       ...this.presupuesto,
+      iva: this.iva,
       fechaCreacion: this.presupuesto.fechaCreacion || new Date().toISOString()
     };
 

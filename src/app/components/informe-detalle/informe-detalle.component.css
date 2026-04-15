@@ -140,9 +140,6 @@
 }
 
 .item-linea {
-  display: flex;
-  gap: 8px;
-  align-items: flex-start;
   background: #f9fafb;
   padding: 16px;
   border-radius: 8px;
@@ -155,20 +152,37 @@
   border-color: #f59e0b;
 }
 
-.linea-contenido {
+.linea-principal {
   display: flex;
   gap: 12px;
+  align-items: flex-start;
+}
+
+.linea-textos {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
   flex: 1;
+}
+
+.linea-acciones {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
   align-items: center;
+  flex-shrink: 0;
 }
 
 .input-descripcion {
-  flex: 1;
+  width: 100%;
   padding: 8px 10px;
   border: 1px solid #d1d5db;
   border-radius: 4px;
-  font-size: 13px;
+  font-size: 14px;
+  font-weight: 600;
   font-family: inherit;
+  color: #1f2937;
+  box-sizing: border-box;
 }
 
 .input-descripcion:focus {
@@ -184,15 +198,14 @@
   font-size: 12px;
   font-family: inherit;
   color: #6b7280;
-  background: #f9fafb;
-  margin-top: 8px;
+  background: white;
   box-sizing: border-box;
+  resize: vertical;
 }
 
 .input-observacion:focus {
   outline: none;
   border-color: #f59e0b;
-  background: white;
   color: #1f2937;
 }
 

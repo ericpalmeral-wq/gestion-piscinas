@@ -40,8 +40,8 @@
       <thead>
         <tr>
           <th>Descripción</th>
+          <th>Piscina</th>
           <th>Fecha</th>
-          <th>Líneas</th>
           <th>Total</th>
           <th>Estado</th>
           <th>Acciones</th>
@@ -50,9 +50,9 @@
       <tbody>
         <tr *ngFor="let presupuesto of presupuestosPaginados" class="fila-presupuesto" (click)="abrirModal(presupuesto)">
           <td class="celda-descripcion">{{ presupuesto.descripcion }}</td>
+          <td class="celda-piscina">{{ obtenerNombrePiscina(presupuesto.piscinaId) }}</td>
           <td class="celda-fecha">{{ formatearFecha(presupuesto.fechaCreacion) }}</td>
-          <td class="celda-lineas">{{ presupuesto.lineas.length }}</td>
-          <td class="celda-total">${{ calcularTotal(presupuesto.lineas).toFixed(2) }}</td>
+          <td class="celda-total">€{{ calcularTotalConIva(presupuesto).toFixed(2) }}</td>
           <td class="celda-estado" (click)="$event.stopPropagation()">
             <button class="badge-estado btn-estado" 
                     [ngClass]="obtenerClaseEstado(presupuesto.estado)"
@@ -103,7 +103,7 @@
 <!-- Modal de Detalle del Presupuesto -->
 <div *ngIf="mostrarModal && presupuestoSeleccionado" class="modal-overlay modal-overlay-presupuestos" (click)="cerrarModal()">
   <div class="modal-contenido" (click)="$event.stopPropagation()">
-    <button class="modal-cerrar" (click)="cerrarModal()">×</button>
+    <button class="modal-cerrar btn-cerrar-modal" (click)="cerrarModal()">×</button>
     
     <div class="modal-header">
       <h2>📋 Detalle del Presupuesto</h2>
@@ -122,8 +122,18 @@
         </div>
         
         <div class="info-item">
+          <span class="info-label">Subtotal:</span>
+          <span class="info-valor">€{{ calcularTotal(presupuestoSeleccionado.lineas).toFixed(2) }}</span>
+        </div>
+        
+        <div class="info-item">
+          <span class="info-label">IVA ({{ getIvaPresupuesto(presupuestoSeleccionado) }}%):</span>
+          <span class="info-valor">€{{ (calcularTotal(presupuestoSeleccionado.lineas) * getIvaPresupuesto(presupuestoSeleccionado) / 100).toFixed(2) }}</span>
+        </div>
+
+        <div class="info-item">
           <span class="info-label">Total:</span>
-          <span class="info-valor total">${{ calcularTotal(presupuestoSeleccionado.lineas).toFixed(2) }}</span>
+          <span class="info-valor total">€{{ calcularTotalConIva(presupuestoSeleccionado).toFixed(2) }}</span>
         </div>
       </div>
       
@@ -156,8 +166,8 @@
               <tr *ngFor="let linea of presupuestoSeleccionado.lineas">
                 <td>{{ linea.descripcion }}</td>
                 <td>{{ linea.cantidad }}</td>
-                <td>${{ linea.precioUnitario.toFixed(2) }}</td>
-                <td>${{ linea.total.toFixed(2) }}</td>
+                <td>€{{ linea.precioUnitario.toFixed(2) }}</td>
+                <td>€{{ linea.total.toFixed(2) }}</td>
               </tr>
             </tbody>
           </table>

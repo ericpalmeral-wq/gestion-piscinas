@@ -206,71 +206,73 @@ export class ListaInformesComponent implements OnInit {
       doc.setTextColor(150, 150, 150);
       doc.text('Sin inspecciones registradas', 20, yPosition);
     } else {
-      // Tabla de inspecciones
-      doc.setFontSize(9);
-      doc.setFont('helvetica', 'bold');
-      doc.setTextColor(255, 255, 255);
-      doc.setFillColor(245, 158, 11);
-      
-      const headers = ['#', 'Descripción', 'Estado', 'Observación'];
-      const columnWidths = [10, 75, 30, 55];
-      let xPos = 20;
+      // Nuevo formato: fila 1 = num + descripcion | fila 2 = observacion + estado
+      const marginLeft = 20;
+      const numWidth = 12;
+      const totalWidth = pageWidth - 40;
+      const estadoWidth = 40;
+      const row1Height = 8;
+      const row2Height = 20;
+      const itemHeight = row1Height + row2Height;
+      const bodyX = marginLeft + numWidth;
+      const bodyWidth = totalWidth - numWidth;
+      const obsWidth = bodyWidth - estadoWidth;
+      const estadoX = bodyX + obsWidth;
 
-      headers.forEach((header, idx) => {
-        doc.rect(xPos, yPosition, columnWidths[idx], 8, 'F');
-        doc.text(header, xPos + columnWidths[idx] / 2, yPosition + 5, { align: 'center' });
-        xPos += columnWidths[idx];
-      });
-
-      yPosition += 8;
-
-      // Filas de inspecciones
-      doc.setFont('helvetica', 'normal');
-      doc.setTextColor(50, 50, 50);
-      
       informe.lineas.forEach((linea, idx) => {
-        const bgColor = idx % 2 === 0 ? [245, 250, 255] : [255, 255, 255];
-        const estadoColor = linea.estado === 'bien' ? [16, 185, 129] : 
-                           linea.estado === 'regular' ? [251, 146, 60] : [239, 68, 68];
+        if (yPosition + itemHeight > pageHeight - 25) {
+          doc.addPage();
+          yPosition = 20;
+        }
 
-        // Dibuja fila - Número
-        xPos = 20;
+        const bgColor: [number, number, number] = idx % 2 === 0 ? [245, 250, 255] : [255, 255, 255];
+        const estadoColor: [number, number, number] = linea.estado === 'bien' ? [16, 185, 129] :
+          linea.estado === 'regular' ? [251, 146, 60] : [239, 68, 68];
+        const row2Y = yPosition + row1Height;
+
+        // Num (abarca las dos filas)
         doc.setFillColor(bgColor[0], bgColor[1], bgColor[2]);
-        doc.rect(xPos, yPosition, columnWidths[0], 8, 'F');
-        doc.setTextColor(50, 50, 50);
-        doc.setFont('helvetica', 'normal');
-        doc.text((idx + 1).toString(), xPos + columnWidths[0] / 2, yPosition + 5, { align: 'center' });
-        
-        // Dibuja fila - Descripción
-        xPos += columnWidths[0];
-        doc.setFillColor(bgColor[0], bgColor[1], bgColor[2]);
-        doc.rect(xPos, yPosition, columnWidths[1], 8, 'F');
-        doc.setTextColor(50, 50, 50);
-        doc.setFont('helvetica', 'normal');
-        const descripcionTruncada = linea.descripcion.length > 28 ? 
-          linea.descripcion.substring(0, 25) + '...' : linea.descripcion;
-        doc.text(descripcionTruncada, xPos + 2, yPosition + 5);
-        
-        // Dibuja fila - Estado
-        xPos += columnWidths[1];
-        doc.setFillColor(estadoColor[0], estadoColor[1], estadoColor[2]);
-        doc.rect(xPos, yPosition, columnWidths[2], 8, 'F');
-        doc.setTextColor(255, 255, 255);
+        doc.rect(marginLeft, yPosition, numWidth, itemHeight, 'F');
+        doc.setFontSize(8);
+        doc.setTextColor(100, 100, 100);
         doc.setFont('helvetica', 'bold');
-        doc.text(linea.estado.toUpperCase(), xPos + columnWidths[2] / 2, yPosition + 5, { align: 'center' });
+        doc.text((idx + 1).toString(), marginLeft + numWidth / 2, yPosition + row1Height / 2 + 2, { align: 'center' });
 
-        // Dibuja fila - Observación
-        xPos += columnWidths[2];
+        // Fila 1 - Descripción (ancho completo)
         doc.setFillColor(bgColor[0], bgColor[1], bgColor[2]);
-        doc.rect(xPos, yPosition, columnWidths[3], 8, 'F');
+        doc.rect(bodyX, yPosition, bodyWidth, row1Height, 'F');
+        doc.setFontSize(9);
+        doc.setTextColor(30, 30, 30);
+        doc.setFont('helvetica', 'bold');
+        const descLines = doc.splitTextToSize(linea.descripcion || '', bodyWidth - 4);
+        doc.text(descLines[0] || '', bodyX + 2, yPosition + 5);
+
+        // Fila 2 - Observación
+        doc.setFillColor(252, 252, 252);
+        doc.rect(bodyX, row2Y, obsWidth, row2Height, 'F');
+        doc.setFontSize(8);
         doc.setTextColor(80, 80, 80);
         doc.setFont('helvetica', 'normal');
-        const obsTruncada = (linea.observacion || '').length > 28
-          ? (linea.observacion || '').substring(0, 25) + '...'
-          : (linea.observacion || '');
-        doc.text(obsTruncada, xPos + 2, yPosition + 5);
+        const obsLines = doc.splitTextToSize(linea.observacion || '', obsWidth - 4);
+        doc.text(obsLines.slice(0, 2), bodyX + 2, row2Y + 5);
 
-        yPosition += 8;
+        // Fila 2 - Estado
+        doc.setFillColor(estadoColor[0], estadoColor[1], estadoColor[2]);
+        doc.rect(estadoX, row2Y, estadoWidth, row2Height, 'F');
+        doc.setFontSize(8);
+        doc.setTextColor(255, 255, 255);
+        doc.setFont('helvetica', 'bold');
+        doc.text(linea.estado.toUpperCase(), estadoX + estadoWidth / 2, row2Y + row2Height / 2 + 2, { align: 'center' });
+
+        // Bordes
+        doc.setDrawColor(220, 220, 220);
+        doc.setLineWidth(0.3);
+        doc.rect(marginLeft, yPosition, numWidth, itemHeight);
+        doc.rect(bodyX, yPosition, bodyWidth, row1Height);
+        doc.rect(bodyX, row2Y, obsWidth, row2Height);
+        doc.rect(estadoX, row2Y, estadoWidth, row2Height);
+
+        yPosition += itemHeight + 2;
       });
     }
 

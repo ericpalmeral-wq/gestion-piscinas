@@ -1,0 +1,60 @@
+<div class="ajustes-contenedor">
+  <div class="ajustes-encabezado">
+    <h2>⚙️ Ajustes de la Aplicación</h2>
+    <p class="ajustes-subtitulo">Configura los parámetros globales del sistema</p>
+  </div>
+
+  <div *ngIf="cargando()" class="estado-cargando">
+    <p>Cargando ajustes...</p>
+  </div>
+
+  <div *ngIf="!cargando()" class="ajustes-contenido">
+
+    <!-- Sección Fiscal -->
+    <div class="ajustes-seccion">
+      <div class="seccion-cabecera">
+        <span class="seccion-icono">💰</span>
+        <div>
+          <h3>Configuración Fiscal</h3>
+          <p class="seccion-desc">Parámetros aplicados a los presupuestos</p>
+        </div>
+      </div>
+
+      <div class="ajuste-fila">
+        <div class="ajuste-info">
+          <label class="ajuste-label" for="iva">IVA (%)</label>
+          <span class="ajuste-descripcion">Porcentaje de IVA que se aplicará en los presupuestos</span>
+        </div>
+        <div class="ajuste-control">
+          <input
+            id="iva"
+            type="number"
+            [ngModel]="iva()"
+            (ngModelChange)="iva.set($event)"
+            min="0"
+            max="100"
+            step="0.1"
+            class="input-ajuste"
+          />
+          <span class="input-sufijo">%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mensajes -->
+    <div *ngIf="error()" class="mensaje-error">
+      {{ error() }}
+    </div>
+    <div *ngIf="exito()" class="mensaje-exito">
+      ✓ Ajustes guardados correctamente
+    </div>
+
+    <!-- Guardar -->
+    <div class="ajustes-acciones">
+      <button class="btn-guardar" (click)="guardar()" [disabled]="guardando()">
+        {{ guardando() ? 'Guardando...' : '💾 Guardar Ajustes' }}
+      </button>
+    </div>
+
+  </div>
+</div>
