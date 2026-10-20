@@ -1,5 +1,10 @@
 <div class="tareas-seccion">
-  <h3>✅ Gestor de Tareas</h3>
+  <div class="seccion-header">
+    <h3>✅ Gestor de Tareas</h3>
+    <button (click)="crearNuevaTarea()" class="btn-crear-principal">
+      + Nueva Tarea
+    </button>
+  </div>
 
   <div *ngIf="cargando" class="cargando-tareas">
     <p>Cargando tareas...</p>
@@ -65,6 +70,9 @@
             <button class="btn-editar" (click)="verTarea(t.id)" title="Editar">
               ✏️
             </button>
+            <button class="btn-facturar" (click)="facturarTarea(t, $event)" title="Marcar como facturada">
+              🧾
+            </button>
             <button class="btn-eliminar" (click)="eliminarTarea(t.id)" title="Eliminar">
               🗑️
             </button>
@@ -87,11 +95,6 @@
     </div>
   </div>
 
-  <div *ngIf="!cargando && tareas.length > 0" class="btn-crear-contenedor">
-    <button (click)="crearNuevaTarea()" class="btn-crear-principal">
-      + Nueva Tarea
-    </button>
-  </div>
 </div>
 
 <!-- Modal Nueva Tarea -->

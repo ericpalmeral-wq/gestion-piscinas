@@ -1,7 +1,7 @@
 <div class="detalle-contenedor">
   <div class="detalle-card">
     <div class="detalle-header">
-      <h2>{{ esEdicion ? 'Editar Tarea' : 'Nueva Tarea' }}</h2>
+      <h2>{{ soloLectura ? 'Detalle de Tarea (Facturada)' : (esEdicion ? 'Editar Tarea' : 'Nueva Tarea') }}</h2>
       <button type="button" class="btn-cerrar" (click)="cancelar()" [disabled]="guardando">
         ✕
       </button>
@@ -30,7 +30,7 @@
           [(ngModel)]="tarea.piscinaId"
           class="campo-seleccion"
           [class.error]="enviado && !tarea.piscinaId"
-          [disabled]="guardando"
+          [disabled]="guardando || soloLectura"
         >
           <option value="">-- Selecciona una piscina --</option>
           <option *ngFor="let piscina of piscinas" [value]="piscina.id">
@@ -55,7 +55,7 @@
           [class.error]="enviado && !tarea.descripcion.trim()"
           rows="4"
           placeholder="Ingresa la descripción de la tarea"
-          [disabled]="guardando"
+          [disabled]="guardando || soloLectura"
         ></textarea>
         <span *ngIf="enviado && !tarea.descripcion.trim()" class="mensaje-validacion">
           Este campo es obligatorio
@@ -75,7 +75,7 @@
             [(ngModel)]="tarea.estado"
             class="campo-seleccion"
             [class.error]="enviado && !tarea.estado"
-            [disabled]="guardando"
+            [disabled]="guardando || soloLectura"
           >
             <option *ngFor="let est of estados" [value]="est.valor">
               {{ est.etiqueta }}
@@ -97,7 +97,7 @@
             [(ngModel)]="tarea.prioridad"
             class="campo-seleccion"
             [class.error]="enviado && !tarea.prioridad"
-            [disabled]="guardando"
+            [disabled]="guardando || soloLectura"
           >
             <option *ngFor="let pri of prioridades" [value]="pri.valor">
               {{ pri.etiqueta }}
@@ -121,7 +121,7 @@
           [(ngModel)]="tarea.fechaVencimiento"
           class="campo-entrada"
           [class.error]="enviado && !tarea.fechaVencimiento"
-          [disabled]="guardando"
+          [disabled]="guardando || soloLectura"
         />
         <span *ngIf="enviado && !tarea.fechaVencimiento" class="mensaje-validacion">
           Este campo es obligatorio
@@ -139,28 +139,45 @@
           [(ngModel)]="tarea.responsable"
           class="campo-entrada"
           placeholder="Nombre del responsable"
-          [disabled]="guardando"
+          [disabled]="guardando || soloLectura"
         />
       </div>
 
       <!-- Botones -->
       <div class="grupo-botones">
-        <button
-          type="button"
-          class="btn btn-secundario"
-          (click)="cancelar()"
-          [disabled]="guardando"
-        >
-          Cancelar
-        </button>
-        <button
-          type="button"
-          class="btn btn-primario"
-          (click)="guardarTarea()"
-          [disabled]="guardando"
-        >
-          {{ guardando ? 'Guardando...' : (esEdicion ? 'Actualizar Tarea' : 'Crear Tarea') }}
-        </button>
+        <ng-container *ngIf="soloLectura; else modoEdicion">
+          <button type="button" class="btn btn-secundario" (click)="cancelar()">
+            ← Volver a Facturadas
+          </button>
+        </ng-container>
+        <ng-template #modoEdicion>
+          <button
+            type="button"
+            class="btn btn-secundario"
+            (click)="cancelar()"
+            [disabled]="guardando"
+          >
+            Cancelar
+          </button>
+          <button
+            *ngIf="esEdicion"
+            type="button"
+            class="btn btn-facturar"
+            (click)="facturarTarea()"
+            [disabled]="guardando"
+            title="Archivar como facturada"
+          >
+            🧾 Facturar
+          </button>
+          <button
+            type="button"
+            class="btn btn-primario"
+            (click)="guardarTarea()"
+            [disabled]="guardando"
+          >
+            {{ guardando ? 'Guardando...' : (esEdicion ? 'Actualizar Tarea' : 'Crear Tarea') }}
+          </button>
+        </ng-template>
       </div>
     </div>
   </div>

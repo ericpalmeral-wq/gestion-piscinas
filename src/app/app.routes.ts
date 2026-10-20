@@ -10,6 +10,7 @@ import { PresupuestoDetalleComponent } from './components/presupuesto-detalle/pr
 import { InformeDetalleComponent } from './components/informe-detalle/informe-detalle.component';
 import { TareasComponent } from './components/tareas/tareas.component';
 import { TareaDetalleComponent } from './components/tarea-detalle/tarea-detalle.component';
+import { ListaTareasFacturadasComponent } from './components/lista-tareas-facturadas/lista-tareas-facturadas.component';
 import { LibrosComponent } from './components/libros/libros.component';
 import { LibroDetalleComponent } from './components/libros/libro-detalle.component';
 import { PiscinaPublicaComponent } from './components/piscina-publica/piscina-publica.component';
@@ -81,6 +82,11 @@ export const routes: Routes = [
   {
     path: 'tareas',
     component: TareasComponent,
+    canActivate: [requiereAutenticacion, requiereRol('administrador')]
+  },
+  {
+    path: 'tareas-facturadas',
+    component: ListaTareasFacturadasComponent,
     canActivate: [requiereAutenticacion, requiereRol('administrador')]
   },
   {

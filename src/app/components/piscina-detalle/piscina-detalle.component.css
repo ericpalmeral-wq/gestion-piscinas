@@ -489,6 +489,31 @@
   background: #4CAF50;
 }
 
+.badge.estado.badge-clickeable {
+  border: none;
+  outline: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: inherit;
+  line-height: normal;
+  padding: 8px 16px;
+  transition: filter 0.2s, transform 0.15s, box-shadow 0.2s;
+}
+
+.badge.estado.badge-clickeable:hover {
+  filter: brightness(0.85);
+  transform: scale(1.06);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+}
+
+.badge.estado.badge-clickeable:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.5);
+}
+
 .grilla-detalles {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));

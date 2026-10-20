@@ -627,6 +627,22 @@ export class PiscinaDetalleComponent implements OnInit {
     return colores[estado] || '#6b7280';
   }
 
+  cambiarEstado(): void {
+    const p = this.piscina();
+    if (!p?.id) return;
+    const nuevoEstado: 'abierta' | 'cerrada' = p.estado === 'abierta' ? 'cerrada' : 'abierta';
+    const label = nuevoEstado === 'abierta' ? 'abrir' : 'cerrar';
+    if (!confirm(`¿Deseas ${label} esta piscina?`)) return;
+    this.piscinasService.actualizarPiscina(p.id, { estado: nuevoEstado }).then(() => {
+      this.piscina.set({ ...p, estado: nuevoEstado });
+      this.suceso.set(`Piscina marcada como ${nuevoEstado}.`);
+      setTimeout(() => this.suceso.set(null), 3000);
+    }).catch(err => {
+      console.error('Error al cambiar estado:', err);
+      this.error.set('Error al cambiar el estado de la piscina.');
+    });
+  }
+
   formatearFecha(fecha: Date | string): string {
     if (!fecha) return 'N/A';
     const d = fecha instanceof Date ? fecha : new Date(fecha);

@@ -1557,6 +1557,87 @@ textarea.campo-entrada {
   transform: scale(1.1);
 }
 
+/* Pestañas gestor */
+.tabs-gestor {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.tab-gestor {
+  padding: 10px 20px;
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 600;
+  color: #6b7280;
+  transition: all 0.2s ease;
+}
+
+.tab-gestor:hover {
+  color: #3b82f6;
+}
+
+.tab-gestor.activa {
+  color: #3b82f6;
+  border-bottom-color: #3b82f6;
+}
+
+.tab-contador {
+  display: inline-block;
+  min-width: 22px;
+  padding: 1px 7px;
+  margin-left: 6px;
+  border-radius: 10px;
+  background: #e5e7eb;
+  color: #374151;
+  font-size: 12px;
+  text-align: center;
+}
+
+.tab-gestor.activa .tab-contador {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+.btn-facturar-gestor {
+  padding: 8px 12px;
+  background: #ede9fe;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all 0.2s ease;
+}
+
+.btn-facturar-gestor:hover {
+  background: #8b5cf6;
+  transform: scale(1.1);
+}
+
+.btn-desfacturar-gestor {
+  padding: 8px 12px;
+  background: #fef3c7;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all 0.2s ease;
+}
+
+.btn-desfacturar-gestor:hover {
+  background: #f59e0b;
+  transform: scale(1.1);
+}
+
+.estado-facturado {
+  background: linear-gradient(135deg, #c4b5fd 0%, #8b5cf6 100%);
+  color: #3b0764;
+}
+
 /* Botón eliminar */
 .btn-eliminar-gestor {
   padding: 8px 12px;

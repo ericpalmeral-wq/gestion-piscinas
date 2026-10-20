@@ -17,6 +17,19 @@
   margin-bottom: 24px;
 }
 
+.seccion-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.seccion-header h3 {
+  margin-bottom: 0;
+}
+
 .cargando-tareas,
 .sin-tareas {
   padding: 40px 20px;
@@ -211,6 +224,11 @@
   color: #15803d;
 }
 
+.estado-facturado {
+  background: linear-gradient(135deg, #c4b5fd 0%, #8b5cf6 100%);
+  color: #3b0764;
+}
+
 .badge-prioridad {
   display: inline-block;
   padding: 4px 10px;
@@ -237,7 +255,8 @@
 }
 
 .btn-editar,
-.btn-eliminar {
+.btn-eliminar,
+.btn-facturar {
   background: none;
   border: none;
   cursor: pointer;
@@ -256,6 +275,15 @@
 
 .btn-editar:hover {
   background-color: #dbeafe;
+  transform: scale(1.15);
+}
+
+.btn-facturar {
+  color: #7c3aed;
+}
+
+.btn-facturar:hover {
+  background-color: #ede9fe;
   transform: scale(1.15);
 }
 

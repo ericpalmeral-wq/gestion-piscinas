@@ -37,9 +37,18 @@
           style="cursor: pointer;">
       </div>
       <div class="badges">
-        <span class="badge estado" [style.backgroundColor]="obtenerColorEstado(piscina()!.estado)">
+        <button *ngIf="puedeEditar(); else estadoBadge"
+          class="badge estado badge-clickeable"
+          [style.backgroundColor]="obtenerColorEstado(piscina()!.estado)"
+          (click)="cambiarEstado()"
+          title="Click para cambiar estado">
           {{ piscina()!.estado }}
-        </span>
+        </button>
+        <ng-template #estadoBadge>
+          <span class="badge estado" [style.backgroundColor]="obtenerColorEstado(piscina()!.estado)">
+            {{ piscina()!.estado }}
+          </span>
+        </ng-template>
       </div>
     </div>
 

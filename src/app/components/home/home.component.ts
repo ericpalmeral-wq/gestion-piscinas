@@ -56,6 +56,7 @@ export class HomeComponent implements OnInit {
   todasLasPiscinasGestor = signal<Piscina[]>([]);
   terminoBuscadorGestor = '';
   paginaActualGestor = 0;
+  tabGestor: 'activas' | 'facturadas' = 'activas';
   readonly elementosPorPaginaGestor = 10;
 
   // Cliente
@@ -764,6 +765,7 @@ export class HomeComponent implements OnInit {
       case 'completada': return 'estado-completada';
       case 'en progreso': return 'estado-en-progreso';
       case 'pendiente': return 'estado-pendiente';
+      case 'facturado': return 'estado-facturado';
       default: return 'estado-pendiente';
     }
   }
@@ -779,13 +781,22 @@ export class HomeComponent implements OnInit {
 
   get tareasFiltradas(): Tarea[] {
     const termino = this.terminoBuscadorGestor.toLowerCase().trim();
+    const activas = this.todasLasTareasGestor().filter(t => t.estado !== 'facturado');
     if (!termino) {
-      return this.todasLasTareasGestor();
+      return activas;
     }
-    return this.todasLasTareasGestor().filter(tarea =>
+    return activas.filter(tarea =>
       tarea.descripcion.toLowerCase().includes(termino) ||
       this.obtenerNombrePiscinaGestor(tarea.piscinaId).toLowerCase().includes(termino)
     );
+  }
+
+  get tareasFacturadasGestor(): Tarea[] {
+    return this.todasLasTareasGestor().filter(t => t.estado === 'facturado');
+  }
+
+  get tareasFiltradasTotalGestor(): number {
+    return this.todasLasTareasGestor().filter(t => t.estado !== 'facturado').length;
   }
 
   get tareasPaginadasGestor(): Tarea[] {
@@ -819,6 +830,40 @@ export class HomeComponent implements OnInit {
     if (id) {
       this.router.navigate(['/tareas', id]);
     }
+  }
+
+  facturarTareaGestor(tarea: Tarea, event: Event): void {
+    event.stopPropagation();
+    if (!tarea.id) return;
+    if (!confirm('¿Marcar esta tarea como facturada?')) return;
+    this.tareasService.actualizarTarea(tarea.id, { estado: 'facturado' }).then(() => {
+      this.ngZone.run(() => {
+        this.todasLasTareasGestor.set(
+          this.todasLasTareasGestor().map(t => t.id === tarea.id ? { ...t, estado: 'facturado' as const } : t)
+        );
+        this.cdr.detectChanges();
+      });
+    }).catch((err) => {
+      console.error('Error al facturar tarea:', err);
+      alert('Error al marcar la tarea como facturada');
+    });
+  }
+
+  desfacturarTareaGestor(tarea: Tarea, event: Event): void {
+    event.stopPropagation();
+    if (!tarea.id) return;
+    if (!confirm('¿Quitar esta tarea de facturadas? Volverá al estado completada.')) return;
+    this.tareasService.actualizarTarea(tarea.id, { estado: 'completada' }).then(() => {
+      this.ngZone.run(() => {
+        this.todasLasTareasGestor.set(
+          this.todasLasTareasGestor().map(t => t.id === tarea.id ? { ...t, estado: 'completada' as const } : t)
+        );
+        this.cdr.detectChanges();
+      });
+    }).catch((err) => {
+      console.error('Error al desfacturar tarea:', err);
+      alert('Error al cambiar el estado de la tarea');
+    });
   }
 
   eliminarTareaGestor(id: string | undefined, event: Event): void {

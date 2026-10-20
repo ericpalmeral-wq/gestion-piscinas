@@ -1,0 +1,80 @@
+{
+  "rules": {
+
+    ".read": false,
+    ".write": false,
+
+    "usuarios": {
+      "$uid": {
+        ".read": "auth != null && (auth.uid === $uid || root.child('usuarios').child(auth.uid).child('rol').val() === 'administrador' || root.child('usuarios').child(auth.uid).child('rol').val() === 'gestor')",
+        ".write": "auth != null && (auth.uid === $uid || root.child('usuarios').child(auth.uid).child('rol').val() === 'administrador')",
+        ".validate": "newData.hasChildren(['uid', 'email', 'nombre', 'rol', 'estado', 'fechaCreacion'])",
+
+        "rol": {
+          ".validate": "newData.isString() && (newData.val() === 'administrador' || newData.val() === 'gestor' || newData.val() === 'tecnico' || newData.val() === 'cliente' || newData.val() === 'invitado')"
+        },
+        "estado": {
+          ".validate": "newData.isString() && (newData.val() === 'activo' || newData.val() === 'inactivo')"
+        },
+        "email": {
+          ".validate": "newData.isString() && newData.val().length > 0"
+        },
+        "nombre": {
+          ".validate": "newData.isString() && newData.val().length > 0"
+        }
+      }
+    },
+
+    "piscinas": {
+      ".read": "auth != null",
+      "$piscinaId": {
+        ".write": "auth != null && (root.child('usuarios').child(auth.uid).child('rol').val() === 'administrador' || root.child('usuarios').child(auth.uid).child('rol').val() === 'gestor' || root.child('usuarios').child(auth.uid).child('rol').val() === 'tecnico') && root.child('usuarios').child(auth.uid).child('estado').val() === 'activo'",
+        ".validate": "newData.hasChildren(['nombre'])"
+      },
+      "publica": {
+        ".read": true
+      }
+    },
+
+    "informes": {
+      ".read": "auth != null && root.child('usuarios').child(auth.uid).child('estado').val() === 'activo'",
+      "$informeId": {
+        ".write": "auth != null && (root.child('usuarios').child(auth.uid).child('rol').val() === 'administrador' || root.child('usuarios').child(auth.uid).child('rol').val() === 'gestor' || root.child('usuarios').child(auth.uid).child('rol').val() === 'tecnico') && root.child('usuarios').child(auth.uid).child('estado').val() === 'activo'",
+        ".validate": "newData.hasChildren(['fecha'])"
+      }
+    },
+
+    "presupuestos": {
+      ".read": "auth != null && root.child('usuarios').child(auth.uid).child('estado').val() === 'activo'",
+      "$presupuestoId": {
+        ".write": "auth != null && (root.child('usuarios').child(auth.uid).child('rol').val() === 'administrador' || root.child('usuarios').child(auth.uid).child('rol').val() === 'gestor') && root.child('usuarios').child(auth.uid).child('estado').val() === 'activo'",
+        ".validate": "newData.hasChildren(['fecha'])"
+      }
+    },
+
+    "presupuestos-mantenimiento": {
+      ".read": "auth != null && root.child('usuarios').child(auth.uid).child('estado').val() === 'activo'",
+      "$presupuestoId": {
+        ".write": "auth != null && (root.child('usuarios').child(auth.uid).child('rol').val() === 'administrador' || root.child('usuarios').child(auth.uid).child('rol').val() === 'gestor') && root.child('usuarios').child(auth.uid).child('estado').val() === 'activo'",
+        ".validate": "newData.hasChildren(['fecha'])"
+      }
+    },
+
+    "tareas": {
+      ".read": "auth != null && root.child('usuarios').child(auth.uid).child('estado').val() === 'activo'",
+      "$tareaId": {
+        ".write": "auth != null && (root.child('usuarios').child(auth.uid).child('rol').val() === 'administrador' || root.child('usuarios').child(auth.uid).child('rol').val() === 'gestor' || root.child('usuarios').child(auth.uid).child('rol').val() === 'tecnico') && root.child('usuarios').child(auth.uid).child('estado').val() === 'activo'",
+        ".validate": "newData.hasChildren(['titulo'])"
+      }
+    },
+
+    "libros": {
+      ".read": "auth != null && root.child('usuarios').child(auth.uid).child('estado').val() === 'activo'",
+      "$libroId": {
+        ".write": "auth != null && (root.child('usuarios').child(auth.uid).child('rol').val() === 'administrador' || root.child('usuarios').child(auth.uid).child('rol').val() === 'gestor') && root.child('usuarios').child(auth.uid).child('estado').val() === 'activo'",
+        ".validate": "newData.hasChildren(['titulo'])"
+      }
+    }
+
+  }
+}

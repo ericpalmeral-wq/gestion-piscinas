@@ -19,6 +19,7 @@ export class NavbarComponent implements OnInit {
   menuAbierto = false;
   menuAdminAbierto = signal<boolean>(false);
   menuUsuarioAbierto = signal<boolean>(false);
+  menuTareasAbierto = signal<boolean>(false);
   usuarioActual = signal<Usuario | null>(null);
 
   ngOnInit(): void {
@@ -36,10 +37,15 @@ export class NavbarComponent implements OnInit {
     this.menuAbierto = false;
     this.menuAdminAbierto.set(false);
     this.menuUsuarioAbierto.set(false);
+    this.menuTareasAbierto.set(false);
   }
 
   toggleMenuAdmin(): void {
     this.menuAdminAbierto.update(valor => !valor);
+  }
+
+  toggleMenuTareas(): void {
+    this.menuTareasAbierto.update(valor => !valor);
   }
 
   toggleMenuUsuario(): void {

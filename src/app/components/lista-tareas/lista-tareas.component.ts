@@ -76,7 +76,7 @@ export class ListaTareasComponent implements OnInit {
     this.error = null;
     this.tareasService.obtenerTodasLasTareas().subscribe({
       next: (tareas) => {
-        this.tareas = tareas.sort((a, b) => 
+        this.tareas = tareas.filter(t => t.estado !== 'facturado').sort((a, b) => 
           new Date(b.fechaCreacion).getTime() - new Date(a.fechaCreacion).getTime()
         );
         this.cargando = false;
@@ -187,6 +187,8 @@ export class ListaTareasComponent implements OnInit {
         return 'estado-en-progreso';
       case 'pendiente':
         return 'estado-pendiente';
+      case 'facturado':
+        return 'estado-facturado';
       default:
         return 'estado-pendiente';
     }
@@ -273,13 +275,27 @@ export class ListaTareasComponent implements OnInit {
     });
   }
 
+  facturarTarea(tarea: Tarea, event: Event): void {
+    event.stopPropagation();
+    if (!tarea.id) return;
+    if (!confirm('¿Marcar esta tarea como facturada? Dejará de aparecer en la lista de tareas activas.')) return;
+    this.tareasService.actualizarTarea(tarea.id, { estado: 'facturado' }).then(() => {
+      this.ngZone.run(() => {
+        this.tareas = this.tareas.filter(t => t.id !== tarea.id);
+        this.cdr.markForCheck();
+      });
+    }).catch((err) => {
+      console.error('Error al facturar tarea:', err);
+    });
+  }
+
   // Filtrado
   get tareasFiltradas(): Tarea[] {
     const termino = this.terminoBuscador.toLowerCase().trim();
     if (!termino) {
-      return this.tareas;
+      return this.tareas.filter(t => t.estado !== 'facturado');
     }
-    return this.tareas.filter(tarea =>
+    return this.tareas.filter(tarea => tarea.estado !== 'facturado' &&
       tarea.descripcion.toLowerCase().includes(termino) ||
       this.obtenerNombrePiscina(tarea.piscinaId).toLowerCase().includes(termino)
     );

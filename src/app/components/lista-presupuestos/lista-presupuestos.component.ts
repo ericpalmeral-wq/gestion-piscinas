@@ -149,6 +149,16 @@ export class ListaPresupuestosComponent implements OnInit {
     doc.text(descLines, 20, yPosition);
     yPosition += descLines.length * 5 + 5;
 
+    // Piscina
+    doc.setFontSize(11);
+    doc.setTextColor(102, 126, 234);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Piscina:', 20, yPosition);
+    doc.setTextColor(0, 0, 0);
+    doc.setFont('helvetica', 'normal');
+    doc.text(this.obtenerNombrePiscina(presupuesto.piscinaId), 60, yPosition);
+    yPosition += 10;
+
     // Fecha
     doc.setFontSize(11);
     doc.setTextColor(102, 126, 234);
@@ -244,7 +254,8 @@ export class ListaPresupuestosComponent implements OnInit {
       doc.text('€' + totalConIva.toFixed(2), 140, yPosition);
     }
 
-    doc.save(`presupuesto-${presupuesto.descripcion.substring(0, 20)}.pdf`);
+    const nombrePiscina = this.obtenerNombrePiscina(presupuesto.piscinaId).replace(/\s+/g, '_');
+    doc.save(`Presupuesto_${nombrePiscina}_${new Date().toISOString().split('T')[0]}.pdf`);
   }
 
   private cargarImagenBase64(url: string): Promise<string> {

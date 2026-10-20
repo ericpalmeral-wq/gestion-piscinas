@@ -15,6 +15,13 @@ export class TareasService {
     );
   }
 
+  obtenerTareasFacturadas(): Observable<Tarea[]> {
+    const q = query(this.tareasCollection, where('estado', '==', 'facturado'));
+    return from(getDocs(q)).pipe(
+      map(snapshot => snapshot.docs.map(doc => this.formatearTarea(doc)))
+    );
+  }
+
   obtenerTarea(id: string): Observable<Tarea | null> {
     const docRef = doc(this.firestore, 'tareas', id);
     return from(getDoc(docRef)).pipe(

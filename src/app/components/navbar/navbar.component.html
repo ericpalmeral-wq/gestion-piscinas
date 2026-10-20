@@ -58,15 +58,34 @@
           💰 Presupuestos
         </a>
       </li>
-      <li class="nav-item" *ngIf="esAdmin()">
-        <a
-          routerLink="/tareas"
-          routerLinkActive="activo"
-          class="nav-link"
-          (click)="cerrarMenu()"
-        >
+      <li class="nav-item nav-dropdown" *ngIf="esAdmin()">
+        <button class="nav-link dropdown-toggle" (click)="toggleMenuTareas()">
           ✓ Tareas
-        </a>
+          <span class="dropdown-icon" [class.activo]="menuTareasAbierto()">▼</span>
+        </button>
+        <ul class="dropdown-menu" [class.activo]="menuTareasAbierto()">
+          <li class="dropdown-item">
+            <a
+              routerLink="/tareas"
+              routerLinkActive="activo"
+              [routerLinkActiveOptions]="{ exact: true }"
+              class="dropdown-link"
+              (click)="cerrarMenu()"
+            >
+              ✓ Activas
+            </a>
+          </li>
+          <li class="dropdown-item">
+            <a
+              routerLink="/tareas-facturadas"
+              routerLinkActive="activo"
+              class="dropdown-link"
+              (click)="cerrarMenu()"
+            >
+              🧾 Facturadas
+            </a>
+          </li>
+        </ul>
       </li>
       <li class="nav-item" *ngIf="esAdmin()">
         <a

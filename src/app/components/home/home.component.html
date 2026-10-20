@@ -246,6 +246,19 @@
       <p>Listado completo de tareas del sistema</p>
     </div>
 
+    <!-- Pestañas -->
+    <div class="tabs-gestor" role="tablist">
+      <button type="button" role="tab" class="tab-gestor" [class.activa]="tabGestor === 'activas'"
+        [attr.aria-selected]="tabGestor === 'activas'" (click)="tabGestor = 'activas'">
+        ✅ Tareas <span class="tab-contador">{{ tareasFiltradasTotalGestor }}</span>
+      </button>
+      <button type="button" role="tab" class="tab-gestor" [class.activa]="tabGestor === 'facturadas'"
+        [attr.aria-selected]="tabGestor === 'facturadas'" (click)="tabGestor = 'facturadas'">
+        🧾 Facturadas <span class="tab-contador">{{ tareasFacturadasGestor.length }}</span>
+      </button>
+    </div>
+
+    <ng-container *ngIf="tabGestor === 'activas'">
     <div *ngIf="todasLasTareasGestor().length === 0" class="panel-vacio-gestor">
       <p class="icono-vacio">📋</p>
       <h3>No hay tareas registradas</h3>
@@ -289,7 +302,10 @@
               </span>
             </td>
             <td class="celda-acciones" (click)="$event.stopPropagation()">
-
+              <button class="btn-facturar-gestor" (click)="facturarTareaGestor(t, $event)" title="Marcar como facturada"
+                *ngIf="t.estado !== 'facturado'">
+                🧾
+              </button>
               <button class="btn-eliminar-gestor" (click)="eliminarTareaGestor(t.id, $event)" title="Eliminar">
                 🗑️
               </button>
@@ -299,7 +315,7 @@
       </table>
 
       <!-- Paginación -->
-      <div *ngIf="todasLasTareasGestor().length > elementosPorPaginaGestor" class="paginacion-gestor">
+      <div *ngIf="tareasFiltradas.length > elementosPorPaginaGestor" class="paginacion-gestor">
         <button (click)="paginaAnteriorGestor()" [disabled]="paginaActualGestor === 0" class="btn-paginacion-gestor">
           ← Anterior
         </button>
@@ -312,6 +328,54 @@
         </button>
       </div>
     </div>
+    </ng-container>
+
+    <!-- Tareas facturadas -->
+    <ng-container *ngIf="tabGestor === 'facturadas'">
+    <div *ngIf="tareasFacturadasGestor.length === 0" class="panel-vacio-gestor">
+      <p class="icono-vacio">🧾</p>
+      <h3>No hay tareas facturadas</h3>
+      <p>Las tareas marcadas como facturadas aparecerán aquí</p>
+    </div>
+
+    <div *ngIf="tareasFacturadasGestor.length > 0" class="tabla-tareas-gestor-contenedor">
+      <table class="tabla-tareas-gestor">
+        <thead>
+          <tr>
+            <th>Piscina</th>
+            <th>Descripción</th>
+            <th>Vencimiento</th>
+            <th>Estado</th>
+            <th>Prioridad</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let t of tareasFacturadasGestor" class="fila-tarea-gestor" (click)="abrirDetalleTarea(t)">
+            <td class="celda-piscina">{{ obtenerNombrePiscinaGestor(t.piscinaId) }}</td>
+            <td class="celda-descripcion">{{ t.descripcion }}</td>
+            <td class="celda-fecha">{{ formatearFecha(t.fechaVencimiento) }}</td>
+            <td class="celda-estado">
+              <span class="badge-estado" [ngClass]="obtenerClaseEstado(t.estado)">
+                {{ t.estado | uppercase }}
+              </span>
+            </td>
+            <td class="celda-prioridad">
+              <span class="badge-prioridad" [ngClass]="obtenerClasePrioridad(t.prioridad)">
+                {{ t.prioridad | uppercase }}
+              </span>
+            </td>
+            <td class="celda-acciones" (click)="$event.stopPropagation()">
+              <button class="btn-desfacturar-gestor" (click)="desfacturarTareaGestor(t, $event)"
+                title="Quitar de facturadas (volver a completada)">
+                ↩️
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    </ng-container>
   </section>
 
   <!-- ========== DASHBOARD CLIENTE ========== -->
@@ -623,6 +687,11 @@
       </div>
 
       <div class="detalle-tarea-info">
+        <div class="info-grupo">
+          <label>🏊 Piscina</label>
+          <p>{{ obtenerNombrePiscinaGestor(tareaSeleccionada.piscinaId) }}</p>
+        </div>
+
         <div class="info-grupo">
           <label>Descripción</label>
           <p class="descripcion-tarea">{{ tareaSeleccionada.descripcion }}</p>

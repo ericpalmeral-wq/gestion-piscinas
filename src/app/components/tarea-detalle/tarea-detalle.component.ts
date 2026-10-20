@@ -31,6 +31,7 @@ export class TareaDetalleComponent implements OnInit {
   guardando = false;
   error = '';
   esEdicion = false;
+  soloLectura = false;
   tareaId: string | null = null;
   enviado = false;
 
@@ -57,7 +58,8 @@ export class TareaDetalleComponent implements OnInit {
   ngOnInit(): void {
     this.cargarPiscinas();
     this.tareaId = this.route.snapshot.paramMap.get('id');
-    
+    this.soloLectura = this.route.snapshot.queryParamMap.get('modo') === 'ver';
+
     if (this.tareaId && this.tareaId !== 'nuevo') {
       this.cargarTarea(this.tareaId);
       this.esEdicion = true;
@@ -177,7 +179,26 @@ export class TareaDetalleComponent implements OnInit {
   }
 
   cancelar(): void {
-    this.router.navigate(['/tareas']);
+    if (this.soloLectura) {
+      this.router.navigate(['/tareas-facturadas']);
+    } else {
+      this.router.navigate(['/tareas']);
+    }
+  }
+
+  facturarTarea(): void {
+    if (!this.tareaId) return;
+    if (!confirm('¿Marcar esta tarea como facturada? Pasará al archivo de tareas facturadas.')) return;
+    this.guardando = true;
+    this.tareasService.actualizarTarea(this.tareaId, { estado: 'facturado' }).then(() => {
+      this.guardando = false;
+      this.router.navigate(['/tareas-facturadas']);
+    }).catch(err => {
+      console.error('Error al facturar tarea:', err);
+      this.error = 'Error al facturar la tarea. Intenta de nuevo.';
+      this.guardando = false;
+      this.cdr.markForCheck();
+    });
   }
 
   obtenerNombrePiscina(piscinaId: string): string {

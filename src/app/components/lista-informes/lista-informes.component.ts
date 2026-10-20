@@ -106,6 +106,18 @@ export class ListaInformesComponent implements OnInit {
   }
 
   generarPDFInforme(informe: Informe): void {
+    this.generarPDFInformeAsync(informe);
+  }
+
+  private async generarPDFInformeAsync(informe: Informe): Promise<void> {
+    let logoDataUrl: string | null = null;
+    let logoAspectRatio = 3; // fallback ratio width/height
+    try {
+      const result = await this.cargarImagenBase64('assets/images/logo-ejl.png');
+      logoDataUrl = result.dataUrl;
+      logoAspectRatio = result.aspectRatio;
+    } catch { /* logo no disponible, continuar sin él */ }
+
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
     const pageHeight = doc.internal.pageSize.getHeight();
@@ -115,16 +127,21 @@ export class ListaInformesComponent implements OnInit {
     doc.setFillColor(245, 158, 11);
     doc.rect(0, 0, pageWidth, 50, 'F');
 
-    // Encabezado principal
-    doc.setFontSize(28);
-    doc.setTextColor(255, 255, 255);
-    doc.setFont('helvetica', 'bold');
-    doc.text('GestiPool', 20, 28);
-
-    doc.setFontSize(11);
-    doc.setFont('helvetica', 'normal');
-    doc.setTextColor(245, 220, 180);
-    doc.text('Sistema de Gestión de Piscinas', 20, 36);
+    // Logo o texto de empresa en encabezado
+    if (logoDataUrl) {
+      const logoH = 28;
+      const logoW = logoH * logoAspectRatio;
+      doc.addImage(logoDataUrl, 'PNG', 14, 11, logoW, logoH);
+    } else {
+      doc.setFontSize(28);
+      doc.setTextColor(255, 255, 255);
+      doc.setFont('helvetica', 'bold');
+      doc.text('GestiPool', 20, 28);
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(245, 220, 180);
+      doc.text('Sistema de Gestión de Piscinas', 20, 36);
+    }
 
     doc.setFontSize(18);
     doc.setTextColor(255, 255, 255);
@@ -286,7 +303,13 @@ export class ListaInformesComponent implements OnInit {
     doc.setFontSize(8);
     doc.setTextColor(150, 150, 150);
     doc.setFont('helvetica', 'normal');
-    doc.text('GestiPool - Sistema de Gestión de Piscinas', pageWidth / 2, yPosition, { align: 'center' });
+    if (logoDataUrl) {
+      const footerLogoH = 8;
+      const footerLogoW = footerLogoH * logoAspectRatio;
+      doc.addImage(logoDataUrl, 'PNG', (pageWidth - footerLogoW) / 2, yPosition - 6, footerLogoW, footerLogoH);
+    } else {
+      doc.text('GestiPool - Sistema de Gestión de Piscinas', pageWidth / 2, yPosition, { align: 'center' });
+    }
     
     yPosition += 4;
     const fechaGeneracion = new Date().toLocaleDateString('es-ES', {
@@ -352,5 +375,25 @@ export class ListaInformesComponent implements OnInit {
   actualizarBuscador(termino: string): void {
     this.terminoBuscador = termino;
     this.paginaActual = 0; // Volver a primera página al buscar
+  }
+
+  private cargarImagenBase64(url: string): Promise<{ dataUrl: string; aspectRatio: number }> {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+        const ctx = canvas.getContext('2d')!;
+        ctx.drawImage(img, 0, 0);
+        resolve({
+          dataUrl: canvas.toDataURL('image/png'),
+          aspectRatio: img.naturalWidth / img.naturalHeight
+        });
+      };
+      img.onerror = reject;
+      img.src = url;
+    });
   }
 }
